@@ -82,9 +82,11 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
     # Dictionaries
     lineup_type_count = {(t,w): so.expr_sum(lineup[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
     squad_type_count = {(t,w): so.expr_sum(squad[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
-    player_price = (merged_data['now_cost'] / 10).to_dict()
-    sold_amount = {w: so.expr_sum(player_price[p] * transfer_out[p,w] for p in players) for w in gameweeks}
-    bought_amount = {w: so.expr_sum(player_price[p] * transfer_in[p,w] for p in players) for w in gameweeks}
+    # player_price = (merged_data['now_cost'] / 10).to_dict()
+    sell_price = (merged_data['SV'] / 10).to_dict()
+    buy_price = (merged_data['BV'] / 10).to_dict()
+    sold_amount = {w: so.expr_sum(sell_price[p] * transfer_out[p,w] for p in players) for w in gameweeks}
+    bought_amount = {w: so.expr_sum(buy_price[p] * transfer_in[p,w] for p in players) for w in gameweeks}
     points_player_week = {(p,w): merged_data.loc[p, f'{w}_Pts']    for p in players for w in gameweeks}
     squad_count = {w: so.expr_sum(squad[p, w] for p in players) for w in gameweeks}
     number_of_transfers = {w: so.expr_sum(transfer_out[p,w] for p in players) for w in gameweeks}
@@ -156,10 +158,10 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
                 is_transfer_out = 1 if transfer_out[p,w].get_value() > 0.5 else 0
                 position = type_data.loc[lp['element_type'], 'singular_name_short']
                 picks.append([
-                    w, lp['web_name'], position, lp['element_type'], lp['name'], player_price[p], round(points_player_week[p,w],2), is_lineup, is_captain, is_vice, is_transfer_in, is_transfer_out
+                    w, lp['web_name'], position, lp['element_type'], lp['name'], buy_price[p], sell_price[p], round(points_player_week[p,w],2), is_lineup, is_captain, is_vice, is_transfer_in, is_transfer_out
                 ])
 
-    picks_df = pd.DataFrame(picks, columns=['week', 'name', 'pos', 'type', 'team', 'price', 'xP', 'lineup', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
+    picks_df = pd.DataFrame(picks, columns=['week', 'name', 'pos', 'type', 'team', 'buy_price', 'sell_price', 'xP', 'lineup', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
     total_xp = so.expr_sum((lineup[p,w] + captain[p,w]) * points_player_week[p,w] for p in players for w in gameweeks).get_value()
 
     # Writing summary
