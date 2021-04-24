@@ -125,10 +125,10 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
     gw_total = {w: gw_xp[w] - 4 * penalized_transfers[w] for w in gameweeks}
     if objective == 'regular':
         total_xp = so.expr_sum(gw_total[w] for w in gameweeks)
-        model.set_objective(-total_xp, sense='N', name='trxp')
+        model.set_objective(-total_xp, sense='N', name='total_regular_xp')
     else:
         decay_objective = so.expr_sum(gw_total[w] * pow(decay_base, w-next_gw) for w in gameweeks)
-        model.set_objective(-decay_objective, sense='N', name='tdxp')
+        model.set_objective(-decay_objective, sense='N', name='total_decay_xp')
 
     # Solve
     model.export_mps(f'{problem_name}.mps')
