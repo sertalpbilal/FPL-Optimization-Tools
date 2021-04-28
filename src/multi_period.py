@@ -83,8 +83,8 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
     lineup_type_count = {(t,w): so.expr_sum(lineup[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
     squad_type_count = {(t,w): so.expr_sum(squad[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
     # player_price = (merged_data['now_cost'] / 10).to_dict()
-    sell_price = (merged_data['SV'] / 10).to_dict()
-    buy_price = (merged_data['BV'] / 10).to_dict()
+    sell_price = (merged_data['SV']).to_dict()
+    buy_price = (merged_data['BV']).to_dict()
     sold_amount = {w: so.expr_sum(sell_price[p] * transfer_out[p,w] for p in players) for w in gameweeks}
     bought_amount = {w: so.expr_sum(buy_price[p] * transfer_in[p,w] for p in players) for w in gameweeks}
     points_player_week = {(p,w): merged_data.loc[p, f'{w}_Pts']    for p in players for w in gameweeks}
