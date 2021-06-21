@@ -319,10 +319,10 @@ if __name__ == '__main__':
 
     # Generating Alternative Solutions
 
-    r = solve_decision_support(team_id=216079, gw=35, 
+    r = solve_decision_support(team_id=159049, gw=35, 
         options={
-            'number_of_solutions': 5,
-            'horizon':3, 
+            'number_of_solutions': 10,
+            'horizon':4,
             'objective':'regular', # you can use 'regular' or 'decay'
             'alternative_solution': '1gw-buy'} # you can use '1gw-buy', '1gw-buy-sell', 'horizon-buy', 'horizon-buy-sell'
         )
