@@ -127,7 +127,7 @@ def print_solution(m, gws, fdr):
         return d
     s2.apply(color_based_on_selection, axis=None)
     # display(HTML(s2.render()))
-    return selected_teams
+    return {'teams': selected_teams, 'values': pick_df, 'rotation': selected_fixture}
 
 def solve_N_pick_K_pair_problem(N=3, K=2, max_iter=1, first_gw=1, last_gw=38, exclude=[], hfa=0.15):
     if last_gw > 38:
@@ -158,7 +158,7 @@ def solve_N_pick_K_pair_problem(N=3, K=2, max_iter=1, first_gw=1, last_gw=38, ex
     command = f"cbc tmp/{problem_name}.mps solve solu tmp/{problem_name}.sol"
     stout, sterr = Popen(command).communicate()
     read_solution(m, f'tmp/{problem_name}.sol')
-    selected_teams = print_solution(m, gameweeks, fdr)
+    sol = print_solution(m, gameweeks, fdr)
     # for it in range(1, max_iter):
     #     c = m.add_constraint(so.expr_sum(pick_team[t] for t in selected_teams) <= N-1, name=f'cutoff_{it}')
     #     m.export_mps("fdr.mps")
@@ -166,7 +166,7 @@ def solve_N_pick_K_pair_problem(N=3, K=2, max_iter=1, first_gw=1, last_gw=38, ex
     #     read_solution(m, f'tmp/{problem_name}.sol')
     #     selected_teams = print_solution(m, gameweeks, fdr)
 
-    return {'teams': selected_teams, 'total_diff': m.get_objective_value(), 'avg_diff': m.get_objective_value()/(last_gw-first_gw+1)}
+    return {'teams': sol['teams'], 'total_diff': m.get_objective_value(), 'avg_diff': m.get_objective_value()/(last_gw-first_gw+1)/K}
 
 def wrapper(kwargs):
     return solve_N_pick_K_pair_problem(**kwargs)
@@ -174,8 +174,8 @@ def wrapper(kwargs):
 if __name__ == "__main__":
     from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
     from itertools import repeat
-    N = 3
-    K = 2
+    N = 1
+    K = 1
     gw_range = list(range(N,11))
     start_gw = list(range(1,39-N+1))
     all_pairs = [(sw, g) for sw in start_gw for g in gw_range]
@@ -201,7 +201,14 @@ if __name__ == "__main__":
     writer = pd.ExcelWriter(f'res/optimal_N{N}_K{K}.xlsx')
     pvt1 = df.groupby(['start_gw', 'gw_range'], sort=False)['teams'].first().unstack('gw_range')
     pvt2 = df.groupby(['start_gw', 'gw_range'], sort=False)['avg_diff'].first().unstack('gw_range')
-    pvt1.to_excel(writer, sheet_name='Teams')
-    pvt2.to_excel(writer, sheet_name='AvgRating')
+    same_sheet = False
+    if same_sheet:
+        sheet1 = writer.book.add_worksheet("Solution")
+        writer.sheets["Solution"] = sheet1
+        pvt1.to_excel(writer, sheet_name="Solution")  # sheet_name='Teams')
+        pvt2.to_excel(writer, sheet_name="Solution", startrow=0, startcol=12-N) # sheet_name='AvgRating')
+    else:
+        pvt1.to_excel(writer, sheet_name='Teams')
+        pvt2.to_excel(writer, sheet_name='AvgRating')
     writer.save()
 
