@@ -174,8 +174,8 @@ def wrapper(kwargs):
 if __name__ == "__main__":
     from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor
     from itertools import repeat
-    N = 1
-    K = 1
+    N = 5
+    K = 3
     gw_range = list(range(N,11))
     start_gw = list(range(1,39-N+1))
     all_pairs = [(sw, g) for sw in start_gw for g in gw_range]
