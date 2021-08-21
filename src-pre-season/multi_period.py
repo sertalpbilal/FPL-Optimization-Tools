@@ -43,6 +43,7 @@ def solve_multi_period_pre_season_fpl(horizon, objective='regular', decay_base=0
     problem_name = f'mp_h{horizon}_regular' if objective == 'regular' else f'mp_h{horizon}_o{objective[0]}_d{decay_base}'
     data = get_data()
     merged_data = data['merged_data']
+    merged_data.drop_duplicates(inplace=True, keep='first') # Fix for duplicate lines
     team_data = data['team_data']
     type_data = data['type_data']
     next_gw = data['next_gw']
