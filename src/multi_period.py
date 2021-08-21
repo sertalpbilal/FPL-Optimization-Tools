@@ -13,7 +13,10 @@ def get_data(team_id, gw):
     elements_team = pd.merge(element_data, team_data, left_on='team', right_on='id')
     review_data = pd.read_csv('../data/fplreview.csv')
     review_data = review_data.fillna(0)
-    merged_data = pd.merge(elements_team, review_data, left_on=['name', 'web_name'], right_on=['Team', 'Name'])
+    # Fix for 2021-2022 season
+    review_data['review_id'] = review_data.index+1
+    # merged_data = pd.merge(elements_team, review_data, left_on=['name', 'web_name'], right_on=['Team', 'Name'])
+    merged_data = pd.merge(elements_team, review_data, left_on='id_x', right_on='review_id')
     merged_data.set_index(['id_x'], inplace=True)
     next_gw = int(review_data.keys()[5].split('_')[0])
     type_data = pd.DataFrame(fpl_data['element_types']).set_index(['id'])
@@ -179,12 +182,12 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
 
 if __name__ == '__main__':
 
-    r = solve_multi_period_fpl(team_id=216079, gw=33, ft=1, horizon=4, objective='regular')
+    r = solve_multi_period_fpl(team_id=7331, gw=3, ft=2, horizon=3, objective='regular')
     print(r['picks'])
     print(r['summary'])
     r['picks'].to_csv('optimal_plan_regular.csv')
 
-    r = solve_multi_period_fpl(team_id=216079, gw=33, ft=1, horizon=4, objective='decay', decay_base=0.84)
+    r = solve_multi_period_fpl(team_id=7331, gw=3, ft=2, horizon=3, objective='decay', decay_base=0.84)
     print(r['picks'])
     print(r['summary'])
     r['picks'].to_csv('optimal_plan_decay.csv')
