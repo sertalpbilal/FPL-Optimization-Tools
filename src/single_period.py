@@ -15,7 +15,8 @@ def get_data():
     team_data = pd.DataFrame(fpl_data['teams'])
     elements_team = pd.merge(element_data, team_data, left_on='team', right_on='id')
     review_data = pd.read_csv('../data/fplreview.csv')
-    merged_data = pd.merge(elements_team, review_data, left_on=['name', 'web_name'], right_on=['Team', 'Name'])
+    review_data['review_id'] = review_data.index+1
+    merged_data = pd.merge(elements_team, review_data, left_on='id_x', right_on='review_id')
     merged_data.set_index(['id_x'], inplace=True)
     next_gw = int(review_data.keys()[5].split('_')[0])
     type_data = pd.DataFrame(fpl_data['element_types']).set_index(['id'])
