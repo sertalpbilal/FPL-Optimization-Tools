@@ -66,6 +66,8 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
     teams = team_data['name'].to_list()
     gameweeks = list(range(next_gw, next_gw+horizon))
     all_gw = [next_gw-1] + gameweeks
+    order = [0, 1, 2, 3]
+    bench_weights = {0: 0.03, 1: 0.21, 2: 0.06, 3: 0.002}
 
     # Model
     model = so.Model(name=problem_name)
@@ -75,6 +77,7 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
     lineup = model.add_variables(players, gameweeks, name='lineup', vartype=so.binary)
     captain = model.add_variables(players, gameweeks, name='captain', vartype=so.binary)
     vicecap = model.add_variables(players, gameweeks, name='vicecap', vartype=so.binary)
+    bench = model.add_variables(players, gameweeks, order, name='bench', vartype=so.binary)
     transfer_in = model.add_variables(players, gameweeks, name='transfer_in', vartype=so.binary)
     transfer_out = model.add_variables(players, gameweeks, name='transfer_out', vartype=so.binary)
     in_the_bank = model.add_variables(all_gw, name='itb', vartype=so.continuous, lb=0)
@@ -85,6 +88,7 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
     # Dictionaries
     lineup_type_count = {(t,w): so.expr_sum(lineup[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
     squad_type_count = {(t,w): so.expr_sum(squad[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
+    player_type = merged_data['element_type'].to_dict()
     # player_price = (merged_data['now_cost'] / 10).to_dict()
     sell_price = (merged_data['SV']).to_dict()
     buy_price = (merged_data['BV']).to_dict()
@@ -105,12 +109,16 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
     # Constraints
     model.add_constraints((squad_count[w] == 15 for w in gameweeks), name='squad_count')
     model.add_constraints((so.expr_sum(lineup[p,w] for p in players) == 11 for w in gameweeks), name='lineup_count')
+    model.add_constraints((so.expr_sum(bench[p,w,0] for p in players if player_type[p] == 1) == 1 for w in gameweeks), name='bench_gk')
+    model.add_constraints((so.expr_sum(bench[p,w,o] for p in players) == 1 for w in gameweeks for o in [1,2,3]), name='bench_count')
     model.add_constraints((so.expr_sum(captain[p,w] for p in players) == 1 for w in gameweeks), name='captain_count')
     model.add_constraints((so.expr_sum(vicecap[p,w] for p in players) == 1 for w in gameweeks), name='vicecap_count')
     model.add_constraints((lineup[p,w] <= squad[p,w] for p in players for w in gameweeks), name='lineup_squad_rel')
+    model.add_constraints((bench[p,w,o] <= squad[p,w] for p in players for w in gameweeks for o in order), name='bench_squad_rel')
     model.add_constraints((captain[p,w] <= lineup[p,w] for p in players for w in gameweeks), name='captain_lineup_rel')
     model.add_constraints((vicecap[p,w] <= lineup[p,w] for p in players for w in gameweeks), name='vicecap_lineup_rel')
     model.add_constraints((captain[p,w] + vicecap[p,w] <= 1 for p in players for w in gameweeks), name='cap_vc_rel')
+    model.add_constraints((lineup[p,w] + so.expr_sum(bench[p,w,o] for o in order) <= 1 for p in players for w in gameweeks), name='lineup_bench_rel')
     model.add_constraints((lineup_type_count[t,w] == [type_data.loc[t, 'squad_min_play'], type_data.loc[t, 'squad_max_play']] for t in element_types for w in gameweeks), name='valid_formation')
     model.add_constraints((squad_type_count[t,w] == type_data.loc[t, 'squad_select'] for t in element_types for w in gameweeks), name='valid_squad')
     model.add_constraints((so.expr_sum(squad[p,w] for p in players if merged_data.loc[p, 'name'] == t) <= 3 for t in teams for w in gameweeks), name='team_limit')
@@ -124,7 +132,7 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
     model.add_constraints((penalized_transfers[w] >= transfer_diff[w] for w in gameweeks), name='pen_transfer_rel')
 
     # Objectives
-    gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w]) for p in players) for w in gameweeks}
+    gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
     gw_total = {w: gw_xp[w] - 4 * penalized_transfers[w] for w in gameweeks}
     if objective == 'regular':
         total_xp = so.expr_sum(gw_total[w] for w in gameweeks)
@@ -159,12 +167,16 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
                 is_vice = 1 if vicecap[p,w].get_value() > 0.5 else 0
                 is_transfer_in = 1 if transfer_in[p,w].get_value() > 0.5 else 0
                 is_transfer_out = 1 if transfer_out[p,w].get_value() > 0.5 else 0
+                bench_value = -1
+                for o in order:
+                    if bench[p,w,o].get_value() > 0.5:
+                        bench_value = o
                 position = type_data.loc[lp['element_type'], 'singular_name_short']
                 picks.append([
-                    w, lp['web_name'], position, lp['element_type'], lp['name'], buy_price[p], sell_price[p], round(points_player_week[p,w],2), is_lineup, is_captain, is_vice, is_transfer_in, is_transfer_out
+                    w, lp['web_name'], position, lp['element_type'], lp['name'], buy_price[p], sell_price[p], round(points_player_week[p,w],2), is_lineup, bench_value, is_captain, is_vice, is_transfer_in, is_transfer_out
                 ])
 
-    picks_df = pd.DataFrame(picks, columns=['week', 'name', 'pos', 'type', 'team', 'buy_price', 'sell_price', 'xP', 'lineup', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
+    picks_df = pd.DataFrame(picks, columns=['week', 'name', 'pos', 'type', 'team', 'buy_price', 'sell_price', 'xP', 'lineup', 'bench', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
     total_xp = so.expr_sum((lineup[p,w] + captain[p,w]) * points_player_week[p,w] for p in players for w in gameweeks).get_value()
 
     # Writing summary
@@ -182,12 +194,12 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
 
 if __name__ == '__main__':
 
-    r = solve_multi_period_fpl(team_id=7331, gw=3, ft=2, horizon=3, objective='regular')
+    r = solve_multi_period_fpl(team_id=7331, gw=4, ft=1, horizon=3, objective='regular')
     print(r['picks'])
     print(r['summary'])
     r['picks'].to_csv('optimal_plan_regular.csv')
 
-    r = solve_multi_period_fpl(team_id=7331, gw=3, ft=2, horizon=3, objective='decay', decay_base=0.84)
-    print(r['picks'])
-    print(r['summary'])
-    r['picks'].to_csv('optimal_plan_decay.csv')
+    # r = solve_multi_period_fpl(team_id=7331, gw=3, ft=2, horizon=3, objective='decay', decay_base=0.84)
+    # print(r['picks'])
+    # print(r['summary'])
+    # r['picks'].to_csv('optimal_plan_decay.csv')
