@@ -1,3 +1,10 @@
 *.txt
 *.mps
+*.sol
+*.cmd
+*.code-workspace
 output/*
+archive/*
+solver/*
+*/.ipynb_checkpoints/*
+data/fplreview.csv
