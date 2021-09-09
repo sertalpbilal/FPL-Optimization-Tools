@@ -5,6 +5,12 @@ import os
 import time
 from subprocess import Popen, DEVNULL
 
+
+def xmin_to_prob(xmin, sub_on=0.5, sub_off=0.3):
+    start = min( max ( (xmin - 25 * sub_on) / (90 * (1-sub_off) + 65 * sub_off - 25 * sub_on), 0.001), 0.999)
+    return start + (1-start) * sub_on
+
+
 def get_data(team_id, gw):
     r = requests.get('https://fantasy.premierleague.com/api/bootstrap-static/')
     fpl_data = r.json()
@@ -18,6 +24,14 @@ def get_data(team_id, gw):
     # merged_data = pd.merge(elements_team, review_data, left_on=['name', 'web_name'], right_on=['Team', 'Name'])
     merged_data = pd.merge(elements_team, review_data, left_on='id_x', right_on='review_id')
     merged_data.set_index(['id_x'], inplace=True)
+
+    # Changes for random noise -- coming soon!
+    # rng = np.random.default_rng(seed = seed_val)
+    # gws = list(range(gw, min(39, gw+gw_range)))
+    # for w in gameweeks
+    #   noise = merged_data[f"{w}_Pts"] * (120 - vals[f"{w}_xMins"]) / 300 * rng.standard_normal(size=len(vals)) * magnitude
+
+
     next_gw = int(review_data.keys()[5].split('_')[0])
     type_data = pd.DataFrame(fpl_data['element_types']).set_index(['id'])
 
@@ -30,7 +44,8 @@ def get_data(team_id, gw):
 
     return {'merged_data': merged_data, 'team_data': team_data, 'type_data': type_data, 'next_gw': next_gw, 'initial_squad': initial_squad, 'itb': itb}
 
-def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_base=0.84):
+
+def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_base=0.84, bench_weights=None):
     """
     Solves multi-objective FPL problem with transfers
 
@@ -67,7 +82,8 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
     gameweeks = list(range(next_gw, next_gw+horizon))
     all_gw = [next_gw-1] + gameweeks
     order = [0, 1, 2, 3]
-    bench_weights = {0: 0.03, 1: 0.21, 2: 0.06, 3: 0.002}
+    if bench_weights is None:
+        bench_weights = {0: 0.03, 1: 0.21, 2: 0.06, 3: 0.002}
 
     # Model
     model = so.Model(name=problem_name)
@@ -94,7 +110,8 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
     buy_price = (merged_data['BV']).to_dict()
     sold_amount = {w: so.expr_sum(sell_price[p] * transfer_out[p,w] for p in players) for w in gameweeks}
     bought_amount = {w: so.expr_sum(buy_price[p] * transfer_in[p,w] for p in players) for w in gameweeks}
-    points_player_week = {(p,w): merged_data.loc[p, f'{w}_Pts']    for p in players for w in gameweeks}
+    points_player_week = {(p,w): merged_data.loc[p, f'{w}_Pts'] for p in players for w in gameweeks}
+    minutes_player_week = {(p,w): merged_data.loc[p, f'{w}_xMins'] for p in players for w in gameweeks}
     squad_count = {w: so.expr_sum(squad[p, w] for p in players) for w in gameweeks}
     number_of_transfers = {w: so.expr_sum(transfer_out[p,w] for p in players) for w in gameweeks}
     number_of_transfers[next_gw-1] = 1
@@ -173,10 +190,10 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
                         bench_value = o
                 position = type_data.loc[lp['element_type'], 'singular_name_short']
                 picks.append([
-                    w, lp['web_name'], position, lp['element_type'], lp['name'], buy_price[p], sell_price[p], round(points_player_week[p,w],2), is_lineup, bench_value, is_captain, is_vice, is_transfer_in, is_transfer_out
+                    w, lp['web_name'], position, lp['element_type'], lp['name'], buy_price[p], sell_price[p], round(points_player_week[p,w],2), minutes_player_week[p,w], is_lineup, bench_value, is_captain, is_vice, is_transfer_in, is_transfer_out
                 ])
 
-    picks_df = pd.DataFrame(picks, columns=['week', 'name', 'pos', 'type', 'team', 'buy_price', 'sell_price', 'xP', 'lineup', 'bench', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
+    picks_df = pd.DataFrame(picks, columns=['week', 'name', 'pos', 'type', 'team', 'buy_price', 'sell_price', 'xP', 'xMin', 'lineup', 'bench', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
     total_xp = so.expr_sum((lineup[p,w] + captain[p,w]) * points_player_week[p,w] for p in players for w in gameweeks).get_value()
 
     # Writing summary
@@ -192,14 +209,49 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
 
     return {'model': model, 'picks': picks_df, 'total_xp': total_xp, 'summary': summary_of_actions}
 
-if __name__ == '__main__':
 
+def solve_standard_problem():
     r = solve_multi_period_fpl(team_id=7331, gw=4, ft=1, horizon=3, objective='regular')
     print(r['picks'])
     print(r['summary'])
     r['picks'].to_csv('optimal_plan_regular.csv')
-
+    
     # r = solve_multi_period_fpl(team_id=7331, gw=3, ft=2, horizon=3, objective='decay', decay_base=0.84)
     # print(r['picks'])
     # print(r['summary'])
     # r['picks'].to_csv('optimal_plan_decay.csv')
+
+
+def solve_autobench_problem():
+    r = solve_multi_period_fpl(team_id=7331, gw=4, ft=1, horizon=3, objective='regular')
+    print(r['picks'])
+    print(r['summary'])
+    r['picks'].to_csv('optimal_plan_regular_stage_1.csv')
+
+    df = r['picks']
+    lineup_gk = df[(df['week'] == 4) & (df['pos'] == 'GKP') & (df['lineup'] == 1)]
+    lineup_gk = lineup_gk.iloc[0]
+    lineup_gk_mins = lineup_gk['xMin']
+    gk_autosub_prob = xmin_to_prob(lineup_gk_mins, sub_on=0, sub_off=0)
+    gk_weight = 1-gk_autosub_prob
+
+    field_players = df[(df['week'] == 4) & (df['pos'] != 'GKP') & (df['lineup'] == 1)]
+    field_players_xmins = field_players['xMin'].tolist()
+    field_players_probs = [xmin_to_prob(i) for i in field_players_xmins]
+
+    prob = 1
+    for i in field_players_probs:
+        prob *= i
+    bench_1_weight = 1 - prob
+
+    bench_weights = {0: gk_weight, 1: bench_1_weight, 2: 0.06, 3: 0.002}
+    r = solve_multi_period_fpl(team_id=7331, gw=4, ft=1, horizon=3, objective='regular', bench_weights=bench_weights)
+    print(r['picks'])
+    print(r['summary'])
+    r['picks'].to_csv('optimal_plan_regular_stage_2.csv')
+
+
+if __name__ == '__main__':
+
+    # solve_standard_problem() # Episode 3 & 5
+    solve_autobench_problem() # Episode 6
