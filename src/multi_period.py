@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import sasoptpy as so
 import requests
 import os
@@ -11,7 +12,7 @@ def xmin_to_prob(xmin, sub_on=0.5, sub_off=0.3):
     return start + (1-start) * sub_on
 
 
-def get_data(team_id, gw):
+def get_data(team_id, gw, seed_val, horizon, randomized):
     r = requests.get('https://fantasy.premierleague.com/api/bootstrap-static/')
     fpl_data = r.json()
     element_data = pd.DataFrame(fpl_data['elements'])
@@ -19,18 +20,16 @@ def get_data(team_id, gw):
     elements_team = pd.merge(element_data, team_data, left_on='team', right_on='id')
     review_data = pd.read_csv('../data/fplreview.csv')
     review_data = review_data.fillna(0)
-    # Fix for 2021-2022 season
     review_data['review_id'] = review_data.index+1
-    # merged_data = pd.merge(elements_team, review_data, left_on=['name', 'web_name'], right_on=['Team', 'Name'])
     merged_data = pd.merge(elements_team, review_data, left_on='id_x', right_on='review_id')
     merged_data.set_index(['id_x'], inplace=True)
 
-    # Changes for random noise -- coming soon!
-    # rng = np.random.default_rng(seed = seed_val)
-    # gws = list(range(gw, min(39, gw+gw_range)))
-    # for w in gameweeks
-    #   noise = merged_data[f"{w}_Pts"] * (120 - vals[f"{w}_xMins"]) / 300 * rng.standard_normal(size=len(vals)) * magnitude
-
+    if randomized:
+        rng = np.random.default_rng(seed = seed_val)
+        gws = list(range(gw, min(39, gw+horizon)))
+        for w in gws:
+            noise = merged_data[f"{w}_Pts"] * (92 - merged_data[f"{w}_xMins"]) / 134 * rng.standard_normal(size=len(merged_data))
+            merged_data[f"{w}_Pts"] = merged_data[f"{w}_Pts"] + noise
 
     next_gw = int(review_data.keys()[5].split('_')[0])
     type_data = pd.DataFrame(fpl_data['element_types']).set_index(['id'])
@@ -45,7 +44,7 @@ def get_data(team_id, gw):
     return {'merged_data': merged_data, 'team_data': team_data, 'type_data': type_data, 'next_gw': next_gw, 'initial_squad': initial_squad, 'itb': itb}
 
 
-def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_base=0.84, bench_weights=None):
+def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_base=0.84, bench_weights=None, seed=None, randomized=False):
     """
     Solves multi-objective FPL problem with transfers
 
@@ -67,7 +66,7 @@ def solve_multi_period_fpl(team_id, gw, ft, horizon, objective='regular', decay_
 
     # Data
     problem_name = f'mp_h{horizon}_regular' if objective == 'regular' else f'mp_h{horizon}_o{objective[0]}_d{decay_base}'
-    data = get_data(team_id, gw-1)
+    data = get_data(team_id, gw-1, seed, horizon, randomized)
     merged_data = data['merged_data']
     team_data = data['team_data']
     type_data = data['type_data']
@@ -250,8 +249,15 @@ def solve_autobench_problem():
     print(r['summary'])
     r['picks'].to_csv('optimal_plan_regular_stage_2.csv')
 
+def solve_randomized_problem(): # Episode 7
+    r = solve_multi_period_fpl(team_id=7331, gw=5, ft=1, horizon=3, objective='regular', seed=None, randomized=True)
+    print(r['picks'])
+    print(r['summary'])
+    r['picks'].to_csv('optimal_plan_randomized.csv')
 
 if __name__ == '__main__':
 
-    # solve_standard_problem() # Episode 3 & 5
-    solve_autobench_problem() # Episode 6
+    solve_standard_problem() # Episode 3 & 5
+    # solve_autobench_problem() # Episode 6
+    solve_randomized_problem()
+
