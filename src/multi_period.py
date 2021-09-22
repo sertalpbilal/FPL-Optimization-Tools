@@ -26,7 +26,7 @@ def get_data(team_id, gw, seed_val, horizon, randomized):
 
     if randomized:
         rng = np.random.default_rng(seed = seed_val)
-        gws = list(range(gw, min(39, gw+horizon)))
+        gws = list(range(gw+1, min(39, gw+1+horizon)))
         for w in gws:
             noise = merged_data[f"{w}_Pts"] * (92 - merged_data[f"{w}_xMins"]) / 134 * rng.standard_normal(size=len(merged_data))
             merged_data[f"{w}_Pts"] = merged_data[f"{w}_Pts"] + noise
