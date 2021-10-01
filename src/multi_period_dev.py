@@ -56,10 +56,10 @@ def xmin_to_prob(xmin, sub_on=0.5, sub_off=0.3):
 
 
 # def solve_randomized_problem():
-    r = solve_multi_period_fpl(team_id=7331, gw=5, ft=1, horizon=3, objective='regular', seed=None, randomized=True)
-    print(r['picks'])
-    print(r['summary'])
-    r['picks'].to_csv('optimal_plan_randomized.csv')
+#     r = solve_multi_period_fpl(team_id=7331, gw=5, ft=1, horizon=3, objective='regular', seed=None, randomized=True)
+#     print(r['picks'])
+#     print(r['summary'])
+#     r['picks'].to_csv('optimal_plan_randomized.csv')
 
 
 def connect():
