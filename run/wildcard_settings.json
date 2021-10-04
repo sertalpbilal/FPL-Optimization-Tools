@@ -1,0 +1,9 @@
+{ 
+    "horizon": 4,
+    "use_wc": 8,
+    "no_future_transfer": true,
+    "randomized": false,
+    "wc_limit": 1,
+    "banned": [],
+    "delete_tmp": true
+}

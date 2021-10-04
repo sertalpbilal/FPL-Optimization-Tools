@@ -8,6 +8,12 @@ from subprocess import Popen, DEVNULL
 from pathlib import Path
 import json
 from requests import Session
+import random
+import string
+
+
+def get_random_id(n):
+    return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
 
 
 def xmin_to_prob(xmin, sub_on=0.5, sub_off=0.3):
@@ -166,6 +172,7 @@ def solve_multi_period_fpl(data, options):
     """
 
     # Arguments
+    problem_id = get_random_id(5)
     horizon = options.get('horizon', 3)
     objective = options.get('objective', 'regular')
     decay_base = options.get('decay_base', 0.84)
@@ -282,9 +289,14 @@ def solve_multi_period_fpl(data, options):
     ), name='multi_sell_2')
     model.add_constraints((so.expr_sum(transfer_out_first[p,w] for w in gameweeks) <= 1 for p in price_modified_players), name='multi_sell_3')
 
+    
+    ## Optional constraints
     if options.get('banned', None) is not None:
         banned_players = options['banned']
         model.add_constraints((so.expr_sum(squad[p,w] for w in gameweeks) == 0 for p in banned_players), name='ban_player')
+
+    if options.get("no_future_transfer"):
+        model.add_constraint(so.expr_sum(transfer_in[p,w] for p in players for w in gameweeks if w > next_gw) == 0, name='no_future_transfer')
 
     # Objectives
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
@@ -297,13 +309,13 @@ def solve_multi_period_fpl(data, options):
         model.set_objective(-decay_objective, sense='N', name='total_decay_xp')
 
     # Solve
-    model.export_mps(f'{problem_name}.mps')
-    command = f'cbc {problem_name}.mps solve solu {problem_name}_sol.txt'
+    model.export_mps(f'tmp/{problem_name}_{problem_id}.mps')
+    command = f'cbc tmp/{problem_name}_{problem_id}.mps solve solu tmp/{problem_name}_{problem_id}_sol.txt'
     process = Popen(command, shell=False) # add 'stdout=DEVNULL' for disabling logs
     process.wait()
 
     # Parsing
-    with open(f'{problem_name}_sol.txt', 'r') as f:
+    with open(f'tmp/{problem_name}_{problem_id}_sol.txt', 'r') as f:
         for line in f:
             if 'objective value' in line:
                 continue
@@ -337,6 +349,8 @@ def solve_multi_period_fpl(data, options):
     picks_df = pd.DataFrame(picks, columns=['week', 'name', 'pos', 'type', 'team', 'buy_price', 'sell_price', 'xP', 'xMin', 'squad', 'lineup', 'bench', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
     total_xp = so.expr_sum((lineup[p,w] + captain[p,w]) * points_player_week[p,w] for p in players for w in gameweeks).get_value()
 
+    picks_df.sort_values(by=['week', 'squad', 'lineup', 'bench', 'type'], ascending=[True, False, False, True, True], inplace=True)
+
     # Writing summary
     summary_of_actions = ""
     for w in gameweeks:
@@ -348,6 +362,10 @@ def solve_multi_period_fpl(data, options):
         for p in players:
             if transfer_out[p,w].get_value() > 0.5:
                 summary_of_actions += f"Sell {p} - {merged_data['web_name'][p]}\n"
+
+    if options.get('delete_tmp'):
+        os.unlink(f"tmp/{problem_name}_{problem_id}.mps")
+        os.unlink(f"tmp/{problem_name}_{problem_id}_sol.txt")
 
     return {'model': model, 'picks': picks_df, 'total_xp': total_xp, 'summary': summary_of_actions}
 
