@@ -63,6 +63,8 @@ Reach out to me if you need the raw data to give it a try.
   cp login.json.sample login.json
   ```
 
+- Download FPLReview projections and save it under `data` and rename it to `fplreview.csv`
+
 - Edit values inside `login.json` file:
   
   ``` json
