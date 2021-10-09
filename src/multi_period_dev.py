@@ -244,7 +244,11 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((squad[p, next_gw-1] == 1 for p in initial_squad), name='initial_squad_players')
     model.add_constraints((squad[p, next_gw-1] == 0 for p in players if p not in initial_squad), name='initial_squad_others')
     model.add_constraint(in_the_bank[next_gw-1] == itb, name='initial_itb')
-    model.add_constraint(free_transfers[next_gw-1] == ft, name='initial_ft')
+    if ft > 2: # Means we have an active chip
+        model.add_constraint(free_transfers[next_gw-1] == 1, name='initial_ft')
+        model.add_constraint(free_transfers[next_gw] == ft, name='initial_ft_nw')
+    else:
+        model.add_constraint(free_transfers[next_gw-1] == ft, name='initial_ft')
 
     # Constraints
     model.add_constraints((squad_count[w] == 15 for w in gameweeks), name='squad_count')
@@ -386,18 +390,16 @@ if __name__ == '__main__':
     session, team_id = connect()
     my_data = get_my_data(session, team_id)
     data = prep_data(my_data, options)
-
     result = solve_multi_period_fpl(data, options)
-    print(result['summary'])
-    result['picks'].to_csv("gw8_wildcard.csv")
-    print(result['total_xp'])
 
-    options['use_wc'] = 7
-    data = prep_data(my_data, options)
-    result = solve_multi_period_fpl(data, options)
-    print(result['summary'])
-    result['picks'].to_csv("gw7_wildcard.csv")
-    print(result['total_xp'])
+    # You can change "use_wc" to another GW if you haven't activated your WC
+    if False:
+        options['use_wc'] = 12
+        data = prep_data(my_data, options)
+        result = solve_multi_period_fpl(data, options)
+        print(result['summary'])
+        result['picks'].to_csv("gw12_wildcard.csv")
+
 
     # solve_standard_problem() # Episode 3 & 5
     # solve_autobench_problem() # Episode 6
