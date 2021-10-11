@@ -139,7 +139,8 @@ def prep_data(my_data, options):
     # If wildcard is active, then you have: "status_for_entry": "active" under my_data['chips']
     for c in my_data['chips']:
         if c['name'] == 'wildcard' and c['status_for_entry'] == 'active':
-            ft = 15
+            ft = 1
+            options['use_wc'] = gw
             break
 
     return {
@@ -215,7 +216,7 @@ def solve_multi_period_fpl(data, options):
         (p,w): transfer_out_regular[p,w] + (transfer_out_first[p,w] if p in price_modified_players else 0) for p in players for w in gameweeks
     }
     in_the_bank = model.add_variables(all_gw, name='itb', vartype=so.continuous, lb=0)
-    free_transfers = model.add_variables(all_gw, name='ft', vartype=so.integer, lb=0, ub=15) # lb=1, ub=2)
+    free_transfers = model.add_variables(all_gw, name='ft', vartype=so.integer, lb=1, ub=2) # lb=1, ub=2)
     # Add a constraint for future transfers to be between 1 and 2
     penalized_transfers = model.add_variables(gameweeks, name='pt', vartype=so.integer, lb=0)
     aux = model.add_variables(gameweeks, name='aux', vartype=so.binary)
@@ -238,17 +239,13 @@ def solve_multi_period_fpl(data, options):
     squad_count = {w: so.expr_sum(squad[p, w] for p in players) for w in gameweeks}
     number_of_transfers = {w: so.expr_sum(transfer_out[p,w] for p in players) for w in gameweeks}
     number_of_transfers[next_gw-1] = 1
-    transfer_diff = {w: number_of_transfers[w] - free_transfers[w] for w in gameweeks}
+    transfer_diff = {w: number_of_transfers[w] - free_transfers[w] - 15 * use_wc[w] for w in gameweeks}
 
     # Initial conditions
     model.add_constraints((squad[p, next_gw-1] == 1 for p in initial_squad), name='initial_squad_players')
     model.add_constraints((squad[p, next_gw-1] == 0 for p in players if p not in initial_squad), name='initial_squad_others')
     model.add_constraint(in_the_bank[next_gw-1] == itb, name='initial_itb')
-    if ft > 2: # Means we have an active chip
-        model.add_constraint(free_transfers[next_gw-1] == 1, name='initial_ft')
-        model.add_constraint(free_transfers[next_gw] == ft, name='initial_ft_nw')
-    else:
-        model.add_constraint(free_transfers[next_gw-1] == ft, name='initial_ft')
+    model.add_constraint(free_transfers[next_gw-1] == ft, name='initial_ft')
 
     # Constraints
     model.add_constraints((squad_count[w] == 15 for w in gameweeks), name='squad_count')
@@ -270,17 +267,13 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((squad[p,w] == squad[p,w-1] + transfer_in[p,w] - transfer_out[p,w] for p in players for w in gameweeks), name='squad_transfer_rel')
     model.add_constraints((in_the_bank[w] == in_the_bank[w-1] + sold_amount[w] - bought_amount[w] for w in gameweeks), name='cont_budget')
     ## Free transfer constraints
-    # model.add_constraints((free_transfers[w] == aux[w] + 1 for w in gameweeks), name='aux_ft_rel')
-    model.add_constraints((free_transfers[w] + 15 * use_wc[w] >= aux[w] + 1 for w in gameweeks), name='aux_ft_1')
-    model.add_constraints((free_transfers[w] - 15 * use_wc[w] <= aux[w] + 1 for w in gameweeks), name='aux_ft_2')
-    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] <= 2 * aux[w] for w in gameweeks), name='force_aux_1')
-    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] >= aux[w] + (-14)*(1-aux[w]) for w in gameweeks), name='force_aux_2')
+    model.add_constraints((free_transfers[w] == aux[w] + 1 for w in gameweeks), name='aux_ft_rel')
+    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w] <= 2 * aux[w] for w in gameweeks), name='force_aux_1')
+    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w] >= aux[w] + (-14)*(1-aux[w]) for w in gameweeks), name='force_aux_2')
     model.add_constraints((penalized_transfers[w] >= transfer_diff[w] for w in gameweeks), name='pen_transfer_rel')
     ## Chip constraints
     model.add_constraint(so.expr_sum(use_wc[w] for w in gameweeks) <= wc_limit, name='use_wc_limit')
     model.add_constraints((aux[w] <= 1-use_wc[w-1] for w in gameweeks if w > next_gw), name='ft_after_wc')
-    model.add_constraints((free_transfers[w] >= 1 + 14*use_wc[w] for w in gameweeks if w > next_gw), name='ft_lb_future')
-    model.add_constraints((free_transfers[w] <= 2 + 13*use_wc[w] for w in gameweeks), name='ft_ub_future')
     if options.get('use_wc', None) is not None:
         model.add_constraint(use_wc[options['use_wc']] == 1, name='force_wc')
 
@@ -300,7 +293,7 @@ def solve_multi_period_fpl(data, options):
         model.add_constraints((so.expr_sum(squad[p,w] for w in gameweeks) == 0 for p in banned_players), name='ban_player')
 
     if options.get("no_future_transfer"):
-        model.add_constraint(so.expr_sum(transfer_in[p,w] for p in players for w in gameweeks if w > next_gw) == 0, name='no_future_transfer')
+        model.add_constraint(so.expr_sum(transfer_in[p,w] for p in players for w in gameweeks if w > next_gw and w != options['use_wc']) == 0, name='no_future_transfer')
 
     # Objectives
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
@@ -311,6 +304,9 @@ def solve_multi_period_fpl(data, options):
     else:
         decay_objective = so.expr_sum(gw_total[w] * pow(decay_base, w-next_gw) for w in gameweeks)
         model.set_objective(-decay_objective, sense='N', name='total_decay_xp')
+
+    with open('debug.sas', 'w') as f:
+        f.write(model.to_optmodel())
 
     # Solve
     model.export_mps(f'tmp/{problem_name}_{problem_id}.mps')
@@ -359,7 +355,7 @@ def solve_multi_period_fpl(data, options):
     summary_of_actions = ""
     for w in gameweeks:
         summary_of_actions += f"** GW {w}:\n"
-        summary_of_actions += f"ITB = {in_the_bank[w].get_value()}, FT={free_transfers[w].get_value()}, PT={penalized_transfers[w].get_value()}\n"
+        summary_of_actions += f"ITB={in_the_bank[w].get_value()}, FT={free_transfers[w].get_value()}, PT={penalized_transfers[w].get_value()}, NT={number_of_transfers[w].get_value()}\n"
         for p in players:
             if transfer_in[p,w].get_value() > 0.5:
                 summary_of_actions += f"Buy {p} - {merged_data['web_name'][p]}\n"
