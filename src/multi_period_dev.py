@@ -216,7 +216,7 @@ def solve_multi_period_fpl(data, options):
         (p,w): transfer_out_regular[p,w] + (transfer_out_first[p,w] if p in price_modified_players else 0) for p in players for w in gameweeks
     }
     in_the_bank = model.add_variables(all_gw, name='itb', vartype=so.continuous, lb=0)
-    free_transfers = model.add_variables(all_gw, name='ft', vartype=so.integer, lb=1, ub=2) # lb=1, ub=2)
+    free_transfers = model.add_variables(all_gw, name='ft', vartype=so.integer, lb=1, ub=2)
     # Add a constraint for future transfers to be between 1 and 2
     penalized_transfers = model.add_variables(gameweeks, name='pt', vartype=so.integer, lb=0)
     aux = model.add_variables(gameweeks, name='aux', vartype=so.binary)
@@ -304,9 +304,6 @@ def solve_multi_period_fpl(data, options):
     else:
         decay_objective = so.expr_sum(gw_total[w] * pow(decay_base, w-next_gw) for w in gameweeks)
         model.set_objective(-decay_objective, sense='N', name='total_decay_xp')
-
-    with open('debug.sas', 'w') as f:
-        f.write(model.to_optmodel())
 
     # Solve
     model.export_mps(f'tmp/{problem_name}_{problem_id}.mps')
