@@ -41,7 +41,7 @@ Reach out to me if you need the raw data to give it a try.
 
 ## Instructions
 
-### Wilcard optimization
+### Wildcard optimization
 
 - Download and install Python and Git to your machine
 - Donwload CBC optimization solver binary and add it to your environment path (example: https://youtu.be/DFXCXoR6Dvw?t=1642)
