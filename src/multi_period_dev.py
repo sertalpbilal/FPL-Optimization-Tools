@@ -114,6 +114,13 @@ def prep_data(my_data, options):
     merged_data = pd.merge(elements_team, review_data, left_on='id_x', right_on='review_id')
     merged_data.set_index(['id_x'], inplace=True)
 
+    keys = merged_data.columns.to_list()
+    keys = [k for k in keys if "_Pts" in k]
+    merged_data['total_ev'] = merged_data[keys].sum(axis=1)
+
+    merged_data.sort_values(by=['total_ev'], ascending=[False], inplace=True)
+
+
     if options.get('randomized', False):
         rng = np.random.default_rng(seed = options.get('seed'))
         gws = list(range(gw, min(39, gw+horizon)))
@@ -292,6 +299,10 @@ def solve_multi_period_fpl(data, options):
         banned_players = options['banned']
         model.add_constraints((so.expr_sum(squad[p,w] for w in gameweeks) == 0 for p in banned_players), name='ban_player')
 
+    if options.get('locked', None) is not None:
+        locked_players = options['locked']
+        model.add_constraints((squad[p,w] == 1 for p in locked_players for w in gameweeks), name='lock_player')
+
     if options.get("no_future_transfer"):
         model.add_constraint(so.expr_sum(transfer_in[p,w] for p in players for w in gameweeks if w > next_gw and w != options.get('use_wc')) == 0, name='no_future_transfer')
 
@@ -307,9 +318,19 @@ def solve_multi_period_fpl(data, options):
 
     # Solve
     model.export_mps(f'tmp/{problem_name}_{problem_id}.mps')
-    command = f'cbc tmp/{problem_name}_{problem_id}.mps solve solu tmp/{problem_name}_{problem_id}_sol.txt'
+
+    t0 = time.time()
+
+    command = f'cbc tmp/{problem_name}_{problem_id}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_sol_init.txt'
+    process = Popen(command, shell=False)
+    process.wait()
+    secs = options.get('secs', 20*60)
+    command = f'cbc tmp/{problem_name}_{problem_id}.mps mips tmp/{problem_name}_{problem_id}_sol_init.txt cost column sec {secs} solve solu tmp/{problem_name}_{problem_id}_sol.txt'
     process = Popen(command, shell=False) # add 'stdout=DEVNULL' for disabling logs
     process.wait()
+
+    t1 = time.time()
+    print(t1-t0, "seconds passed")
 
     # Parsing
     with open(f'tmp/{problem_name}_{problem_id}_sol.txt', 'r') as f:
