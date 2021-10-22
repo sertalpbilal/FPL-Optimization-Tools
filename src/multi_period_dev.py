@@ -114,12 +114,21 @@ def prep_data(my_data, options):
     merged_data = pd.merge(elements_team, review_data, left_on='id_x', right_on='review_id')
     merged_data.set_index(['id_x'], inplace=True)
 
-    keys = merged_data.columns.to_list()
-    keys = [k for k in keys if "_Pts" in k]
+    original_keys = merged_data.columns.to_list()
+    keys = [k for k in original_keys if "_Pts" in k]
+    min_keys = [k for k in original_keys if "_xMins" in k]
     merged_data['total_ev'] = merged_data[keys].sum(axis=1)
+    merged_data['total_min'] = merged_data[min_keys].sum(axis=1)
 
     merged_data.sort_values(by=['total_ev'], ascending=[False], inplace=True)
 
+    # Filter players by xMin
+    initial_squad = [int(i['element']) for i in my_data['picks']]
+    # safe_players = initial_squad + 
+    xmin_lb = options.get('xmin_lb', 1)
+    print(len(merged_data), "total players (before)")
+    merged_data = merged_data[(merged_data['total_min'] >= xmin_lb) | (merged_data['review_id'].isin(initial_squad))].copy()
+    print(len(merged_data), "total players (after)")
 
     if options.get('randomized', False):
         rng = np.random.default_rng(seed = options.get('seed'))
@@ -130,7 +139,6 @@ def prep_data(my_data, options):
 
     type_data = pd.DataFrame(fpl_data['element_types']).set_index(['id'])
 
-    initial_squad = [i['element'] for i in my_data['picks']]
     buy_price = (merged_data['now_cost']/10).to_dict()
     sell_price = {i['element']: i['selling_price']/10 for i in my_data['picks']}
     price_modified_players = []
@@ -138,6 +146,8 @@ def prep_data(my_data, options):
         if buy_price[i['element']] != sell_price[i['element']]:
             price_modified_players.append(i['element'])
             print(f"Added player {i['element']} to list, buy price {buy_price[i['element']]} sell price {sell_price[i['element']]}")
+
+
 
     itb = my_data['transfers']['bank']/10
     ft = my_data['transfers']['limit'] - my_data['transfers']['made']
@@ -392,19 +402,25 @@ def solve_multi_period_fpl(data, options):
 
 if __name__ == '__main__':
 
+    t0 = time.time()
+
     options = {
         'horizon': 3,
         'randomized': False,
         # 'seed': 42
-        'use_wc': 8,
-        'wc_limit': 1,
-        'banned': [22]
+        # 'use_wc': 8,
+        'wc_limit': 0,
+        'banned': [],
+        'xmin_lb': 0
     }
 
     session, team_id = connect()
     my_data = get_my_data(session, team_id)
     data = prep_data(my_data, options)
     result = solve_multi_period_fpl(data, options)
+
+    final_time = time.time()
+    print(final_time - t0, "seconds passed in total")
 
     # You can change "use_wc" to another GW if you haven't activated your WC
     if False:
