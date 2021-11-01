@@ -327,9 +327,13 @@ def solve_multi_period_fpl(data, options):
         model.set_objective(-decay_objective, sense='N', name='total_decay_xp')
 
     # Solve
+    tmp_folder = Path() / "tmp"
+    tmp_folder.mkdir(exist_ok=True, parents=True)
     model.export_mps(f'tmp/{problem_name}_{problem_id}.mps')
+    print(f"Exported problem with name: {problem_name}_{problem_id}")
 
     t0 = time.time()
+    time.sleep(0.5)
 
     command = f'cbc tmp/{problem_name}_{problem_id}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_sol_init.txt'
     process = Popen(command, shell=False)
