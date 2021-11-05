@@ -4,9 +4,9 @@
     "itb_value": 0.2,
     "no_future_transfer": false,
     "randomized": false,
-    "wc_limit": 0,
     "banned": [],
     "locked": [],
     "delete_tmp": true,
-    "secs": 180
+    "secs": 300,
+    "use_cmd": false
 }

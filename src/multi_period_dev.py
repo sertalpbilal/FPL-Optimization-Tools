@@ -337,13 +337,21 @@ def solve_multi_period_fpl(data, options):
     t0 = time.time()
     time.sleep(0.5)
 
+    use_cmd = options.get('use_cmd', False)
+
     command = f'cbc tmp/{problem_name}_{problem_id}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_sol_init.txt'
-    process = Popen(command, shell=False)
-    process.wait()
+    if use_cmd:
+        os.system(command)
+    else:
+        process = Popen(command, shell=False)
+        process.wait()
     secs = options.get('secs', 20*60)
     command = f'cbc tmp/{problem_name}_{problem_id}.mps mips tmp/{problem_name}_{problem_id}_sol_init.txt cost column sec {secs} solve solu tmp/{problem_name}_{problem_id}_sol.txt'
-    process = Popen(command, shell=False) # add 'stdout=DEVNULL' for disabling logs
-    process.wait()
+    if use_cmd:
+        os.system(command)
+    else:
+        process = Popen(command, shell=False) # add 'stdout=DEVNULL' for disabling logs
+        process.wait()
 
     t1 = time.time()
     print(t1-t0, "seconds passed")

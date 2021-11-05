@@ -41,7 +41,10 @@ Reach out to me if you need the raw data to give it a try.
 
 ## Instructions
 
-### Wildcard optimization
+### Steps
+
+You will need to follow steps below to install required platform and also optimization solver (CBC).
+
 
 - Download and install Python and Git to your machine
 - Donwload CBC optimization solver binary and add it to your environment path (example: https://youtu.be/DFXCXoR6Dvw?t=1642)
@@ -78,6 +81,59 @@ Reach out to me if you need the raw data to give it a try.
   
   `cd ..\run`
 
+  And run either `solve_regular.py` (for regular GW solve) or `solve_wildcard.py` (for wildcard optimization)  
+  See instructions below.
+
+### Multi-period (regular) GW optimization
+
+
+- Edit content of `regular_settings.json` file
+  
+  ``` json
+    {
+        "horizon": 5,
+        "ft_value": 1.5,
+        "itb_value": 0.2,
+        "no_future_transfer": false,
+        "randomized": false,
+        "banned": [],
+        "locked": [],
+        "delete_tmp": true,
+        "secs": 300,
+        "use_cmd": false
+    }
+  ```
+
+  - `horizon`: length of planning horizon
+  - `ft_value`: value assigned to the extra free transfer
+  - `itb_value`: value assigned to having 1.0 extra budget
+  - `no_future_transfer`: `true` or `false` whether you want to plan future transfers or not
+  - `randomized`: `true` or `false` whether you would like to add random noise to EV
+  - `banned`: list of banned player IDs
+  - `locked`: list of player IDs to always have during the horizon (e.g. `233` for Salah)
+  - `delete_tmp`: `true` or `false` whether to delete generated temporary files after solve
+  - `secs`: time limit for the solve (in seconds)
+  - `use_cmd`: whether to use `os.system` or `subprocess` for running solver, default is `false`
+
+- Run the multi-period optimization
+  
+  ``` shell
+  python solve_regular.py
+  ```
+
+- Find the optimal plans under `run\results` directory with timestamp
+  
+  ```
+    > cd results
+    > ls
+    regular_2021-11-04_10-00-00.csv
+  ```
+
+
+
+### Wildcard optimization
+
+
 - Edit content of `wildcard_settings.json` file
   
   ``` json
@@ -88,15 +144,14 @@ Reach out to me if you need the raw data to give it a try.
         "randomized": false,
         "wc_limit": 1,
         "banned": [],
-        "delete_tmp": true
+        "locked": [],
+        "delete_tmp": true,
+        "secs": 120
     }
   ```
 
-  - `horizon`: length of planning horizon
-  - `use_wc`: GW number you want to use your wildcard
-  - `no_future_transfer`: `true` or `false` whether you want to plan future transfers or not
-  - `randomized`: `true` or `false` whether you would like to add random noise to EV
-  - `banned`: list of banned player IDs
+  - `use_wc`: GW number you want to use your wildcard (use `null` if you want optimization to choose it for you)
+  - `wc_limit`: 1 or 0, depending on you want to use WC chip or not
 
 - Run the wildcard optimization
   

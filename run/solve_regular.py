@@ -20,5 +20,5 @@ if __name__=="__main__":
     print(result['summary'])
     time_now = datetime.datetime.now()
     stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
-    result['picks'].to_csv(f"results/wildcard_{stamp}.csv")
+    result['picks'].to_csv(f"results/regular_{stamp}.csv")
     
