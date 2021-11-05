@@ -9,3 +9,4 @@ solver/*
 */.ipynb_checkpoints/*
 data/fplreview.csv
 data/login.json
+run/results/*.csv
