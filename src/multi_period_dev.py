@@ -199,6 +199,8 @@ def solve_multi_period_fpl(data, options):
     ft_value = options.get('ft_value', 1.5)
     itb_value = options.get('itb_value', 0.08)
     ft = data.get('ft', 1)
+    if ft <= 0:
+        ft = 0
 
     # Data
     problem_name = f'mp_h{horizon}_regular' if objective == 'regular' else f'mp_h{horizon}_o{objective[0]}_d{decay_base}'
@@ -235,7 +237,7 @@ def solve_multi_period_fpl(data, options):
         (p,w): transfer_out_regular[p,w] + (transfer_out_first[p,w] if p in price_modified_players else 0) for p in players for w in gameweeks
     }
     in_the_bank = model.add_variables(all_gw, name='itb', vartype=so.continuous, lb=0)
-    free_transfers = model.add_variables(all_gw, name='ft', vartype=so.integer, lb=1, ub=2)
+    free_transfers = model.add_variables(all_gw, name='ft', vartype=so.integer, lb=0, ub=2)
     # Add a constraint for future transfers to be between 1 and 2
     penalized_transfers = model.add_variables(gameweeks, name='pt', vartype=so.integer, lb=0)
     aux = model.add_variables(gameweeks, name='aux', vartype=so.binary)
@@ -264,7 +266,8 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((squad[p, next_gw-1] == 1 for p in initial_squad), name='initial_squad_players')
     model.add_constraints((squad[p, next_gw-1] == 0 for p in players if p not in initial_squad), name='initial_squad_others')
     model.add_constraint(in_the_bank[next_gw-1] == itb, name='initial_itb')
-    model.add_constraint(free_transfers[next_gw-1] == ft, name='initial_ft')
+    model.add_constraint(free_transfers[next_gw] == ft, name='initial_ft')
+    model.add_constraints((free_transfers[w] >= 1 for w in gameweeks if w > next_gw), name='future_ft_limit')
 
     # Constraints
     model.add_constraints((squad_count[w] == 15 for w in gameweeks), name='squad_count')
@@ -286,9 +289,9 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((squad[p,w] == squad[p,w-1] + transfer_in[p,w] - transfer_out[p,w] for p in players for w in gameweeks), name='squad_transfer_rel')
     model.add_constraints((in_the_bank[w] == in_the_bank[w-1] + sold_amount[w] - bought_amount[w] for w in gameweeks), name='cont_budget')
     ## Free transfer constraints
-    model.add_constraints((free_transfers[w] == aux[w] + 1 for w in gameweeks), name='aux_ft_rel')
-    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w] <= 2 * aux[w] for w in gameweeks), name='force_aux_1')
-    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w] >= aux[w] + (-14)*(1-aux[w]) for w in gameweeks), name='force_aux_2')
+    model.add_constraints((free_transfers[w] == aux[w] + 1 for w in gameweeks if w > next_gw), name='aux_ft_rel')
+    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w] <= 2 * aux[w] for w in gameweeks if w > next_gw), name='force_aux_1')
+    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w] >= aux[w] + (-14)*(1-aux[w]) for w in gameweeks if w > next_gw), name='force_aux_2')
     model.add_constraints((penalized_transfers[w] >= transfer_diff[w] for w in gameweeks), name='pen_transfer_rel')
     ## Chip constraints
     model.add_constraint(so.expr_sum(use_wc[w] for w in gameweeks) <= wc_limit, name='use_wc_limit')
