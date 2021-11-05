@@ -1,7 +1,7 @@
 {
     "horizon": 5,
     "ft_value": 1.5,
-    "itb_value": 0.2,
+    "itb_value": 0.08,
     "no_future_transfer": false,
     "randomized": false,
     "banned": [],

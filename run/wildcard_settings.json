@@ -1,5 +1,7 @@
 {
     "horizon": 3,
+    "ft_value": 1.5,
+    "itb_value": 0.08,
     "use_wc": null,
     "no_future_transfer": true,
     "randomized": false,

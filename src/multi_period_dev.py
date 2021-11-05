@@ -197,7 +197,7 @@ def solve_multi_period_fpl(data, options):
     bench_weights = options.get('bench_weights', {0: 0.03, 1: 0.21, 2: 0.06, 3: 0.002})
     wc_limit = options.get('wc_limit', 0)
     ft_value = options.get('ft_value', 1.5)
-    itb_value = options.get('itb_value', 0.2)
+    itb_value = options.get('itb_value', 0.08)
     ft = data.get('ft', 1)
 
     # Data
