@@ -50,7 +50,7 @@ You will need to follow steps below to install required platform and also optimi
 - Donwload CBC optimization solver binary and add it to your environment path (example: https://youtu.be/DFXCXoR6Dvw?t=1642)
 - Clone the repository
   
-  `git clone git@github.com:sertalpbilal/FPL-Optimization-Tools.git fpl-optimization`
+  `git clone https://github.com/sertalpbilal/FPL-Optimization-Tools.git fpl-optimization`
 
 - Install required packages
   
