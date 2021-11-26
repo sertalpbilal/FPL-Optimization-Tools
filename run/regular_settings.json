@@ -8,5 +8,5 @@
     "locked": [122],
     "delete_tmp": true,
     "secs": 300,
-    "use_cmd": false
+    "use_cmd": true
 }
