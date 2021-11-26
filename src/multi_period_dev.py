@@ -302,8 +302,8 @@ def solve_multi_period_fpl(data, options):
     ## Multiple-sell fix
     model.add_constraints((transfer_out_first[p,w] + transfer_out_regular[p,w] <= 1 for p in price_modified_players for w in gameweeks), name='multi_sell_1')
     model.add_constraints((
-        (wbar - next_gw + 1) * so.expr_sum(transfer_out_first[p,w] for w in gameweeks if w > wbar) >=
-        so.expr_sum(transfer_out_regular[p,w] for w in gameweeks if w > wbar)
+        (wbar - next_gw + 1) * so.expr_sum(transfer_out_first[p,w] for w in gameweeks if w >= wbar) >=
+        so.expr_sum(transfer_out_regular[p,w] for w in gameweeks if w >= wbar)
         for p in price_modified_players for wbar in gameweeks
     ), name='multi_sell_2')
     model.add_constraints((so.expr_sum(transfer_out_first[p,w] for w in gameweeks) <= 1 for p in price_modified_players), name='multi_sell_3')

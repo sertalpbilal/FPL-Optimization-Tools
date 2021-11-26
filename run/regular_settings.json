@@ -1,11 +1,11 @@
 {
-    "horizon": 5,
+    "horizon": 1,
     "ft_value": 1.5,
     "itb_value": 0.08,
     "no_future_transfer": false,
     "randomized": false,
-    "banned": [],
-    "locked": [],
+    "banned": [491, 430],
+    "locked": [122],
     "delete_tmp": true,
     "secs": 300,
     "use_cmd": false
