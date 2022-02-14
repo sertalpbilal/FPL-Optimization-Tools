@@ -308,7 +308,9 @@ def solve_multi_period_fpl(data, options):
     ), name='multi_sell_2')
     model.add_constraints((so.expr_sum(transfer_out_first[p,w] for w in gameweeks) <= 1 for p in price_modified_players), name='multi_sell_3')
 
-    
+    ## Transfer in/out fix
+    model.add_constraints((transfer_in[p,w] + transfer_out[p,w] <= 1 for p in players for w in gameweeks), name='tr_in_out_limit')
+
     ## Optional constraints
     if options.get('banned', None) is not None:
         banned_players = options['banned']
