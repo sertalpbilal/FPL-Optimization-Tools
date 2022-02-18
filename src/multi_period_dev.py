@@ -20,54 +20,6 @@ def xmin_to_prob(xmin, sub_on=0.5, sub_off=0.3):
     start = min( max ( (xmin - 25 * sub_on) / (90 * (1-sub_off) + 65 * sub_off - 25 * sub_on), 0.001), 0.999)
     return start + (1-start) * sub_on
 
-# def solve_standard_problem():
-#     r = solve_multi_period_fpl(team_id=7331, gw=4, ft=1, horizon=3, objective='regular')
-#     print(r['picks'])
-#     print(r['summary'])
-#     r['picks'].to_csv('optimal_plan_regular.csv')
-    
-#     # r = solve_multi_period_fpl(team_id=7331, gw=3, ft=2, horizon=3, objective='decay', decay_base=0.84)
-#     # print(r['picks'])
-#     # print(r['summary'])
-#     # r['picks'].to_csv('optimal_plan_decay.csv')
-
-
-# def solve_autobench_problem():
-#     r = solve_multi_period_fpl(team_id=7331, gw=4, ft=1, horizon=3, objective='regular')
-#     print(r['picks'])
-#     print(r['summary'])
-#     r['picks'].to_csv('optimal_plan_regular_stage_1.csv')
-
-#     df = r['picks']
-#     lineup_gk = df[(df['week'] == 4) & (df['pos'] == 'GKP') & (df['lineup'] == 1)]
-#     lineup_gk = lineup_gk.iloc[0]
-#     lineup_gk_mins = lineup_gk['xMin']
-#     gk_autosub_prob = xmin_to_prob(lineup_gk_mins, sub_on=0, sub_off=0)
-#     gk_weight = 1-gk_autosub_prob
-
-#     field_players = df[(df['week'] == 4) & (df['pos'] != 'GKP') & (df['lineup'] == 1)]
-#     field_players_xmins = field_players['xMin'].tolist()
-#     field_players_probs = [xmin_to_prob(i) for i in field_players_xmins]
-
-#     prob = 1
-#     for i in field_players_probs:
-#         prob *= i
-#     bench_1_weight = 1 - prob
-
-#     bench_weights = {0: gk_weight, 1: bench_1_weight, 2: 0.06, 3: 0.002}
-#     r = solve_multi_period_fpl(team_id=7331, gw=4, ft=1, horizon=3, objective='regular', bench_weights=bench_weights)
-#     print(r['picks'])
-#     print(r['summary'])
-#     r['picks'].to_csv('optimal_plan_regular_stage_2.csv')
-
-
-# def solve_randomized_problem():
-#     r = solve_multi_period_fpl(team_id=7331, gw=5, ft=1, horizon=3, objective='regular', seed=None, randomized=True)
-#     print(r['picks'])
-#     print(r['summary'])
-#     r['picks'].to_csv('optimal_plan_randomized.csv')
-
-
 def connect():
     base_folder = Path()
     with open(base_folder / "../data/login.json") as f:
@@ -76,13 +28,31 @@ def connect():
     payload = {
         'password': credentials['password'],
         'login': credentials['email'],
-        'redirect_uri': 'https://fantasy.premierleague.com/a/login',
+        'redirect_uri': 'https://fantasy.premierleague.com/',
         'app': 'plfpl-web'
     }
-    session.post('https://users.premierleague.com/accounts/login/', payload)
-    r = session.get('https://fantasy.premierleague.com/api/me/')
-    if r.status_code != 200:
-        raise ValueError('Cannot read data')
+    headers = {
+        "user-agent": 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/98.0.4758.102 Safari/537.36',
+        "cookie": "pl_euconsent-v2=CPUn1YtPUn1YtFCABAENBRCsAP_AAH_AAAwIF5wAQF5gXnABAXmAAAAA.YAAAAAAAAAAA; pl_euconsent-v2-intent-confirmed=^{^%^22tcf^%^22:^[755^]^%^2C^%^22oob^%^22:^[^]^}; pl_oob-vendors=^{^}; datadome=q_f99WYn0dSxMnuNGw8TQuIf2YeVio7m7Yk-jVBaWf43sM2v86YYVH17srelKLrR6B9ynB5V2z7pNs~jG6VKc~4u3up4WBrCYD6rekwuM3cRG8.9XbLGXAE4Cz~BWyv"
+    }
+    t = session.get('https://fantasy.premierleague.com/')
+    time.sleep(1)
+    v = session.post('https://users.premierleague.com/accounts/login/', data=payload, headers=headers, cookies=session.cookies)
+    if v.status_code != 200:
+        print("Login attempt failed, checking local file")
+        if os.path.exists('team.json'):
+            return [session, None]
+        print("""If you are getting this error, do the following: 
+            - Open your browser and log in to FPL
+            - After the login, go to following link (replace 'TEAM_ID' with your team ID)
+              > https://fantasy.premierleague.com/api/my-team/TEAM_ID/
+            - Create a file in this directory called 'team.json' and paste the content.
+        """)
+        return [None, None]
+    else:
+        r = session.get('https://fantasy.premierleague.com/api/me/')
+        if r.status_code != 200:
+            raise ValueError('Cannot read data')
     return [session, r.json()['player']['entry']]
 
 

@@ -13,7 +13,13 @@ if __name__=="__main__":
         options = json.load(f)
 
     session, team_id = connect()
-    my_data = get_my_data(session, team_id)
+    if session is None and team_id is None:
+        exit(0)
+    elif team_id is None:
+        with open('team.json') as f:
+            my_data = json.load(f)
+    else:
+        my_data = get_my_data(session, team_id)
     data = prep_data(my_data, options)
 
     result = solve_multi_period_fpl(data, options)
