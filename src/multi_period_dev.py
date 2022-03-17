@@ -165,12 +165,13 @@ def solve_multi_period_fpl(data, options):
     objective = options.get('objective', 'regular')
     decay_base = options.get('decay_base', 0.84)
     bench_weights = options.get('bench_weights', {0: 0.03, 1: 0.21, 2: 0.06, 3: 0.002})
-    wc_limit = options.get('wc_limit', 0)
+    # wc_limit = options.get('wc_limit', 0)
     ft_value = options.get('ft_value', 1.5)
     itb_value = options.get('itb_value', 0.08)
     ft = data.get('ft', 1)
     if ft <= 0:
         ft = 0
+    chip_limits = options.get('chip_limits', dict())
 
     # Data
     problem_name = f'mp_h{horizon}_regular' if objective == 'regular' else f'mp_h{horizon}_o{objective[0]}_d{decay_base}'
@@ -195,6 +196,7 @@ def solve_multi_period_fpl(data, options):
 
     # Variables
     squad = model.add_variables(players, all_gw, name='squad', vartype=so.binary)
+    squad_fh = model.add_variables(players, gameweeks, name='squad_fh', vartype=so.binary)
     lineup = model.add_variables(players, gameweeks, name='lineup', vartype=so.binary)
     captain = model.add_variables(players, gameweeks, name='captain', vartype=so.binary)
     vicecap = model.add_variables(players, gameweeks, name='vicecap', vartype=so.binary)
@@ -211,11 +213,15 @@ def solve_multi_period_fpl(data, options):
     # Add a constraint for future transfers to be between 1 and 2
     penalized_transfers = model.add_variables(gameweeks, name='pt', vartype=so.integer, lb=0)
     aux = model.add_variables(gameweeks, name='aux', vartype=so.binary)
+
     use_wc = model.add_variables(gameweeks, name='use_wc', vartype=so.binary)
+    use_bb = model.add_variables(gameweeks, name='use_bb', vartype=so.binary)
+    use_fh = model.add_variables(gameweeks, name='use_fh', vartype=so.binary)
 
     # Dictionaries
     lineup_type_count = {(t,w): so.expr_sum(lineup[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
     squad_type_count = {(t,w): so.expr_sum(squad[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
+    squad_fh_type_count = {(t,w): so.expr_sum(squad_fh[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
     player_type = merged_data['element_type'].to_dict()
     # player_price = (merged_data['now_cost'] / 10).to_dict()
     sell_price = data['sell_price']
@@ -224,10 +230,12 @@ def solve_multi_period_fpl(data, options):
         so.expr_sum(sell_price[p] * transfer_out_first[p,w] for p in price_modified_players) +\
         so.expr_sum(buy_price[p] * transfer_out_regular[p,w] for p in players)
         for w in gameweeks}
+    fh_sell_price = {p: sell_price[p] if p in price_modified_players else buy_price[p] for p in players}
     bought_amount = {w: so.expr_sum(buy_price[p] * transfer_in[p,w] for p in players) for w in gameweeks}
     points_player_week = {(p,w): merged_data.loc[p, f'{w}_Pts'] for p in players for w in gameweeks}
     minutes_player_week = {(p,w): merged_data.loc[p, f'{w}_xMins'] for p in players for w in gameweeks}
     squad_count = {w: so.expr_sum(squad[p, w] for p in players) for w in gameweeks}
+    squad_fh_count = {w: so.expr_sum(squad_fh[p, w] for p in players) for w in gameweeks}
     number_of_transfers = {w: so.expr_sum(transfer_out[p,w] for p in players) for w in gameweeks}
     number_of_transfers[next_gw-1] = 1
     transfer_diff = {w: number_of_transfers[w] - free_transfers[w] - 15 * use_wc[w] for w in gameweeks}
@@ -241,34 +249,54 @@ def solve_multi_period_fpl(data, options):
 
     # Constraints
     model.add_constraints((squad_count[w] == 15 for w in gameweeks), name='squad_count')
-    model.add_constraints((so.expr_sum(lineup[p,w] for p in players) == 11 for w in gameweeks), name='lineup_count')
-    model.add_constraints((so.expr_sum(bench[p,w,0] for p in players if player_type[p] == 1) == 1 for w in gameweeks), name='bench_gk')
-    model.add_constraints((so.expr_sum(bench[p,w,o] for p in players) == 1 for w in gameweeks for o in [1,2,3]), name='bench_count')
+    model.add_constraints((squad_fh_count[w] == 15 * use_fh[w] for w in gameweeks), name='squad_fh_count')
+    model.add_constraints((so.expr_sum(lineup[p,w] for p in players) == 11 + 4 * use_bb[w] for w in gameweeks), name='lineup_count')
+    model.add_constraints((so.expr_sum(bench[p,w,0] for p in players if player_type[p] == 1) == 1 - use_bb[w] for w in gameweeks), name='bench_gk')
+    model.add_constraints((so.expr_sum(bench[p,w,o] for p in players) == 1 - use_bb[w] for w in gameweeks for o in [1,2,3]), name='bench_count')
     model.add_constraints((so.expr_sum(captain[p,w] for p in players) == 1 for w in gameweeks), name='captain_count')
     model.add_constraints((so.expr_sum(vicecap[p,w] for p in players) == 1 for w in gameweeks), name='vicecap_count')
-    model.add_constraints((lineup[p,w] <= squad[p,w] for p in players for w in gameweeks), name='lineup_squad_rel')
-    model.add_constraints((bench[p,w,o] <= squad[p,w] for p in players for w in gameweeks for o in order), name='bench_squad_rel')
+    model.add_constraints((lineup[p,w] <= squad[p,w] + use_fh[w] for p in players for w in gameweeks), name='lineup_squad_rel')
+    model.add_constraints((bench[p,w,o] <= squad[p,w] + use_fh[w] for p in players for w in gameweeks for o in order), name='bench_squad_rel')
+    model.add_constraints((lineup[p,w] <= squad_fh[p,w] + 1 - use_fh[w] for p in players for w in gameweeks), name='lineup_squad_fh_rel')
+    model.add_constraints((bench[p,w,o] <= squad_fh[p,w] + 1 - use_fh[w] for p in players for w in gameweeks for o in order), name='bench_squad_fh_rel')
     model.add_constraints((captain[p,w] <= lineup[p,w] for p in players for w in gameweeks), name='captain_lineup_rel')
     model.add_constraints((vicecap[p,w] <= lineup[p,w] for p in players for w in gameweeks), name='vicecap_lineup_rel')
     model.add_constraints((captain[p,w] + vicecap[p,w] <= 1 for p in players for w in gameweeks), name='cap_vc_rel')
     model.add_constraints((lineup[p,w] + so.expr_sum(bench[p,w,o] for o in order) <= 1 for p in players for w in gameweeks), name='lineup_bench_rel')
-    model.add_constraints((lineup_type_count[t,w] == [type_data.loc[t, 'squad_min_play'], type_data.loc[t, 'squad_max_play']] for t in element_types for w in gameweeks), name='valid_formation')
+    model.add_constraints((lineup_type_count[t,w] >= type_data.loc[t, 'squad_min_play'] for t in element_types for w in gameweeks), name='valid_formation_lb')
+    model.add_constraints((lineup_type_count[t,w] <= type_data.loc[t, 'squad_max_play'] + use_bb[w] for t in element_types for w in gameweeks), name='valid_formation_ub')
     model.add_constraints((squad_type_count[t,w] == type_data.loc[t, 'squad_select'] for t in element_types for w in gameweeks), name='valid_squad')
+    model.add_constraints((squad_fh_type_count[t,w] == type_data.loc[t, 'squad_select'] * use_fh[w] for t in element_types for w in gameweeks), name='valid_squad_fh')
     model.add_constraints((so.expr_sum(squad[p,w] for p in players if merged_data.loc[p, 'name'] == t) <= 3 for t in teams for w in gameweeks), name='team_limit')
+    model.add_constraints((so.expr_sum(squad_fh[p,w] for p in players if merged_data.loc[p, 'name'] == t) <= 3 * use_fh[w] for t in teams for w in gameweeks), name='team_limit_fh')
     ## Transfer constraints
     model.add_constraints((squad[p,w] == squad[p,w-1] + transfer_in[p,w] - transfer_out[p,w] for p in players for w in gameweeks), name='squad_transfer_rel')
     model.add_constraints((in_the_bank[w] == in_the_bank[w-1] + sold_amount[w] - bought_amount[w] for w in gameweeks), name='cont_budget')
+    model.add_constraints((so.expr_sum(fh_sell_price[p] * squad[p,w-1] for p in players) + in_the_bank[w-1] >= so.expr_sum(fh_sell_price[p] * squad_fh[p,w] for p in players) for w in gameweeks), name='fh_budget')
+    model.add_constraints((transfer_in[p,w] <= 1-use_fh[w] for p in players for w in gameweeks), name='no_tr_in_fh')
+    model.add_constraints((transfer_out[p,w] <= 1-use_fh[w] for p in players for w in gameweeks), name='no_tr_out_fh')
     ## Free transfer constraints
     model.add_constraints((free_transfers[w] == aux[w] + 1 for w in gameweeks if w > next_gw), name='aux_ft_rel')
-    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w] <= 2 * aux[w] for w in gameweeks if w > next_gw), name='force_aux_1')
-    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w] >= aux[w] + (-14)*(1-aux[w]) for w in gameweeks if w > next_gw), name='force_aux_2')
+    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w-1] - 2 * use_fh[w-1] <= 2 * aux[w] for w in gameweeks if w > next_gw), name='force_aux_1')
+    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w-1] - 2 * use_fh[w-1] >= aux[w] + (-14)*(1-aux[w]) for w in gameweeks if w > next_gw), name='force_aux_2')
     model.add_constraints((penalized_transfers[w] >= transfer_diff[w] for w in gameweeks), name='pen_transfer_rel')
     ## Chip constraints
-    model.add_constraint(so.expr_sum(use_wc[w] for w in gameweeks) <= wc_limit, name='use_wc_limit')
+    model.add_constraints((use_wc[w] + use_fh[w] + use_bb[w] <= 1 for w in gameweeks), name='single_chip')
     model.add_constraints((aux[w] <= 1-use_wc[w-1] for w in gameweeks if w > next_gw), name='ft_after_wc')
+    model.add_constraints((aux[w] <= 1-use_fh[w-1] for w in gameweeks if w > next_gw), name='ft_after_fh')
+
+    model.add_constraint(so.expr_sum(use_wc[w] for w in gameweeks) <= chip_limits.get('wc', 0), name='use_wc_limit')
+    model.add_constraint(so.expr_sum(use_bb[w] for w in gameweeks) <= chip_limits.get('bb', 0), name='use_bb_limit')
+    model.add_constraint(so.expr_sum(use_fh[w] for w in gameweeks) <= chip_limits.get('fh', 0), name='use_fh_limit')
+    model.add_constraints((squad_fh[p,w] <= use_fh[w] for p in players for w in gameweeks), name='fh_squad_logic')
+
     if options.get('use_wc', None) is not None:
         model.add_constraint(use_wc[options['use_wc']] == 1, name='force_wc')
-
+    if options.get('use_bb', None) is not None:
+        model.add_constraint(use_bb[options['use_bb']] == 1, name='force_bb')
+    if options.get('use_fh', None) is not None:
+        model.add_constraint(use_fh[options['use_fh']] == 1, name='force_fh')
+    
     ## Multiple-sell fix
     model.add_constraints((transfer_out_first[p,w] + transfer_out_regular[p,w] <= 1 for p in price_modified_players for w in gameweeks), name='multi_sell_1')
     model.add_constraints((
@@ -292,6 +320,12 @@ def solve_multi_period_fpl(data, options):
 
     if options.get("no_future_transfer"):
         model.add_constraint(so.expr_sum(transfer_in[p,w] for p in players for w in gameweeks if w > next_gw and w != options.get('use_wc')) == 0, name='no_future_transfer')
+
+    if options.get("num_transfers", None) is not None:
+        model.add_constraint(so.expr_sum(transfer_in[p,next_gw] for p in players) == options['num_transfers'], name='tr_limit')
+
+    if options.get("hit_limit", None) is not None:
+        model.add_constraint(so.expr_sum(penalized_transfers[w] for w in gameweeks) <= options['hit_limit'], name='horizon_hit_limit')
 
     # Objectives
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
@@ -344,10 +378,10 @@ def solve_multi_period_fpl(data, options):
     picks = []
     for w in gameweeks:
         for p in players:
-            if squad[p,w].get_value() + transfer_out[p,w].get_value() > 0.5:
+            if squad[p,w].get_value() + squad_fh[p,w].get_value() + transfer_out[p,w].get_value() > 0.5:
                 lp = merged_data.loc[p]
                 is_captain = 1 if captain[p,w].get_value() > 0.5 else 0
-                is_squad = 1 if squad[p,w].get_value() > 0.5 else 0
+                is_squad = 1 if (use_fh[w].get_value() < 0.5 and squad[p,w].get_value() > 0.5) or (use_fh[w].get_value() > 0.5 and squad_fh[p,w].get_value() > 0.5) else 0
                 is_lineup = 1 if lineup[p,w].get_value() > 0.5 else 0
                 is_vice = 1 if vicecap[p,w].get_value() > 0.5 else 0
                 is_transfer_in = 1 if transfer_in[p,w].get_value() > 0.5 else 0
@@ -359,11 +393,14 @@ def solve_multi_period_fpl(data, options):
                 position = type_data.loc[lp['element_type'], 'singular_name_short']
                 player_buy_price = 0 if not is_transfer_in else buy_price[p]
                 player_sell_price = 0 if not is_transfer_out else (sell_price[p] if p in price_modified_players and transfer_out_first[p,w].get_value() > 0.5 else buy_price[p])
+                multiplier = 1*(is_lineup==1) + 1*(is_captain==1)
+                xp_cont = points_player_week[p,w] * multiplier
+                
                 picks.append([
-                    w, lp['web_name'], position, lp['element_type'], lp['name'], player_buy_price, player_sell_price, round(points_player_week[p,w],2), minutes_player_week[p,w], is_squad, is_lineup, bench_value, is_captain, is_vice, is_transfer_in, is_transfer_out
+                    w, lp['web_name'], position, lp['element_type'], lp['name'], player_buy_price, player_sell_price, round(points_player_week[p,w],2), minutes_player_week[p,w], is_squad, is_lineup, bench_value, is_captain, is_vice, is_transfer_in, is_transfer_out, multiplier, xp_cont
                 ])
 
-    picks_df = pd.DataFrame(picks, columns=['week', 'name', 'pos', 'type', 'team', 'buy_price', 'sell_price', 'xP', 'xMin', 'squad', 'lineup', 'bench', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
+    picks_df = pd.DataFrame(picks, columns=['week', 'name', 'pos', 'type', 'team', 'buy_price', 'sell_price', 'xP', 'xMin', 'squad', 'lineup', 'bench', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out', 'multiplier', 'xp_cont']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
     total_xp = so.expr_sum((lineup[p,w] + captain[p,w]) * points_player_week[p,w] for p in players for w in gameweeks).get_value()
 
     picks_df.sort_values(by=['week', 'squad', 'lineup', 'bench', 'type'], ascending=[True, False, False, True, True], inplace=True)
@@ -372,6 +409,7 @@ def solve_multi_period_fpl(data, options):
     summary_of_actions = ""
     for w in gameweeks:
         summary_of_actions += f"** GW {w}:\n"
+        summary_of_actions += "CHIP " + ("WC" if use_wc[w].get_value() > 0.5 else "") + ("FH" if use_fh[w].get_value() > 0.5 else "") + ("BB" if use_bb[w].get_value() > 0.5 else "") + "\n"
         summary_of_actions += f"ITB={in_the_bank[w].get_value()}, FT={free_transfers[w].get_value()}, PT={penalized_transfers[w].get_value()}, NT={number_of_transfers[w].get_value()}\n"
         for p in players:
             if transfer_in[p,w].get_value() > 0.5:
@@ -379,6 +417,14 @@ def solve_multi_period_fpl(data, options):
         for p in players:
             if transfer_out[p,w].get_value() > 0.5:
                 summary_of_actions += f"Sell {p} - {merged_data['web_name'][p]}\n"
+
+        lineup_players = picks_df[(picks_df['week'] == w) & (picks_df['lineup'] == 1)]
+        bench_players = picks_df[(picks_df['week'] == w) & (picks_df['bench'] >= 0)]
+
+        summary_of_actions += "---\nLineup: " + ', '.join(lineup_players['name'].tolist()) + "\n"
+        summary_of_actions += "Bench: " + ', '.join(bench_players['name'].tolist()) + "\n"
+        summary_of_actions += "Lineup xPts: " + str(round(lineup_players['xp_cont'].sum(),2)) + "\n---\n\n"
+
 
     if options.get('delete_tmp'):
         os.unlink(f"tmp/{problem_name}_{problem_id}.mps")
