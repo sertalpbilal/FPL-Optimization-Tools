@@ -100,7 +100,8 @@ You will need to follow steps below to install required platform and also optimi
         "locked": [],
         "delete_tmp": true,
         "secs": 300,
-        "use_cmd": false
+        "use_cmd": false,
+        "booked_transfers": []
     }
   ```
 
@@ -114,6 +115,7 @@ You will need to follow steps below to install required platform and also optimi
   - `delete_tmp`: `true` or `false` whether to delete generated temporary files after solve
   - `secs`: time limit for the solve (in seconds)
   - `use_cmd`: whether to use `os.system` or `subprocess` for running solver, default is `false`
+  - `booked_transfers`: list of booked transfers for future gameweeks. needs to have a `gw` key and at least one of `transfer_in` or `transfer_out` with the player ID  (e.g. `233` for Salah)
 
 - Run the multi-period optimization
   
