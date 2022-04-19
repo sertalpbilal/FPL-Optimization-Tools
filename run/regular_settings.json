@@ -16,5 +16,6 @@
     "use_fh": null,
     "chip_limits": {"bb": 0, "wc": 0, "fh": 0, "tc": 0},
     "future_transfer_limit": null,
-    "no_transfers_gws": []
+    "no_transfers_gws": [],
+    "booked_transfers": []
 }

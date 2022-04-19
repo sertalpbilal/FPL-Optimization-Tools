@@ -174,6 +174,7 @@ def solve_multi_period_fpl(data, options):
     if ft <= 0:
         ft = 0
     chip_limits = options.get('chip_limits', dict())
+    booked_transfers = options.get('booked_transfers', [])
 
     # Data
     problem_name = f'mp_h{horizon}_regular' if objective == 'regular' else f'mp_h{horizon}_o{objective[0]}_d{decay_base}'
@@ -335,6 +336,22 @@ def solve_multi_period_fpl(data, options):
     if options.get("no_transfer_gws", None) is not None:
         if len(options['no_transfer_gws']) > 0:
             model.add_constraint(so.expr_sum(transfer_in[p,w] for p in players for w in options['no_transfer_gws']) == 0, name='banned_gws_for_tr')
+    
+    for booked_transfer in booked_transfers:
+        transfer_gw = booked_transfer.get('gw', None)
+
+        if transfer_gw is None:
+            continue
+
+        player_in = booked_transfer.get('transfer_in', None)
+        player_out = booked_transfer.get('transfer_out', None)
+
+        if player_in is not None:
+            model.add_constraint(transfer_in[player_in, transfer_gw] == 1,
+                                 name=f'booked_transfer_in_{transfer_gw}_{player_in}')
+        if player_out is not None:
+            model.add_constraint(transfer_out[player_out, transfer_gw] == 1,
+                                 name=f'booked_transfer_out_{transfer_gw}_{player_out}')
 
     # Objectives
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}

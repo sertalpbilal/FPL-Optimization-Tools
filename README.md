@@ -102,7 +102,8 @@ You will need to follow steps below to install required platform and also optimi
         "secs": 300,
         "use_cmd": false,
         "future_transfer_limit": null,
-        "no_transfer_gws": []
+        "no_transfer_gws": [],
+        "booked_transfers": []
     }
   ```
 
@@ -118,6 +119,7 @@ You will need to follow steps below to install required platform and also optimi
   - `use_cmd`: whether to use `os.system` or `subprocess` for running solver, default is `false`
   - `future_transfer_limit`: upper bound how many transfers are allowed in future GWs
   - `no_transfer_gws`: list of GW numbers where transfers are not allowed
+  - `booked_transfers`: list of booked transfers for future gameweeks. needs to have a `gw` key and at least one of `transfer_in` or `transfer_out` with the player ID  (e.g. `233` for Salah)
 
 - Run the multi-period optimization
   
