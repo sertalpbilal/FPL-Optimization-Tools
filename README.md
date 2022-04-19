@@ -84,7 +84,7 @@ You will need to follow steps below to install required platform and also optimi
   And run either `solve_regular.py` (for regular GW solve) or `solve_wildcard.py` (for wildcard optimization)  
   See instructions below.
 
-### Multi-period (regular) GW optimization
+### Multi-period GW optimization
 
 
 - Edit content of `regular_settings.json` file
@@ -103,7 +103,12 @@ You will need to follow steps below to install required platform and also optimi
         "use_cmd": false,
         "future_transfer_limit": null,
         "no_transfer_gws": [],
-        "booked_transfers": []
+        "booked_transfers": [],
+        "use_wc": null,
+        "use_bb": null,
+        "use_fh": null,
+        "num_transfers": null,
+        "hit_limit": null,
     }
   ```
 
@@ -119,7 +124,12 @@ You will need to follow steps below to install required platform and also optimi
   - `use_cmd`: whether to use `os.system` or `subprocess` for running solver, default is `false`
   - `future_transfer_limit`: upper bound how many transfers are allowed in future GWs
   - `no_transfer_gws`: list of GW numbers where transfers are not allowed
-  - `booked_transfers`: list of booked transfers for future gameweeks. needs to have a `gw` key and at least one of `transfer_in` or `transfer_out` with the player ID  (e.g. `233` for Salah)
+  - `booked_transfers`: list of booked transfers for future gameweeks. needs to have a `gw` key and at least one of `transfer_in` or `transfer_out` with the player ID  (e.g. `233` for Salah),
+  - `use_wc`: GW to use wildcard (fixed)
+  - `use_bb`: GW to use bench boost (fixed)
+  - `use_fh`: GW to use free hit (fixed)
+  - `num_transfers`: fixed number of transfers for this GW
+  - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
 
 - Run the multi-period optimization
   
@@ -133,44 +143,6 @@ You will need to follow steps below to install required platform and also optimi
     > cd results
     > ls
     regular_2021-11-04_10-00-00.csv
-  ```
-
-
-
-### Wildcard optimization
-
-
-- Edit content of `wildcard_settings.json` file
-  
-  ``` json
-    { 
-        "horizon": 4,
-        "use_wc": 8,
-        "no_future_transfer": true,
-        "randomized": false,
-        "wc_limit": 1,
-        "banned": [],
-        "locked": [],
-        "delete_tmp": true,
-        "secs": 120
-    }
-  ```
-
-  - `use_wc`: GW number you want to use your wildcard (use `null` if you want optimization to choose it for you)
-  - `wc_limit`: 1 or 0, depending on you want to use WC chip or not
-
-- Run the wildcard optimization
-  
-  ``` shell
-  python solve_wildcard.py
-  ```
-
-- Find the optimal plans under `run\results` directory with timestamp
-  
-  ```
-    > cd results
-    > ls
-    wildcard_2021-10-04_10-49-07.csv  wildcard_2021-10-04_10-54-50.csv
   ```
 
 # License
