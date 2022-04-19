@@ -100,7 +100,9 @@ You will need to follow steps below to install required platform and also optimi
         "locked": [],
         "delete_tmp": true,
         "secs": 300,
-        "use_cmd": false
+        "use_cmd": false,
+        "future_transfer_limit": null,
+        "no_transfer_gws": []
     }
   ```
 
@@ -114,6 +116,8 @@ You will need to follow steps below to install required platform and also optimi
   - `delete_tmp`: `true` or `false` whether to delete generated temporary files after solve
   - `secs`: time limit for the solve (in seconds)
   - `use_cmd`: whether to use `os.system` or `subprocess` for running solver, default is `false`
+  - `future_transfer_limit`: upper bound how many transfers are allowed in future GWs
+  - `no_transfer_gws`: list of GW numbers where transfers are not allowed
 
 - Run the multi-period optimization
   
