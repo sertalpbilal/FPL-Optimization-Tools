@@ -107,6 +107,7 @@ You will need to follow steps below to install required platform and also optimi
         "use_wc": null,
         "use_bb": null,
         "use_fh": null,
+        "chip_limits": {"bb": 0, "wc": 0, "fh": 0, "tc": 0},
         "num_transfers": null,
         "hit_limit": null,
     }
@@ -128,6 +129,7 @@ You will need to follow steps below to install required platform and also optimi
   - `use_wc`: GW to use wildcard (fixed)
   - `use_bb`: GW to use bench boost (fixed)
   - `use_fh`: GW to use free hit (fixed)
+  - `chip_limits`: how many chips of each kind can be used by solver (you need to set it to at least 1 when force using a chip)
   - `num_transfers`: fixed number of transfers for this GW
   - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
 
