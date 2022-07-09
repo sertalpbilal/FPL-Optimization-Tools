@@ -415,6 +415,8 @@ def solve_multi_period_fpl(data, options):
 
         highs_exec = options.get('solver_path', 'highs')
 
+        secs = options.get('secs', 20*60)
+
         command = f'{highs_exec} --presolve off --model_file tmp/{problem_name}_{problem_id}.mps --time_limit {secs} --solution_file tmp/{problem_name}_{problem_id}_sol.txt'
         if use_cmd:
             os.system(command)
