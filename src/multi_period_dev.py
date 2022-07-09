@@ -78,7 +78,7 @@ def prep_data(my_data, options):
     element_data = pd.DataFrame(fpl_data['elements'])
     team_data = pd.DataFrame(fpl_data['teams'])
     elements_team = pd.merge(element_data, team_data, left_on='team', right_on='id')
-    review_data = pd.read_csv('../data/fplreview.csv')
+    review_data = pd.read_csv(options.get('data_path', '../data/fplreview.csv'))
     review_data = review_data.fillna(0)
     review_data['review_id'] = review_data.index+1
     merged_data = pd.merge(elements_team, review_data, left_on='id_x', right_on='review_id')
@@ -378,31 +378,70 @@ def solve_multi_period_fpl(data, options):
 
     use_cmd = options.get('use_cmd', False)
 
-    command = f'cbc tmp/{problem_name}_{problem_id}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_sol_init.txt'
-    if use_cmd:
-        os.system(command)
-    else:
-        process = Popen(command, shell=False)
-        process.wait()
-    secs = options.get('secs', 20*60)
-    command = f'cbc tmp/{problem_name}_{problem_id}.mps mips tmp/{problem_name}_{problem_id}_sol_init.txt cost column sec {secs} solve solu tmp/{problem_name}_{problem_id}_sol.txt'
-    if use_cmd:
-        os.system(command)
-    else:
-        process = Popen(command, shell=False) # add 'stdout=DEVNULL' for disabling logs
-        process.wait()
+    solver = options.get('solver', 'cbc')
 
-    t1 = time.time()
-    print(t1-t0, "seconds passed")
+    if solver == 'cbc':
 
-    # Parsing
-    with open(f'tmp/{problem_name}_{problem_id}_sol.txt', 'r') as f:
-        for line in f:
-            if 'objective value' in line:
-                continue
-            words = line.split()
-            var = model.get_variable(words[1])
-            var.set_value(float(words[2]))
+        command = f'cbc tmp/{problem_name}_{problem_id}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_sol_init.txt'
+        if use_cmd:
+            os.system(command)
+        else:
+            process = Popen(command, shell=False)
+            process.wait()
+        secs = options.get('secs', 20*60)
+        command = f'cbc tmp/{problem_name}_{problem_id}.mps mips tmp/{problem_name}_{problem_id}_sol_init.txt cost column sec {secs} solve solu tmp/{problem_name}_{problem_id}_sol.txt'
+        if use_cmd:
+            os.system(command)
+        else:
+            process = Popen(command, shell=False) # add 'stdout=DEVNULL' for disabling logs
+            process.wait()
+
+        t1 = time.time()
+        print(t1-t0, "seconds passed")
+
+        # Parsing
+        with open(f'tmp/{problem_name}_{problem_id}_sol.txt', 'r') as f:
+            for line in f:
+                if 'objective value' in line:
+                    continue
+                words = line.split()
+                var = model.get_variable(words[1])
+                var.set_value(float(words[2]))
+
+    elif solver == 'highs':
+
+        highs_exec = options.get('solver_path', 'highs')
+
+        command = f'{highs_exec} --presolve off --model_file tmp/{problem_name}_{problem_id}.mps --time_limit {secs} --solution_file tmp/{problem_name}_{problem_id}_sol.txt'
+        if use_cmd:
+            os.system(command)
+        else:
+            process = Popen(command, shell=False)
+            process.wait()
+
+        # Parsing
+        with open(f'tmp/{problem_name}_{problem_id}_sol.txt', 'r') as f:
+            cols_started = False
+            for line in f:
+                if not cols_started and "# Columns" not in line:
+                    continue
+                elif "# Columns" in line:
+                    cols_started = True
+                    continue
+                elif cols_started and line[0] != "#":
+                    words = line.split()
+                    v = model.get_variable(words[0])
+                    try:
+                        if v.get_type() == so.INT:
+                            v.set_value(round(float(words[1])))
+                        elif v.get_type() == so.BIN:
+                            v.set_value(round(float(words[1])))
+                        elif v.get_type() == so.CONT:
+                            v.set_value(round(float(words[1]),3))
+                    except:
+                        print("Error", words[0], line)
+                elif line[0] == "#":
+                    break
 
     # DataFrame generation
     picks = []
