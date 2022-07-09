@@ -120,7 +120,10 @@ def prep_data(my_data, options):
 
 
     itb = my_data['transfers']['bank']/10
-    ft = my_data['transfers']['limit'] - my_data['transfers']['made']
+    if my_data['transfers']['limit'] is None:
+        ft = 1
+    else:
+        ft = my_data['transfers']['limit'] - my_data['transfers']['made']
     if ft < 0:
         ft = 0
     # If wildcard is active, then you have: "status_for_entry": "active" under my_data['chips']
