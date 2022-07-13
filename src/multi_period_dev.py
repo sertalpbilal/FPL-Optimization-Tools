@@ -53,7 +53,11 @@ def connect():
         r = session.get('https://fantasy.premierleague.com/api/me/')
         if r.status_code != 200:
             raise ValueError('Cannot read data')
-    return [session, r.json()['player']['entry']]
+        try:
+            return [session, r.json()['player']['entry']]
+        except:
+            return [None, None]
+    
 
 
 def get_my_data(session, team_id):
@@ -398,6 +402,8 @@ def solve_multi_period_fpl(data, options):
         else:
             process = Popen(command, shell=False) # add 'stdout=DEVNULL' for disabling logs
             process.wait()
+
+        # Popen fix with split?
 
         t1 = time.time()
         print(t1-t0, "seconds passed")
