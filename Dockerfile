@@ -12,7 +12,7 @@ RUN useradd --create-home --shell /bin/bash app_user
 
 WORKDIR /fpl-optimization
 
-RUN git clone https://github.com/sertalpbilal/FPL-Optimization-Tools.git . \
+RUN git clone https://github.com/prmac/FPL-Optimization-Tools.git . \
   && python -m pip install -r requirements.txt
 
 WORKDIR /fpl-optimization/run/

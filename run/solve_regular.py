@@ -12,9 +12,9 @@ if __name__=="__main__":
     parser.add_argument("-p", "--projections", help = "csv file of projections downloaded from FPLReview")
 
     args = parser.parse_args()
-    team = Path(args.team)
-    settings = Path(args.settings)
-    projections = Path(args.projections)
+    team = pathlib.Path(args.team)
+    settings = pathlib.Path(args.settings)
+    projections = pathlib.Path(args.projections)
     
     base_folder = pathlib.Path()
     sys.path.append(str(base_folder / "../src"))
