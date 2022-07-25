@@ -20,7 +20,7 @@ if __name__=="__main__":
     sys.path.append(str(base_folder / "../src"))
     from multi_period_dev import connect, get_my_data, prep_data, solve_multi_period_fpl
 
-    with open(settings)) as f:
+    with open(settings) as f:
         options = json.load(f)
 
     if options.get("cbc_path") != "":
