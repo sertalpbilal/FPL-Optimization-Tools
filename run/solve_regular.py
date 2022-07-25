@@ -12,6 +12,9 @@ if __name__=="__main__":
     with open('regular_settings.json') as f:
         options = json.load(f)
 
+    if options.get("cbc_path") != "":
+        os.environ['PATH'] += os.pathsep + options.get("cbc_path")
+
     if options.get("preseason"):
         my_data = {'picks': [], 'chips': [], 'transfers': {'limit': None, 'cost': 4, 'bank': 1000, 'value': 0}}
     elif options.get("use_login", False):

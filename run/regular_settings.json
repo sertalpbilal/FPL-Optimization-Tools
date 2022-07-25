@@ -20,5 +20,6 @@
     "no_transfer_gws": [],
     "booked_transfers": [],
     "preseason": false,
-    "use_login": false
+    "use_login": false,
+    "cbc_path": ""
 }

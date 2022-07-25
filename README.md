@@ -102,7 +102,8 @@ You will need to follow steps below to install required platform and also optimi
         "chip_limits": {"bb": 0, "wc": 0, "fh": 0, "tc": 0},
         "num_transfers": null,
         "hit_limit": null,
-        "preseason": false
+        "preseason": false,
+        "cbc_path": ""
     }
   ```
 
@@ -127,6 +128,7 @@ You will need to follow steps below to install required platform and also optimi
   - `num_transfers`: fixed number of transfers for this GW
   - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
   - `preseason`: solve flag for GW1 where team data is not important
+  - `cbc_path`: binary location of the cbc solver (`bin` folder)
 
 - Run the multi-period optimization
   
