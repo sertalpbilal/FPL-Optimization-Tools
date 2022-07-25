@@ -85,7 +85,7 @@ You will need to follow steps below to install required platform and also optimi
         "horizon": 5,
         "ft_value": 1.5,
         "itb_value": 0.2,
-        "no_future_transfer": false,
+        "no_future_transfer": true,
         "randomized": false,
         "xmin_lb": 2,
         "banned": [],
