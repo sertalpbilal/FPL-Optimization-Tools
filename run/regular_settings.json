@@ -4,6 +4,7 @@
     "itb_value": 0.08,
     "no_future_transfer": false,
     "randomized": false,
+    "xmin_lb": 2,
     "banned": [],
     "locked": [],
     "delete_tmp": true,
@@ -17,5 +18,7 @@
     "chip_limits": {"bb": 0, "wc": 0, "fh": 0, "tc": 0},
     "future_transfer_limit": null,
     "no_transfer_gws": [],
-    "booked_transfers": []
+    "booked_transfers": [],
+    "preseason": false,
+    "use_login": false
 }

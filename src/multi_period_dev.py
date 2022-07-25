@@ -21,6 +21,7 @@ def xmin_to_prob(xmin, sub_on=0.5, sub_off=0.3):
     return start + (1-start) * sub_on
 
 def connect():
+    print("This method is provided for people who want to automate login. However with 2FA changes, it is unlikely to work, and I'd suggest using team.json method from now on as explained in README file.")
     base_folder = Path()
     with open(base_folder / "../data/login.json") as f:
         credentials = json.load(f)
@@ -116,12 +117,13 @@ def prep_data(my_data, options):
     buy_price = (merged_data['now_cost']/10).to_dict()
     sell_price = {i['element']: i['selling_price']/10 for i in my_data['picks']}
     price_modified_players = []
-    for i in my_data['picks']:
-        if buy_price[i['element']] != sell_price[i['element']]:
-            price_modified_players.append(i['element'])
-            print(f"Added player {i['element']} to list, buy price {buy_price[i['element']]} sell price {sell_price[i['element']]}")
-
-
+    
+    preseason = options.get('preseason', False)
+    if not preseason:
+        for i in my_data['picks']:
+            if buy_price[i['element']] != sell_price[i['element']]:
+                price_modified_players.append(i['element'])
+                print(f"Added player {i['element']} to list, buy price {buy_price[i['element']]} sell price {sell_price[i['element']]}")
 
     itb = my_data['transfers']['bank']/10
     if my_data['transfers']['limit'] is None:
@@ -182,6 +184,7 @@ def solve_multi_period_fpl(data, options):
         ft = 0
     chip_limits = options.get('chip_limits', dict())
     booked_transfers = options.get('booked_transfers', [])
+    preseason = options.get('preseason', False)
 
     # Data
     problem_name = f'mp_h{horizon}_regular' if objective == 'regular' else f'mp_h{horizon}_o{objective[0]}_d{decay_base}'
@@ -191,6 +194,11 @@ def solve_multi_period_fpl(data, options):
     next_gw = data['next_gw']
     initial_squad = data['initial_squad']
     itb = data['itb']
+    if preseason:
+        itb = 100
+        threshold_gw = 2
+    else:
+        threshold_gw = next_gw
 
     # Sets
     players = merged_data.index.to_list()
@@ -286,9 +294,11 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((transfer_in[p,w] <= 1-use_fh[w] for p in players for w in gameweeks), name='no_tr_in_fh')
     model.add_constraints((transfer_out[p,w] <= 1-use_fh[w] for p in players for w in gameweeks), name='no_tr_out_fh')
     ## Free transfer constraints
-    model.add_constraints((free_transfers[w] == aux[w] + 1 for w in gameweeks if w > next_gw), name='aux_ft_rel')
-    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w-1] - 2 * use_fh[w-1] <= 2 * aux[w] for w in gameweeks if w > next_gw), name='force_aux_1')
-    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w-1] - 2 * use_fh[w-1] >= aux[w] + (-14)*(1-aux[w]) for w in gameweeks if w > next_gw), name='force_aux_2')
+    model.add_constraints((free_transfers[w] == aux[w] + 1 for w in gameweeks if w > threshold_gw), name='aux_ft_rel')
+    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w-1] - 2 * use_fh[w-1] <= 2 * aux[w] for w in gameweeks if w > threshold_gw), name='force_aux_1')
+    model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w-1] - 2 * use_fh[w-1] >= aux[w] + (-14)*(1-aux[w]) for w in gameweeks if w > threshold_gw), name='force_aux_2')
+    if preseason:
+        model.add_constraint(free_transfers[threshold_gw] == 1, name='ps_initial_ft')
     model.add_constraints((penalized_transfers[w] >= transfer_diff[w] for w in gameweeks), name='pen_transfer_rel')
     ## Chip constraints
     model.add_constraints((use_wc[w] + use_fh[w] + use_bb[w] <= 1 for w in gameweeks), name='single_chip')

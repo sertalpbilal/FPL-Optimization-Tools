@@ -59,23 +59,7 @@ You will need to follow steps below to install required platform and also optimi
   python -m pip install -r requirements.txt
   ```
 
-- Navigate to `data` directory and copy login file without `sample` extension
-  
-  ``` shell
-  cd data
-  cp login.json.sample login.json
-  ```
-
 - Download FPLReview projections and save it under `data` and rename it to `fplreview.csv`
-
-- Edit values inside `login.json` file:
-  
-  ``` json
-  {
-    "email": "myemail@email.com",
-    "password": "mypassword"
-  }
-  ```
 
 - Navigate to `run` directory
   
@@ -83,6 +67,13 @@ You will need to follow steps below to install required platform and also optimi
 
   And run either `solve_regular.py` (for regular GW solve) or `solve_wildcard.py` (for wildcard optimization)  
   See instructions below.
+
+- Log in FPL from your browser and open 
+  https://fantasy.premierleague.com/api/my-team/MY_TEAM_ID/
+  after replacing `MY_TEAM_ID` with your team id.
+  Copy the content of the page into `run\team.json` file, by creating one.
+
+  A sample team.json file is provided for your reference: `team.json.sample`
 
 ### Multi-period GW optimization
 
@@ -96,6 +87,7 @@ You will need to follow steps below to install required platform and also optimi
         "itb_value": 0.2,
         "no_future_transfer": false,
         "randomized": false,
+        "xmin_lb": 2,
         "banned": [],
         "locked": [],
         "delete_tmp": true,
@@ -110,6 +102,7 @@ You will need to follow steps below to install required platform and also optimi
         "chip_limits": {"bb": 0, "wc": 0, "fh": 0, "tc": 0},
         "num_transfers": null,
         "hit_limit": null,
+        "preseason": false
     }
   ```
 
@@ -118,6 +111,7 @@ You will need to follow steps below to install required platform and also optimi
   - `itb_value`: value assigned to having 1.0 extra budget
   - `no_future_transfer`: `true` or `false` whether you want to plan future transfers or not
   - `randomized`: `true` or `false` whether you would like to add random noise to EV
+  - `xmin_lb`: cut-off for dropping players below this many minutes expectation
   - `banned`: list of banned player IDs
   - `locked`: list of player IDs to always have during the horizon (e.g. `233` for Salah)
   - `delete_tmp`: `true` or `false` whether to delete generated temporary files after solve
@@ -132,6 +126,7 @@ You will need to follow steps below to install required platform and also optimi
   - `chip_limits`: how many chips of each kind can be used by solver (you need to set it to at least 1 when force using a chip)
   - `num_transfers`: fixed number of transfers for this GW
   - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
+  - `preseason`: solve flag for GW1 where team data is not important
 
 - Run the multi-period optimization
   
