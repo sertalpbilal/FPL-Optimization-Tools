@@ -15,10 +15,6 @@ WORKDIR /fpl-optimization
 RUN git clone https://github.com/sertalpbilal/FPL-Optimization-Tools.git . \
   && python -m pip install -r requirements.txt
 
-COPY fplreview.csv /fpl-optimization/data
-COPY team.json /fpl-optimization/run
-COPY regular_settings.json /fpl-optimization/run
-
 WORKDIR /fpl-optimization/run/
 
 ENTRYPOINT [ "python", "solve_regular.py" ]
