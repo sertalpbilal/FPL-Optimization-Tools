@@ -148,8 +148,26 @@ You will need to follow steps below to install required platform and also optimi
 
 A Dockerised version of the solver is included in this repo which
 includes all dependencies required to run the program and save 
-results.  Docker must be installed on the 
+results.  Docker must be installed on the host machine.
 
+To pull the Docker image:
+
+```shell
+> docker pull ghcr.io/prmac/fploptimizationtools:gw1
+```
+
+Then to run the solver:
+
+```
+docker run -ti -v /path/to/data/folder/:/fpl-optimization/data/ fploptimizationtools:GW1
+```
+
+where `/path/to/data/folder` is the absolute path to a folder 
+containing the following files:
+
+ - `team.json`
+ - `regular_settings.json`
+ - `fplreview.csv`
 
 # License
 
