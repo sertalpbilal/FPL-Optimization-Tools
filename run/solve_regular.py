@@ -9,7 +9,7 @@ if __name__=="__main__":
     sys.path.append(str(base_folder / "../src"))
     from multi_period_dev import connect, get_my_data, prep_data, solve_multi_period_fpl
 
-    with open('regular_settings.json') as f:
+    with open('../data/regular_settings.json') as f:
         options = json.load(f)
 
     if options.get("cbc_path") != "":
@@ -22,7 +22,7 @@ if __name__=="__main__":
         if session is None and team_id is None:
             exit(0)
     else:
-        with open('team.json') as f:
+        with open('../data/team.json') as f:
             my_data = json.load(f)
     data = prep_data(my_data, options)
 
@@ -30,4 +30,6 @@ if __name__=="__main__":
     print(result['summary'])
     time_now = datetime.datetime.now()
     stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
-    result['picks'].to_csv(f"results/regular_{stamp}.csv")
+    if not (os.path.exists("../data/results/")):
+        os.mkdir("../data/results/")
+    result['picks'].to_csv(f"../data/results/regular_{stamp}.csv")
