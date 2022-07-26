@@ -71,7 +71,7 @@ You will need to follow steps below to install required platform and also optimi
 - Log in FPL from your browser and open 
   https://fantasy.premierleague.com/api/my-team/MY_TEAM_ID/
   after replacing `MY_TEAM_ID` with your team id.
-  Copy the content of the page into `run\team.json` file, by creating one.
+  Copy the content of the page into `data\team.json` file, by creating one.
 
   A sample team.json file is provided for your reference: `team.json.sample`
 
@@ -136,13 +136,20 @@ You will need to follow steps below to install required platform and also optimi
   python solve_regular.py
   ```
 
-- Find the optimal plans under `run\results` directory with timestamp
+- Find the optimal plans under `data\results` directory with timestamp
   
   ```
-    > cd results
+    > cd ../data/results
     > ls
     regular_2021-11-04_10-00-00.csv
   ```
+
+## Run in Docker
+
+A Dockerised version of the solver is included in this repo which
+includes all dependencies required to run the program and save 
+results.  Docker must be installed on the 
+
 
 # License
 

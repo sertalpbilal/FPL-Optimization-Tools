@@ -15,8 +15,13 @@ WORKDIR /fpl-optimization
 RUN git clone https://github.com/prmac/FPL-Optimization-Tools.git . \
   && python -m pip install -r requirements.txt
 
+RUN chown -R app_user /fpl-optimization
+RUN chmod -R 755 /fpl-optimization
+
 WORKDIR /fpl-optimization/run/
 
+USER app_user
+
 ENTRYPOINT [ "python", "solve_regular.py" ]
-CMD [ "" ]
+CMD [ "bash" ]
 
