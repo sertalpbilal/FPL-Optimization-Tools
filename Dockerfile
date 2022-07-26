@@ -18,4 +18,5 @@ RUN git clone https://github.com/prmac/FPL-Optimization-Tools.git . \
 WORKDIR /fpl-optimization/run/
 
 ENTRYPOINT [ "python", "solve_regular.py" ]
+CMD [ "" ]
 
