@@ -19,7 +19,7 @@
     "future_transfer_limit": null,
     "no_transfer_gws": [],
     "booked_transfers": [],
-    "preseason": false,
+    "preseason": true,
     "use_login": false,
     "cbc_path": ""
 }
