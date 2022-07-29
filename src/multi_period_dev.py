@@ -204,7 +204,8 @@ def solve_multi_period_fpl(data, options):
     players = merged_data.index.to_list()
     element_types = type_data.index.to_list()
     teams = team_data['name'].to_list()
-    gameweeks = list(range(next_gw, next_gw+horizon))
+    last_gw = next_gw + horizon - 1
+    gameweeks = list(range(next_gw, last_gw + 1))
     all_gw = [next_gw-1] + gameweeks
     order = [0, 1, 2, 3]
     price_modified_players = data['price_modified_players']
@@ -341,6 +342,11 @@ def solve_multi_period_fpl(data, options):
     if options.get("no_future_transfer"):
         model.add_constraint(so.expr_sum(transfer_in[p,w] for p in players for w in gameweeks if w > next_gw and w != options.get('use_wc')) == 0, name='no_future_transfer')
 
+    if options.get("no_transfer_last_gws"):
+        no_tr_gws = options['no_transfer_last_gws']
+        if horizon > no_tr_gws:
+            model.add_constraints((so.expr_sum(transfer_in[p,w] for p in players) <= 15 * use_wc[w] for w in gameweeks if w > last_gw - no_tr_gws), name='tr_ban_gws')
+
     if options.get("num_transfers", None) is not None:
         model.add_constraint(so.expr_sum(transfer_in[p,next_gw] for p in players) == options['num_transfers'], name='tr_limit')
 
@@ -399,19 +405,33 @@ def solve_multi_period_fpl(data, options):
 
     if solver == 'cbc':
 
-        command = f'cbc tmp/{problem_name}_{problem_id}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_sol_init.txt'
-        if use_cmd:
-            os.system(command)
+        if options.get('single_solve') is True:
+
+            gap = options.get('gap', 0)
+            secs = options.get('secs', 20*60)
+
+            command = f'cbc tmp/{problem_name}_{problem_id}.mps cost column ratio {gap} sec {secs} solve solu tmp/{problem_name}_{problem_id}_sol.txt'
+            if use_cmd:
+                os.system(command)
+            else:
+                process = Popen(command, shell=False)
+                process.wait()
+
         else:
-            process = Popen(command, shell=False)
-            process.wait()
-        secs = options.get('secs', 20*60)
-        command = f'cbc tmp/{problem_name}_{problem_id}.mps mips tmp/{problem_name}_{problem_id}_sol_init.txt cost column sec {secs} solve solu tmp/{problem_name}_{problem_id}_sol.txt'
-        if use_cmd:
-            os.system(command)
-        else:
-            process = Popen(command, shell=False) # add 'stdout=DEVNULL' for disabling logs
-            process.wait()
+
+            command = f'cbc tmp/{problem_name}_{problem_id}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_sol_init.txt'
+            if use_cmd:
+                os.system(command)
+            else:
+                process = Popen(command, shell=False)
+                process.wait()
+            secs = options.get('secs', 20*60)
+            command = f'cbc tmp/{problem_name}_{problem_id}.mps mips tmp/{problem_name}_{problem_id}_sol_init.txt cost column sec {secs} solve solu tmp/{problem_name}_{problem_id}_sol.txt'
+            if use_cmd:
+                os.system(command)
+            else:
+                process = Popen(command, shell=False) # add 'stdout=DEVNULL' for disabling logs
+                process.wait()
 
         # Popen fix with split?
 
@@ -499,7 +519,9 @@ def solve_multi_period_fpl(data, options):
     summary_of_actions = ""
     for w in gameweeks:
         summary_of_actions += f"** GW {w}:\n"
-        summary_of_actions += "CHIP " + ("WC" if use_wc[w].get_value() > 0.5 else "") + ("FH" if use_fh[w].get_value() > 0.5 else "") + ("BB" if use_bb[w].get_value() > 0.5 else "") + "\n"
+        chip_decision = ("WC" if use_wc[w].get_value() > 0.5 else "") + ("FH" if use_fh[w].get_value() > 0.5 else "") + ("BB" if use_bb[w].get_value() > 0.5 else "")
+        if chip_decision != "":
+            summary_of_actions += "CHIP " + chip_decision + "\n"
         summary_of_actions += f"ITB={in_the_bank[w].get_value()}, FT={free_transfers[w].get_value()}, PT={penalized_transfers[w].get_value()}, NT={number_of_transfers[w].get_value()}\n"
         for p in players:
             if transfer_in[p,w].get_value() > 0.5:
@@ -511,8 +533,19 @@ def solve_multi_period_fpl(data, options):
         lineup_players = picks_df[(picks_df['week'] == w) & (picks_df['lineup'] == 1)]
         bench_players = picks_df[(picks_df['week'] == w) & (picks_df['bench'] >= 0)]
 
-        summary_of_actions += "---\nLineup: " + ', '.join(lineup_players['name'].tolist()) + "\n"
-        summary_of_actions += "Bench: " + ', '.join(bench_players['name'].tolist()) + "\n"
+        captain = picks_df[(picks_df['week'] == w) & (picks_df['captain'] == 1)].iloc[0]['name']
+        vicecap = picks_df[(picks_df['week'] == w) & (picks_df['vicecaptain'] == 1)].iloc[0]['name']
+
+        summary_of_actions += "---\nLineup: \n"
+
+        def get_display(row):
+            return f"{row['name']} ({row['xP']}{', C' if row['captain'] == 1 else ''}{', V' if row['vicecaptain'] == 1 else ''})"
+
+        for type in [1,2,3,4]:
+            type_players = lineup_players[lineup_players['type'] == type]
+            entries = type_players.apply(get_display, axis=1)
+            summary_of_actions += '\t' + ', '.join(entries.tolist()) + "\n"
+        summary_of_actions += "Bench: \n\t" + ', '.join(bench_players['name'].tolist()) + "\n"
         summary_of_actions += "Lineup xPts: " + str(round(lineup_players['xp_cont'].sum(),2)) + "\n---\n\n"
 
 
