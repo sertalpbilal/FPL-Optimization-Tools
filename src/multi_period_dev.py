@@ -141,6 +141,11 @@ def prep_data(my_data, options):
                 options['chip_limits']['wc'] = 1
             break
 
+    # Fixture info
+    team_code_dict = team_data.set_index('id')['name'].to_dict()
+    fixture_data = requests.get('https://fantasy.premierleague.com/api/fixtures/').json()
+    fixtures = [{'gw': f['event'], 'home': team_code_dict[f['team_h']], 'away': team_code_dict[f['team_a']]} for f in fixture_data]
+
     return {
         'merged_data': merged_data,
         'team_data': team_data,
@@ -152,7 +157,8 @@ def prep_data(my_data, options):
         'buy_price': buy_price,
         'price_modified_players': price_modified_players,
         'itb': itb,
-        'ft': ft
+        'ft': ft,
+        'fixtures': fixtures
         }
 
 
@@ -194,6 +200,7 @@ def solve_multi_period_fpl(data, options):
     next_gw = data['next_gw']
     initial_squad = data['initial_squad']
     itb = data['itb']
+    fixtures = data['fixtures']
     if preseason:
         itb = 100
         threshold_gw = 2
@@ -375,6 +382,13 @@ def solve_multi_period_fpl(data, options):
         if player_out is not None:
             model.add_constraint(transfer_out[player_out, transfer_gw] == 1,
                                  name=f'booked_transfer_out_{transfer_gw}_{player_out}')
+
+    if options.get('no_opposing_play') is True:
+        for gw in gameweeks:
+            gw_games = [i for i in fixtures if i['gw'] == gw]
+            opposing_players = [(p1,p2) for f in gw_games for p1 in players if merged_data.loc[p1, 'name'] == f['home'] for p2 in players if merged_data.loc[p2, 'name'] == f['away']]
+            model.add_constraints((lineup[p1,gw] + lineup[p2,gw] <= 1 for (p1,p2) in opposing_players), name=f'no_opp_{gw}')
+
 
     # Objectives
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}

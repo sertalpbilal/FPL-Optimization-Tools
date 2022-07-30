@@ -24,5 +24,6 @@
     "booked_transfers": [],
     "preseason": true,
     "use_login": false,
-    "cbc_path": ""
+    "cbc_path": "",
+    "no_opposing_play": false
 }
