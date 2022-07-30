@@ -103,7 +103,8 @@ You will need to follow steps below to install required platform and also optimi
         "num_transfers": null,
         "hit_limit": null,
         "preseason": false,
-        "cbc_path": ""
+        "cbc_path": "",
+        "no_opposing_play": false
     }
   ```
 
@@ -129,6 +130,7 @@ You will need to follow steps below to install required platform and also optimi
   - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
   - `preseason`: solve flag for GW1 where team data is not important
   - `cbc_path`: binary location of the cbc solver (`bin` folder)
+  - `no_opposing_play`: `true` if you do not want to have players in your lineup playing against each other in a GW 
 
 - Run the multi-period optimization
   
