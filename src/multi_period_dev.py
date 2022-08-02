@@ -89,6 +89,11 @@ def prep_data(my_data, options):
     merged_data = pd.merge(elements_team, review_data, left_on='id_x', right_on='review_id')
     merged_data.set_index(['id_x'], inplace=True)
 
+    # Check if data exists
+    for week in range(gw, min(39, gw+horizon)):
+        if f'{week}_Pts' not in review_data.keys():
+            raise ValueError(f"{week}_Pts is not inside prediction data, change your horizon parameter or update your prediction data")
+
     original_keys = merged_data.columns.to_list()
     keys = [k for k in original_keys if "_Pts" in k]
     min_keys = [k for k in original_keys if "_xMins" in k]
