@@ -25,5 +25,6 @@
     "preseason": true,
     "use_login": false,
     "cbc_path": "",
-    "no_opposing_play": false
+    "no_opposing_play": false,
+    "pick_prices": {"G": "", "D": "", "M": "", "F": ""}
 }

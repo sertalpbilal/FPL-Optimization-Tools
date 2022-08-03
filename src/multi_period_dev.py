@@ -394,6 +394,19 @@ def solve_multi_period_fpl(data, options):
             opposing_players = [(p1,p2) for f in gw_games for p1 in players if merged_data.loc[p1, 'name'] == f['home'] for p2 in players if merged_data.loc[p2, 'name'] == f['away']]
             model.add_constraints((lineup[p1,gw] + lineup[p2,gw] <= 1 for (p1,p2) in opposing_players), name=f'no_opp_{gw}')
 
+    if options.get("pick_prices") is not None:
+        buffer = 0.2
+        price_choices = options["pick_prices"]
+        for (pos,val) in price_choices.items():
+            if val == '':
+                continue
+            price_points = [float(i) for i in val.split(',')]
+            value_dict = {i: price_points.count(i) for i in set(price_points)}
+            con_iter = 0
+            for key, count in value_dict.items():
+                target_players = [p for p in players if merged_data.loc[p, 'Pos'] == pos and buy_price[p] >= key - buffer and buy_price[p] <= key + buffer]
+                model.add_constraints((so.expr_sum(squad[p,w] for p in target_players) >= count for w in gameweeks), name=f'price_point_{pos}_{con_iter}')
+                con_iter += 1
 
     # Objectives
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}

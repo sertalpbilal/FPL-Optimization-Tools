@@ -104,7 +104,8 @@ You will need to follow steps below to install required platform and also optimi
         "hit_limit": null,
         "preseason": false,
         "cbc_path": "",
-        "no_opposing_play": false
+        "no_opposing_play": false,
+        "pick_prices": {"G": "", "D": "", "M": "", "F": ""}
     }
   ```
 
@@ -131,6 +132,9 @@ You will need to follow steps below to install required platform and also optimi
   - `preseason`: solve flag for GW1 where team data is not important
   - `cbc_path`: binary location of the cbc solver (`bin` folder)
   - `no_opposing_play`: `true` if you do not want to have players in your lineup playing against each other in a GW 
+  - `pick_prices`: price points of players you want to force in a comma separated string.
+    For example, to force two 11.5M forwards, and one 8M midfielder, use
+    `"pick_prices": {"G": "", "D": "", "M": "8", "F": "11.5,11.5"}`
 
 - Run the multi-period optimization
   
