@@ -85,7 +85,10 @@ def prep_data(my_data, options):
     elements_team = pd.merge(element_data, team_data, left_on='team', right_on='id')
     review_data = pd.read_csv(options.get('data_path', '../data/fplreview.csv'))
     review_data = review_data.fillna(0)
-    review_data['review_id'] = review_data.index+1
+    if 'ID' in review_data:
+        review_data['review_id'] = review_data['ID']
+    else:
+        review_data['review_id'] = review_data.index+1
     merged_data = pd.merge(elements_team, review_data, left_on='id_x', right_on='review_id')
     merged_data.set_index(['id_x'], inplace=True)
 
