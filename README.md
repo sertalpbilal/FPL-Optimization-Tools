@@ -85,7 +85,9 @@ You will need to follow steps below to install required platform and also optimi
         "horizon": 5,
         "ft_value": 1.5,
         "itb_value": 0.2,
+        "decay_base": 0.84,
         "no_future_transfer": true,
+        "no_transfer_last_gws": 0,
         "randomized": false,
         "xmin_lb": 2,
         "banned": [],
@@ -112,7 +114,9 @@ You will need to follow steps below to install required platform and also optimi
   - `horizon`: length of planning horizon
   - `ft_value`: value assigned to the extra free transfer
   - `itb_value`: value assigned to having 1.0 extra budget
+  - `decay_base`: value assigned to decay rate of expected points
   - `no_future_transfer`: `true` or `false` whether you want to plan future transfers or not
+  - `no_transfer_last_gws`: the number of gws at the end of the period you want to ban transfers
   - `randomized`: `true` or `false` whether you would like to add random noise to EV
   - `xmin_lb`: cut-off for dropping players below this many minutes expectation
   - `banned`: list of banned player IDs
