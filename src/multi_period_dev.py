@@ -579,10 +579,9 @@ def solve_multi_period_fpl(data, options):
             entries = type_players.apply(get_display, axis=1)
             summary_of_actions += '\t' + ', '.join(entries.tolist()) + "\n"
         summary_of_actions += "Bench: \n\t" + ', '.join(bench_players['name'].tolist()) + "\n"
-        summary_of_actions += "Lineup xPts: " + str(round(lineup_players['xp_cont'].sum(),2)) + "\n"
+        summary_of_actions += "Lineup xPts: " + str(round(lineup_players['xp_cont'].sum(),2)) + "\n---\n\n"
         cumulative_xpts = cumulative_xpts + round(lineup_players['xp_cont'].sum(),2)
-        summary_of_actions += "Cumulative xPts: " + str(round(cumulative_xpts,2)) + "\n---\n\n"
-
+    print("Cumulative xPts: " + str(round(cumulative_xpts,2)) + "\n---\n\n")
 
     if options.get('delete_tmp'):
         os.unlink(f"tmp/{problem_name}_{problem_id}.mps")
