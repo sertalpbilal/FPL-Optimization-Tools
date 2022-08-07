@@ -552,6 +552,7 @@ def solve_multi_period_fpl(data, options):
 
     # Writing summary
     summary_of_actions = ""
+    cumulative_xpts = 0
     for w in gameweeks:
         summary_of_actions += f"** GW {w}:\n"
         chip_decision = ("WC" if use_wc[w].get_value() > 0.5 else "") + ("FH" if use_fh[w].get_value() > 0.5 else "") + ("BB" if use_bb[w].get_value() > 0.5 else "")
@@ -582,7 +583,8 @@ def solve_multi_period_fpl(data, options):
             summary_of_actions += '\t' + ', '.join(entries.tolist()) + "\n"
         summary_of_actions += "Bench: \n\t" + ', '.join(bench_players['name'].tolist()) + "\n"
         summary_of_actions += "Lineup xPts: " + str(round(lineup_players['xp_cont'].sum(),2)) + "\n---\n\n"
-
+        cumulative_xpts = cumulative_xpts + round(lineup_players['xp_cont'].sum(),2)
+    print("Cumulative xPts: " + str(round(cumulative_xpts,2)) + "\n---\n\n")
 
     if options.get('delete_tmp'):
         os.unlink(f"tmp/{problem_name}_{problem_id}.mps")
