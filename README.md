@@ -107,7 +107,9 @@ You will need to follow steps below to install required platform and also optimi
         "preseason": false,
         "cbc_path": "",
         "no_opposing_play": false,
-        "pick_prices": {"G": "", "D": "", "M": "", "F": ""}
+        "pick_prices": {"G": "", "D": "", "M": "", "F": ""},
+        "iteration": 1,
+        "iteration_criteria": "this_gw_transfer_in"
     }
   ```
 
@@ -138,9 +140,11 @@ You will need to follow steps below to install required platform and also optimi
   - `preseason`: solve flag for GW1 where team data is not important
   - `cbc_path`: binary location of the cbc solver (`bin` folder)
   - `no_opposing_play`: `true` if you do not want to have players in your lineup playing against each other in a GW 
-  - `pick_prices`: price points of players you want to force in a comma separated string.
+  - `pick_prices`: price points of players you want to force in a comma separated string
     For example, to force two 11.5M forwards, and one 8M midfielder, use
     `"pick_prices": {"G": "", "D": "", "M": "8", "F": "11.5,11.5"}`
+  - `iteration`: number of different solutions to be generated, the criteria is controlled by `iteration_criteria`
+  - `iteration_criteria`: rule on separating what a different solution mean, such as `this_gw_transfer_in` will force to replace player to buy current GW in each solution, while `this_gw_transfer_in_out` can find an alternative move with either bought or sold players to be different.
 
 - Run the multi-period optimization
   

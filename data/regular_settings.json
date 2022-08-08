@@ -26,5 +26,7 @@
     "use_login": false,
     "cbc_path": "",
     "no_opposing_play": false,
-    "pick_prices": {"G": "", "D": "", "M": "", "F": ""}
+    "pick_prices": {"G": "", "D": "", "M": "", "F": ""},
+    "iteration": 3,
+    "iteration_criteria": "this_gw_transfer_in"
 }

@@ -3,6 +3,7 @@ import sys
 import pathlib
 import json
 import datetime
+import pandas as pd
 
 if __name__=="__main__":
     base_folder = pathlib.Path()
@@ -26,10 +27,16 @@ if __name__=="__main__":
             my_data = json.load(f)
     data = prep_data(my_data, options)
 
-    result = solve_multi_period_fpl(data, options)
-    print(result['summary'])
-    time_now = datetime.datetime.now()
-    stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
-    if not (os.path.exists("../data/results/")):
-        os.mkdir("../data/results/")
-    result['picks'].to_csv(f"../data/results/regular_{stamp}.csv")
+    response = solve_multi_period_fpl(data, options)
+    for result in response:
+        iter = result['iter']
+        print(result['summary'])
+        time_now = datetime.datetime.now()
+        stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
+        if not (os.path.exists("../data/results/")):
+            os.mkdir("../data/results/")
+        result['picks'].to_csv(f"../data/results/regular_{stamp}_{iter}.csv")
+
+    result_table = pd.DataFrame(response)
+    print(result_table[['iter', 'buy', 'sell', 'score']])
+

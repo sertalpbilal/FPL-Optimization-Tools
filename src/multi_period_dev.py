@@ -421,179 +421,214 @@ def solve_multi_period_fpl(data, options):
         decay_objective = so.expr_sum(gw_total[w] * pow(decay_base, w-next_gw) for w in gameweeks)
         model.set_objective(-decay_objective, sense='N', name='total_decay_xp')
 
-    # Solve
-    tmp_folder = Path() / "tmp"
-    tmp_folder.mkdir(exist_ok=True, parents=True)
-    model.export_mps(f'tmp/{problem_name}_{problem_id}.mps')
-    print(f"Exported problem with name: {problem_name}_{problem_id}")
+    iteration = options.get("iteration", 1)
+    iteration_criteria = options.get("iteration_criteria", "this_gw_transfer_in")
+    solutions = []
 
-    t0 = time.time()
-    time.sleep(0.5)
+    for iter in range(iteration):
 
-    if options.get('export_debug', False) is True:
-        with open("debug.sas", "w") as file:
-            file.write(model.to_optmodel())
+        # Solve
+        tmp_folder = Path() / "tmp"
+        tmp_folder.mkdir(exist_ok=True, parents=True)
+        model.export_mps(f'tmp/{problem_name}_{problem_id}_{iter}.mps')
+        print(f"Exported problem with name: {problem_name}_{problem_id}_{iter}")
 
-    use_cmd = options.get('use_cmd', False)
+        t0 = time.time()
+        time.sleep(0.5)
 
-    solver = options.get('solver', 'cbc')
+        if options.get('export_debug', False) is True:
+            with open("debug.sas", "w") as file:
+                file.write(model.to_optmodel())
 
-    if solver == 'cbc':
+        use_cmd = options.get('use_cmd', False)
 
-        if options.get('single_solve') is True:
+        solver = options.get('solver', 'cbc')
 
-            gap = options.get('gap', 0)
-            secs = options.get('secs', 20*60)
+        if solver == 'cbc':
 
-            command = f'cbc tmp/{problem_name}_{problem_id}.mps cost column ratio {gap} sec {secs} solve solu tmp/{problem_name}_{problem_id}_sol.txt'
-            if use_cmd:
-                os.system(command)
+            if options.get('single_solve') is True:
+
+                gap = options.get('gap', 0)
+                secs = options.get('secs', 20*60)
+
+                command = f'cbc tmp/{problem_name}_{problem_id}_{iter}.mps cost column ratio {gap} sec {secs} solve solu tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
+                if use_cmd:
+                    os.system(command)
+                else:
+                    process = Popen(command, shell=False)
+                    process.wait()
+
             else:
-                process = Popen(command, shell=False)
-                process.wait()
 
-        else:
+                command = f'cbc tmp/{problem_name}_{problem_id}_{iter}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt'
+                if use_cmd:
+                    os.system(command)
+                else:
+                    process = Popen(command, shell=False)
+                    process.wait()
+                secs = options.get('secs', 20*60)
+                command = f'cbc tmp/{problem_name}_{problem_id}_{iter}.mps mips tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt cost column sec {secs} solve solu tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
+                if use_cmd:
+                    os.system(command)
+                else:
+                    process = Popen(command, shell=False) # add 'stdout=DEVNULL' for disabling logs
+                    process.wait()
 
-            command = f'cbc tmp/{problem_name}_{problem_id}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_sol_init.txt'
-            if use_cmd:
-                os.system(command)
-            else:
-                process = Popen(command, shell=False)
-                process.wait()
-            secs = options.get('secs', 20*60)
-            command = f'cbc tmp/{problem_name}_{problem_id}.mps mips tmp/{problem_name}_{problem_id}_sol_init.txt cost column sec {secs} solve solu tmp/{problem_name}_{problem_id}_sol.txt'
-            if use_cmd:
-                os.system(command)
-            else:
-                process = Popen(command, shell=False) # add 'stdout=DEVNULL' for disabling logs
-                process.wait()
+            # Popen fix with split?
 
-        # Popen fix with split?
+            t1 = time.time()
+            print(t1-t0, "seconds passed")
 
-        t1 = time.time()
-        print(t1-t0, "seconds passed")
-
-        # Parsing
-        with open(f'tmp/{problem_name}_{problem_id}_sol.txt', 'r') as f:
-            for line in f:
-                if 'objective value' in line:
-                    continue
-                words = line.split()
-                var = model.get_variable(words[1])
-                var.set_value(float(words[2]))
-
-    elif solver == 'highs':
-
-        highs_exec = options.get('solver_path', 'highs')
-
-        secs = options.get('secs', 20*60)
-
-        command = f'{highs_exec} --presolve off --model_file tmp/{problem_name}_{problem_id}.mps --time_limit {secs} --solution_file tmp/{problem_name}_{problem_id}_sol.txt'
-        if use_cmd:
-            os.system(command)
-        else:
-            process = Popen(command, shell=False)
-            process.wait()
-
-        # Parsing
-        with open(f'tmp/{problem_name}_{problem_id}_sol.txt', 'r') as f:
-            cols_started = False
-            for line in f:
-                if not cols_started and "# Columns" not in line:
-                    continue
-                elif "# Columns" in line:
-                    cols_started = True
-                    continue
-                elif cols_started and line[0] != "#":
+            # Parsing
+            with open(f'tmp/{problem_name}_{problem_id}_{iter}_sol.txt', 'r') as f:
+                for v in model.get_variables():
+                    v.set_value(0)
+                for line in f:
+                    if 'objective value' in line:
+                        continue
                     words = line.split()
-                    v = model.get_variable(words[0])
-                    try:
-                        if v.get_type() == so.INT:
-                            v.set_value(round(float(words[1])))
-                        elif v.get_type() == so.BIN:
-                            v.set_value(round(float(words[1])))
-                        elif v.get_type() == so.CONT:
-                            v.set_value(round(float(words[1]),3))
-                    except:
-                        print("Error", words[0], line)
-                elif line[0] == "#":
-                    break
+                    var = model.get_variable(words[1])
+                    var.set_value(float(words[2]))
 
-    # DataFrame generation
-    picks = []
-    for w in gameweeks:
-        for p in players:
-            if squad[p,w].get_value() + squad_fh[p,w].get_value() + transfer_out[p,w].get_value() > 0.5:
-                lp = merged_data.loc[p]
-                is_captain = 1 if captain[p,w].get_value() > 0.5 else 0
-                is_squad = 1 if (use_fh[w].get_value() < 0.5 and squad[p,w].get_value() > 0.5) or (use_fh[w].get_value() > 0.5 and squad_fh[p,w].get_value() > 0.5) else 0
-                is_lineup = 1 if lineup[p,w].get_value() > 0.5 else 0
-                is_vice = 1 if vicecap[p,w].get_value() > 0.5 else 0
-                is_transfer_in = 1 if transfer_in[p,w].get_value() > 0.5 else 0
-                is_transfer_out = 1 if transfer_out[p,w].get_value() > 0.5 else 0
-                bench_value = -1
-                for o in order:
-                    if bench[p,w,o].get_value() > 0.5:
-                        bench_value = o
-                position = type_data.loc[lp['element_type'], 'singular_name_short']
-                player_buy_price = 0 if not is_transfer_in else buy_price[p]
-                player_sell_price = 0 if not is_transfer_out else (sell_price[p] if p in price_modified_players and transfer_out_first[p,w].get_value() > 0.5 else buy_price[p])
-                multiplier = 1*(is_lineup==1) + 1*(is_captain==1)
-                xp_cont = points_player_week[p,w] * multiplier
-                
-                picks.append([
-                    w, lp['web_name'], position, lp['element_type'], lp['name'], player_buy_price, player_sell_price, round(points_player_week[p,w],2), minutes_player_week[p,w], is_squad, is_lineup, bench_value, is_captain, is_vice, is_transfer_in, is_transfer_out, multiplier, xp_cont
-                ])
+        elif solver == 'highs':
 
-    picks_df = pd.DataFrame(picks, columns=['week', 'name', 'pos', 'type', 'team', 'buy_price', 'sell_price', 'xP', 'xMin', 'squad', 'lineup', 'bench', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out', 'multiplier', 'xp_cont']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
-    total_xp = so.expr_sum((lineup[p,w] + captain[p,w]) * points_player_week[p,w] for p in players for w in gameweeks).get_value()
+            highs_exec = options.get('solver_path', 'highs')
 
-    picks_df.sort_values(by=['week', 'squad', 'lineup', 'bench', 'type'], ascending=[True, False, False, True, True], inplace=True)
+            secs = options.get('secs', 20*60)
 
-    # Writing summary
-    summary_of_actions = ""
-    cumulative_xpts = 0
-    for w in gameweeks:
-        summary_of_actions += f"** GW {w}:\n"
-        chip_decision = ("WC" if use_wc[w].get_value() > 0.5 else "") + ("FH" if use_fh[w].get_value() > 0.5 else "") + ("BB" if use_bb[w].get_value() > 0.5 else "")
-        if chip_decision != "":
-            summary_of_actions += "CHIP " + chip_decision + "\n"
-        summary_of_actions += f"ITB={in_the_bank[w].get_value()}, FT={free_transfers[w].get_value()}, PT={penalized_transfers[w].get_value()}, NT={number_of_transfers[w].get_value()}\n"
-        for p in players:
-            if transfer_in[p,w].get_value() > 0.5:
-                summary_of_actions += f"Buy {p} - {merged_data['web_name'][p]}\n"
-        for p in players:
-            if transfer_out[p,w].get_value() > 0.5:
-                summary_of_actions += f"Sell {p} - {merged_data['web_name'][p]}\n"
+            command = f'{highs_exec} --presolve off --model_file tmp/{problem_name}_{problem_id}_{iter}.mps --time_limit {secs} --solution_file tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
+            if use_cmd:
+                os.system(command)
+            else:
+                process = Popen(command, shell=False)
+                process.wait()
 
-        lineup_players = picks_df[(picks_df['week'] == w) & (picks_df['lineup'] == 1)]
-        bench_players = picks_df[(picks_df['week'] == w) & (picks_df['bench'] >= 0)]
+            # Parsing
+            with open(f'tmp/{problem_name}_{problem_id}_{iter}_sol.txt', 'r') as f:
+                for v in model.get_variables():
+                    v.set_value(0)
+                cols_started = False
+                for line in f:
+                    if not cols_started and "# Columns" not in line:
+                        continue
+                    elif "# Columns" in line:
+                        cols_started = True
+                        continue
+                    elif cols_started and line[0] != "#":
+                        words = line.split()
+                        v = model.get_variable(words[0])
+                        try:
+                            if v.get_type() == so.INT:
+                                v.set_value(round(float(words[1])))
+                            elif v.get_type() == so.BIN:
+                                v.set_value(round(float(words[1])))
+                            elif v.get_type() == so.CONT:
+                                v.set_value(round(float(words[1]),3))
+                        except:
+                            print("Error", words[0], line)
+                    elif line[0] == "#":
+                        break
 
-        captain = picks_df[(picks_df['week'] == w) & (picks_df['captain'] == 1)].iloc[0]['name']
-        vicecap = picks_df[(picks_df['week'] == w) & (picks_df['vicecaptain'] == 1)].iloc[0]['name']
+        # DataFrame generation
+        picks = []
+        for w in gameweeks:
+            for p in players:
+                if squad[p,w].get_value() + squad_fh[p,w].get_value() + transfer_out[p,w].get_value() > 0.5:
+                    lp = merged_data.loc[p]
+                    is_captain = 1 if captain[p,w].get_value() > 0.5 else 0
+                    is_squad = 1 if (use_fh[w].get_value() < 0.5 and squad[p,w].get_value() > 0.5) or (use_fh[w].get_value() > 0.5 and squad_fh[p,w].get_value() > 0.5) else 0
+                    is_lineup = 1 if lineup[p,w].get_value() > 0.5 else 0
+                    is_vice = 1 if vicecap[p,w].get_value() > 0.5 else 0
+                    is_transfer_in = 1 if transfer_in[p,w].get_value() > 0.5 else 0
+                    is_transfer_out = 1 if transfer_out[p,w].get_value() > 0.5 else 0
+                    bench_value = -1
+                    for o in order:
+                        if bench[p,w,o].get_value() > 0.5:
+                            bench_value = o
+                    position = type_data.loc[lp['element_type'], 'singular_name_short']
+                    player_buy_price = 0 if not is_transfer_in else buy_price[p]
+                    player_sell_price = 0 if not is_transfer_out else (sell_price[p] if p in price_modified_players and transfer_out_first[p,w].get_value() > 0.5 else buy_price[p])
+                    multiplier = 1*(is_lineup==1) + 1*(is_captain==1)
+                    xp_cont = points_player_week[p,w] * multiplier
+                    
+                    picks.append([
+                        w, lp['web_name'], position, lp['element_type'], lp['name'], player_buy_price, player_sell_price, round(points_player_week[p,w],2), minutes_player_week[p,w], is_squad, is_lineup, bench_value, is_captain, is_vice, is_transfer_in, is_transfer_out, multiplier, xp_cont
+                    ])
 
-        summary_of_actions += "---\nLineup: \n"
+        picks_df = pd.DataFrame(picks, columns=['week', 'name', 'pos', 'type', 'team', 'buy_price', 'sell_price', 'xP', 'xMin', 'squad', 'lineup', 'bench', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out', 'multiplier', 'xp_cont']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
+        total_xp = so.expr_sum((lineup[p,w] + captain[p,w]) * points_player_week[p,w] for p in players for w in gameweeks).get_value()
 
-        def get_display(row):
-            return f"{row['name']} ({row['xP']}{', C' if row['captain'] == 1 else ''}{', V' if row['vicecaptain'] == 1 else ''})"
+        picks_df.sort_values(by=['week', 'squad', 'lineup', 'bench', 'type'], ascending=[True, False, False, True, True], inplace=True)
 
-        for type in [1,2,3,4]:
-            type_players = lineup_players[lineup_players['type'] == type]
-            entries = type_players.apply(get_display, axis=1)
-            summary_of_actions += '\t' + ', '.join(entries.tolist()) + "\n"
-        summary_of_actions += "Bench: \n\t" + ', '.join(bench_players['name'].tolist()) + "\n"
-        summary_of_actions += "Lineup xPts: " + str(round(lineup_players['xp_cont'].sum(),2)) + "\n---\n\n"
-        cumulative_xpts = cumulative_xpts + round(lineup_players['xp_cont'].sum(),2)
-    print("Cumulative xPts: " + str(round(cumulative_xpts,2)) + "\n---\n\n")
+        # Writing summary
+        summary_of_actions = ""
+        move_summary = {'buy': [], 'sell': []}
+        cumulative_xpts = 0
+        for w in gameweeks:
+            summary_of_actions += f"** GW {w}:\n"
+            chip_decision = ("WC" if use_wc[w].get_value() > 0.5 else "") + ("FH" if use_fh[w].get_value() > 0.5 else "") + ("BB" if use_bb[w].get_value() > 0.5 else "")
+            if chip_decision != "":
+                summary_of_actions += "CHIP " + chip_decision + "\n"
+            summary_of_actions += f"ITB={in_the_bank[w].get_value()}, FT={free_transfers[w].get_value()}, PT={penalized_transfers[w].get_value()}, NT={number_of_transfers[w].get_value()}\n"
+            for p in players:
+                if transfer_in[p,w].get_value() > 0.5:
+                    summary_of_actions += f"Buy {p} - {merged_data['web_name'][p]}\n"
+                    if w == next_gw:
+                        move_summary['buy'].append(merged_data['web_name'][p])
+            for p in players:
+                if transfer_out[p,w].get_value() > 0.5:
+                    summary_of_actions += f"Sell {p} - {merged_data['web_name'][p]}\n"
+                    if w == next_gw:
+                        move_summary['sell'].append(merged_data['web_name'][p])
 
-    if options.get('delete_tmp'):
-        os.unlink(f"tmp/{problem_name}_{problem_id}.mps")
-        os.unlink(f"tmp/{problem_name}_{problem_id}_sol.txt")
+            lineup_players = picks_df[(picks_df['week'] == w) & (picks_df['lineup'] == 1)]
+            bench_players = picks_df[(picks_df['week'] == w) & (picks_df['bench'] >= 0)]
 
-    return {'model': model, 'picks': picks_df, 'total_xp': total_xp, 'summary': summary_of_actions}
+            # captain_name = picks_df[(picks_df['week'] == w) & (picks_df['captain'] == 1)].iloc[0]['name']
+            # vicecap_name = picks_df[(picks_df['week'] == w) & (picks_df['vicecaptain'] == 1)].iloc[0]['name']
+
+            summary_of_actions += "---\nLineup: \n"
+
+            def get_display(row):
+                return f"{row['name']} ({row['xP']}{', C' if row['captain'] == 1 else ''}{', V' if row['vicecaptain'] == 1 else ''})"
+
+            for type in [1,2,3,4]:
+                type_players = lineup_players[lineup_players['type'] == type]
+                entries = type_players.apply(get_display, axis=1)
+                summary_of_actions += '\t' + ', '.join(entries.tolist()) + "\n"
+            summary_of_actions += "Bench: \n\t" + ', '.join(bench_players['name'].tolist()) + "\n"
+            summary_of_actions += "Lineup xPts: " + str(round(lineup_players['xp_cont'].sum(),2)) + "\n---\n\n"
+            cumulative_xpts = cumulative_xpts + round(lineup_players['xp_cont'].sum(),2)
+        print("Cumulative xPts: " + str(round(cumulative_xpts,2)) + "\n---\n\n")
+
+        if options.get('delete_tmp'):
+            os.unlink(f"tmp/{problem_name}_{problem_id}_{iter}.mps")
+            os.unlink(f"tmp/{problem_name}_{problem_id}_{iter}_sol.txt")
 
 
+        buy_decisions = ', '.join(move_summary['buy'])
+        sell_decisions = ', '.join(move_summary['sell'])
+        if buy_decisions == '':
+            buy_decisions = '-'
+        if sell_decisions == '':
+            sell_decisions = '-'
 
+        if iteration == 1:
+            return {'iter': iter, 'model': model, 'picks': picks_df, 'total_xp': total_xp, 'summary': summary_of_actions, 'buy': buy_decisions, 'sell': sell_decisions, 'score': -model.get_objective_value()}
+
+        # Add current solution to a list, and add a new cut
+        solutions.append({'iter': iter, 'model': model, 'picks': picks_df, 'total_xp': total_xp, 'summary': summary_of_actions, 'buy': buy_decisions, 'sell': sell_decisions, 'score': -model.get_objective_value()})
+        if iteration_criteria == 'this_gw_transfer_in':
+            actions = so.expr_sum(1-transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() > 0.5) \
+                    + so.expr_sum(transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() < 0.5)
+        elif iteration_criteria == 'this_gw_transfer_in_out':
+            actions = so.expr_sum(1-transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() > 0.5) \
+                    + so.expr_sum(transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() < 0.5) \
+                    + so.expr_sum(1-transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() > 0.5) \
+                    + so.expr_sum(transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() < 0.5)
+        model.add_constraint(actions >= 1, name=f'cutoff_{iter}')
+
+    return solutions
 
 if __name__ == '__main__':
 
