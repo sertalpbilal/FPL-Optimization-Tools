@@ -614,7 +614,7 @@ def solve_multi_period_fpl(data, options):
             sell_decisions = '-'
 
         if iteration == 1:
-            return {'iter': iter, 'model': model, 'picks': picks_df, 'total_xp': total_xp, 'summary': summary_of_actions, 'buy': buy_decisions, 'sell': sell_decisions, 'score': -model.get_objective_value()}
+            return [{'iter': iter, 'model': model, 'picks': picks_df, 'total_xp': total_xp, 'summary': summary_of_actions, 'buy': buy_decisions, 'sell': sell_decisions, 'score': -model.get_objective_value()}]
 
         # Add current solution to a list, and add a new cut
         solutions.append({'iter': iter, 'model': model, 'picks': picks_df, 'total_xp': total_xp, 'summary': summary_of_actions, 'buy': buy_decisions, 'sell': sell_decisions, 'score': -model.get_objective_value()})
