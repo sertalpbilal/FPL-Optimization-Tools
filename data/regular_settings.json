@@ -27,6 +27,6 @@
     "cbc_path": "",
     "no_opposing_play": false,
     "pick_prices": {"G": "", "D": "", "M": "", "F": ""},
-    "iteration": 3,
+    "iteration": 1,
     "iteration_criteria": "this_gw_transfer_in"
 }
