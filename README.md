@@ -90,7 +90,7 @@ You will need to follow steps below to install required platform and also optimi
         "no_transfer_last_gws": 0,
         "randomized": false,
         "xmin_lb": 2,
-        "bench_weights": {'0': 0.03, '1': 0.21, '2': 0.06, '3': 0.003},
+        "bench_weights": {"0": 0.03, "1": 0.21, "2": 0.06, "3": 0.003},
         "banned": [],
         "locked": [],
         "delete_tmp": true,
