@@ -84,6 +84,18 @@ def prep_data(my_data, options):
     team_data = pd.DataFrame(fpl_data['teams'])
     elements_team = pd.merge(element_data, team_data, left_on='team', right_on='id')
     review_data = pd.read_csv(options.get('data_path', '../data/fplreview.csv'))
+    
+    # Rename column headers if the projections are from FPL Kiwi
+    for col_name in review_data.columns:
+        if ' ' in col_name:
+            kiwi_category = col_name.split(' ')[0]
+            if kiwi_category == 'xMin':
+                kiwi_category = 'xMins'
+            elif kiwi_category == 'xPts':
+                kiwi_category = 'Pts'
+            kiwi_week = col_name.split(' ')[1]
+            review_data.rename(columns = {col_name : f'{kiwi_week}_{kiwi_category}'}, inplace = True)    
+    
     review_data = review_data.fillna(0)
     if 'ID' in review_data:
         review_data['review_id'] = review_data['ID']
