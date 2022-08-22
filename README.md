@@ -90,6 +90,7 @@ You will need to follow steps below to install required platform and also optimi
         "no_transfer_last_gws": 0,
         "randomized": false,
         "xmin_lb": 2,
+        "bench_weights": {'0': 0.03, '1': 0.21, '2': 0.06, '3': 0.003},
         "banned": [],
         "locked": [],
         "delete_tmp": true,
@@ -121,6 +122,7 @@ You will need to follow steps below to install required platform and also optimi
   - `no_transfer_last_gws`: the number of gws at the end of the period you want to ban transfers
   - `randomized`: `true` or `false` whether you would like to add random noise to EV
   - `xmin_lb`: cut-off for dropping players below this many minutes expectation
+  - `bench_weights`: percentage weights in objective for bench players (gk and 3 outfield)
   - `banned`: list of banned player IDs
   - `locked`: list of player IDs to always have during the horizon (e.g. `233` for Salah)
   - `delete_tmp`: `true` or `false` whether to delete generated temporary files after solve
