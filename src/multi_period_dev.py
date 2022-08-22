@@ -190,6 +190,7 @@ def solve_multi_period_fpl(data, options):
     objective = options.get('objective', 'regular')
     decay_base = options.get('decay_base', 0.84)
     bench_weights = options.get('bench_weights', {0: 0.03, 1: 0.21, 2: 0.06, 3: 0.002})
+    bench_weights = {int(key): value for (key,value) in bench_weights.items()}
     # wc_limit = options.get('wc_limit', 0)
     ft_value = options.get('ft_value', 1.5)
     itb_value = options.get('itb_value', 0.08)
