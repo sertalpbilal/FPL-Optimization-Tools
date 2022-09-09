@@ -12,8 +12,9 @@ RUN useradd --create-home --shell /bin/bash app_user
 
 WORKDIR /fpl-optimization
 
-RUN git clone https://github.com/prmac/FPL-Optimization-Tools.git . \
-  && python -m pip install -r requirements.txt
+COPY . .
+
+RUN python -m pip install -r requirements.txt
 
 RUN chown -R app_user /fpl-optimization
 RUN chmod -R 755 /fpl-optimization

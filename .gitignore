@@ -3,6 +3,7 @@
 *.sol
 *.cmd
 *.code-workspace
+**/__pycache__/
 output/*
 archive/*
 solver/*
