@@ -67,6 +67,38 @@ def get_my_data(session, team_id):
     d['team_id'] = team_id
     return d
 
+def rename_kiwi_columns(review_data):
+    # Rename column headers if the projections are from FPL Kiwi
+    for col_name in review_data.columns:
+        if ' ' in col_name:
+            kiwi_category = col_name.split(' ')[0]
+            if kiwi_category == 'xMin':
+                kiwi_category = 'xMins'
+            elif kiwi_category == 'xPts':
+                kiwi_category = 'Pts'
+            kiwi_week = col_name.split(' ')[1]
+            review_data.rename(columns = {col_name : f'{kiwi_week}_{kiwi_category}'}, inplace=True)
+    return review_data
+
+def get_kiwi_review_avg(gw, review_data, kiwi_data):
+    joined = kiwi_data.set_index('ID', drop=False).join(review_data.set_index('ID', drop=False), how='inner', lsuffix='_kiw', rsuffix='_rev')
+    fplrev_gws = range(gw, min(39, gw+5))
+    for gw in fplrev_gws:
+        # if gw data is present in kiwi data take avg else take fplreview data
+        if f'xPts {gw}' in kiwi_data.columns.to_list():
+            joined[f'{gw} avg pts'] = (joined[f'xPts {gw}'] + joined[f'{gw}_Pts'])/2
+            joined[f'{gw} avg mins'] = (joined[f'xMin {gw}'] + joined[f'{gw}_xMins'])/2
+        else:
+            joined[f'{gw} avg pts'] = joined[f'{gw}_Pts']
+            joined[f'{gw} avg mins'] = joined[f'{gw}_xMins']
+    cols = ['Pos_rev', 'ID_rev', 'Name_rev', 'BV', 'SV', 'Team_rev']\
+         + sorted(([f'{gw} avg pts' for gw in fplrev_gws] + [f'{gw} avg mins' for gw in fplrev_gws]), \
+            key=lambda desc : (int(desc.split(' ')[0]), desc.split(' ')[-1]))
+
+    new_df = joined[cols]
+    new_df.columns = review_data.columns
+    return new_df
+
 
 def prep_data(my_data, options):
     r = requests.get('https://fantasy.premierleague.com/api/bootstrap-static/')
@@ -85,16 +117,17 @@ def prep_data(my_data, options):
     elements_team = pd.merge(element_data, team_data, left_on='team', right_on='id')
     review_data = pd.read_csv(options.get('data_path', '../data/fplreview.csv'))
     
-    # Rename column headers if the projections are from FPL Kiwi
-    for col_name in review_data.columns:
-        if ' ' in col_name:
-            kiwi_category = col_name.split(' ')[0]
-            if kiwi_category == 'xMin':
-                kiwi_category = 'xMins'
-            elif kiwi_category == 'xPts':
-                kiwi_category = 'Pts'
-            kiwi_week = col_name.split(' ')[1]
-            review_data.rename(columns = {col_name : f'{kiwi_week}_{kiwi_category}'}, inplace = True)    
+    datasource = options.get('datasource', 'review')
+    if datasource == 'kiwi':
+        kiwi_data = pd.read_csv(options.get('kiwi_data_path', '../data/kiwi.csv'))
+        review_data = rename_kiwi_columns(kiwi_data)
+    elif datasource == 'avg':
+        review_data = pd.read_csv(options.get('data_path', '../data/fplreview.csv'))
+        kiwi_data = pd.read_csv(options.get('kiwi_data_path', '../data/kiwi.csv'))
+        review_data = get_kiwi_review_avg(gw, review_data, kiwi_data)
+    else:
+        review_data = pd.read_csv(options.get('data_path', '../data/fplreview.csv'))
+        review_data = rename_kiwi_columns(review_data)
     
     review_data = review_data.fillna(0)
     if 'ID' in review_data:
