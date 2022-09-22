@@ -9,6 +9,7 @@ if __name__=="__main__":
     base_folder = pathlib.Path()
     sys.path.append(str(base_folder / "../src"))
     from multi_period_dev import connect, get_my_data, prep_data, solve_multi_period_fpl
+    import data_parser as pr
 
     with open('../data/regular_settings.json') as f:
         options = json.load(f)
@@ -23,8 +24,12 @@ if __name__=="__main__":
         if session is None and team_id is None:
             exit(0)
     else:
-        with open('../data/team.json') as f:
-            my_data = json.load(f)
+        try:
+            with open('../data/team.json') as f:
+                my_data = json.load(f)
+        except FileNotFoundError:
+            print("Download your team data from https://fantasy.premierleague.com/api/my-team/YOUR-TEAM-ID/ and save it under data folder with name 'team.json'")
+            exit(0)
     data = prep_data(my_data, options)
 
     response = solve_multi_period_fpl(data, options)

@@ -148,7 +148,14 @@ You will need to follow steps below to install required platform and also optimi
     `"pick_prices": {"G": "", "D": "", "M": "8", "F": "11.5,11.5"}`
   - `iteration`: number of different solutions to be generated, the criteria is controlled by `iteration_criteria`
   - `iteration_criteria`: rule on separating what a different solution mean, such as `this_gw_transfer_in` will force to replace player to buy current GW in each solution, while `this_gw_transfer_in_out` can find an alternative move with either bought or sold players to be different.
-  - `datasource` : `review`, `kiwi` or `avg` specifies the data to be used between fplreview and kiwi data with the possiblity to use the average of both, kiwi.csv must be present alongside fplreview.csv for it to work.
+  - `datasource` : `review`, `kiwi`, `mikkel` or `avg` specifies the data to be used.
+
+    - `review` requires `fplreview.csv`
+    - `kiwi` requires `kiwi.csv`
+    - `mikkel` requires `TransferAlgorithm.csv`
+  
+    files under `data` folder to be present.
+    `avg` option uses the average of `review` and `kiwi` data.
 
 - Run the multi-period optimization
 

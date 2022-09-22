@@ -11,7 +11,6 @@ from requests import Session
 import random
 import string
 
-
 def get_random_id(n):
     return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
 
@@ -125,6 +124,11 @@ def prep_data(my_data, options):
         review_data = pd.read_csv(options.get('data_path', '../data/fplreview.csv'))
         kiwi_data = pd.read_csv(options.get('kiwi_data_path', '../data/kiwi.csv'))
         review_data = get_kiwi_review_avg(gw, review_data, kiwi_data)
+    elif datasource == 'mikkel':
+        from data_parser import convert_mikkel_to_review
+        convert_mikkel_to_review(options.get('mikkel_data_path', '../data/TransferAlgorithm.csv'))
+        review_data = pd.read_csv('../data/mikkel.csv')
+        review_data['ID'] = review_data['review_id']
     else:
         review_data = pd.read_csv(options.get('data_path', '../data/fplreview.csv'))
         review_data = rename_kiwi_columns(review_data)
