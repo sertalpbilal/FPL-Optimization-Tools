@@ -110,7 +110,8 @@ You will need to follow steps below to install required platform and also optimi
         "no_opposing_play": false,
         "pick_prices": {"G": "", "D": "", "M": "", "F": ""},
         "iteration": 1,
-        "iteration_criteria": "this_gw_transfer_in"
+        "iteration_criteria": "this_gw_transfer_in",
+        "datasource" : "review"
     }
   ```
 
@@ -147,6 +148,7 @@ You will need to follow steps below to install required platform and also optimi
     `"pick_prices": {"G": "", "D": "", "M": "8", "F": "11.5,11.5"}`
   - `iteration`: number of different solutions to be generated, the criteria is controlled by `iteration_criteria`
   - `iteration_criteria`: rule on separating what a different solution mean, such as `this_gw_transfer_in` will force to replace player to buy current GW in each solution, while `this_gw_transfer_in_out` can find an alternative move with either bought or sold players to be different.
+  - `datasource` : `review`, `kiwi` or `avg` specifies the data to be used between fplreview and kiwi data with the possiblity to use the average of both, kiwi.csv must be present alongside fplreview.csv for it to work.
 
 - Run the multi-period optimization
 
