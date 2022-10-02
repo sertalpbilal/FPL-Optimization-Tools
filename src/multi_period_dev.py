@@ -236,7 +236,7 @@ def solve_multi_period_fpl(data, options):
     # Arguments
     problem_id = get_random_id(5)
     horizon = options.get('horizon', 3)
-    objective = options.get('objective', 'regular')
+    objective = options.get('objective', 'decay')
     decay_base = options.get('decay_base', 0.84)
     bench_weights = options.get('bench_weights', {0: 0.03, 1: 0.21, 2: 0.06, 3: 0.002})
     bench_weights = {int(key): value for (key,value) in bench_weights.items()}
