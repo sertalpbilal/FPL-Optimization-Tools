@@ -29,7 +29,8 @@ def fix_mikkel(file_address):
     for t in teams:
         t['mikkel_short'] = mikkel_team_dict.get(t['short_name'], t['short_name'])
 
-    df['BCV_numeric'] = pd.to_numeric(df[' BCV '], errors='coerce')
+    df['BCV_clean'] = df[' BCV '].astype(str).str.replace('\((.*)\)', '-\\1').astype(str).str.strip()
+    df['BCV_numeric'] = pd.to_numeric(df['BCV_clean'], errors='coerce')
     df_cleaned = df[~((df['Player'] == '0') | (df['No.'].isnull()) | (df['BCV_numeric'].isnull()) | (df['No.'].isnull()))].copy()
     print(len(df), len(df_cleaned))
     df_cleaned['Clean_Name'] = df_cleaned['Player'].apply(remove_accents)
