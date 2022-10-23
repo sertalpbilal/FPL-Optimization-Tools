@@ -236,7 +236,7 @@ def solve_multi_period_fpl(data, options):
     # Arguments
     problem_id = get_random_id(5)
     horizon = options.get('horizon', 3)
-    objective = options.get('objective', 'regular')
+    objective = options.get('objective', 'decay')
     decay_base = options.get('decay_base', 0.84)
     bench_weights = options.get('bench_weights', {0: 0.03, 1: 0.21, 2: 0.06, 3: 0.002})
     bench_weights = {int(key): value for (key,value) in bench_weights.items()}
@@ -386,7 +386,7 @@ def solve_multi_period_fpl(data, options):
     ## Multiple-sell fix
     model.add_constraints((transfer_out_first[p,w] + transfer_out_regular[p,w] <= 1 for p in price_modified_players for w in gameweeks), name='multi_sell_1')
     model.add_constraints((
-        (wbar - next_gw + 1) * so.expr_sum(transfer_out_first[p,w] for w in gameweeks if w >= wbar) >=
+        horizon * so.expr_sum(transfer_out_first[p,w] for w in gameweeks if w <= wbar) >=
         so.expr_sum(transfer_out_regular[p,w] for w in gameweeks if w >= wbar)
         for p in price_modified_players for wbar in gameweeks
     ), name='multi_sell_2')

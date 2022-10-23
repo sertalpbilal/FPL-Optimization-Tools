@@ -4,6 +4,7 @@ import pathlib
 import json
 import datetime
 import pandas as pd
+import argparse
 
 if __name__=="__main__":
     base_folder = pathlib.Path()
@@ -13,6 +14,16 @@ if __name__=="__main__":
 
     with open('../data/regular_settings.json') as f:
         options = json.load(f)
+
+        parser = argparse.ArgumentParser(add_help=False)
+        for key in options.keys():
+            if isinstance(options[key], (bool, list, dict)):
+                continue
+
+            parser.add_argument(f"--{key}", default=options[key], type=type(options[key]))
+
+        args = parser.parse_known_args()[0]
+        options = {**options, **vars(args)}
 
     if options.get("cbc_path") != "":
         os.environ['PATH'] += os.pathsep + options.get("cbc_path")
@@ -44,4 +55,3 @@ if __name__=="__main__":
 
     result_table = pd.DataFrame(response)
     print(result_table[['iter', 'buy', 'sell', 'score']])
-
