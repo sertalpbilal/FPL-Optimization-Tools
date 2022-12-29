@@ -158,7 +158,8 @@ You will need to follow steps below to install required platform and also optimi
     - `mikkel` requires `TransferAlgorithm.csv`, file
     - `mixed` requires an additional parameter `data_weights`, and any corresponding files mentioned above
   
-    under `data` folder to be present.
+    under `data` folder to be present
+  - `data_weights`: weight percentage for each data source, given as a dictionary, where keys should be one of valid data sources
   - `export_data`: option for exporting final data as a CSV file (when using `mixed` data)
 
 - Run the multi-period optimization
