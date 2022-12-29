@@ -111,7 +111,9 @@ You will need to follow steps below to install required platform and also optimi
         "pick_prices": {"G": "", "D": "", "M": "", "F": ""},
         "iteration": 1,
         "iteration_criteria": "this_gw_transfer_in",
-        "datasource" : "review"
+        "datasource" : "review",
+        "data_weights": {"review": 50, "review-odds": 25, "mikkel": 15, "kiwi": 10},
+        "export_data": "final.csv"
     }
   ```
 
@@ -150,12 +152,14 @@ You will need to follow steps below to install required platform and also optimi
   - `iteration_criteria`: rule on separating what a different solution mean, such as `this_gw_transfer_in` will force to replace player to buy current GW in each solution, while `this_gw_transfer_in_out` can find an alternative move with either bought or sold players to be different.
   - `datasource` : `review`, `kiwi`, `mikkel` or `avg` specifies the data to be used.
 
-    - `review` requires `fplreview.csv`
-    - `kiwi` requires `kiwi.csv`
-    - `mikkel` requires `TransferAlgorithm.csv`
+    - `review` requires `fplreview.csv` file
+    - `review-odds` requires `fplreview-odds.csv` file
+    - `kiwi` requires `kiwi.csv` file
+    - `mikkel` requires `TransferAlgorithm.csv`, file
+    - `mixed` requires an additional parameter `data_weights`, and any corresponding files mentioned above
   
-    files under `data` folder to be present.
-    `avg` option uses the average of `review` and `kiwi` data.
+    under `data` folder to be present.
+  - `export_data`: option for exporting final data as a CSV file (when using `mixed` data)
 
 - Run the multi-period optimization
 

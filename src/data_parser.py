@@ -4,6 +4,76 @@ import requests
 from fuzzywuzzy import fuzz
 import numpy as np
 
+
+def read_data(options, source, weights=None):
+    if source == 'review':
+        data = pd.read_csv(options.get('data_path', '../data/fplreview.csv'))
+        data['review_id'] = data['ID']
+        return data
+    elif source == 'review-odds':
+        data = pd.read_csv(options.get('data_path', '../data/fplreview-odds.csv'))
+        data['review_id'] = data['ID']
+        return data
+    elif source == 'kiwi':
+        kiwi_data = pd.read_csv(options.get('kiwi_data_path', '../data/kiwi.csv'))
+        kiwi_data['review_id'] = kiwi_data['ID']
+        return rename_kiwi_columns(kiwi_data)
+    elif source == 'mikkel':
+        convert_mikkel_to_review(options.get('mikkel_data_path', '../data/TransferAlgorithm.csv'))
+        data = pd.read_csv('../data/mikkel.csv')
+        data['ID'] = data['review_id']
+        return data
+    elif source == 'mixed':
+        # Get each source separately and mix with given weights
+        all_data = []
+        for (name, weight) in weights.items():
+            df = read_data(options, name, None)
+            for col in df.columns:
+                if '_Pts' in col:
+                    df[col.split('_')[0] + '_weight'] = weight
+            all_data.append(df)
+        
+        # Update EV by weight
+        new_data = []
+        # for d, w in zip(data, data_weights):
+        for d in all_data:
+            pts_columns = [i for i in d if '_Pts' in i]
+            min_columns = [i for i in d if '_xMins' in i]
+            weights_cols = [i.split('_')[0] + '_weight' for i in pts_columns]
+            # d[pts_columns] = d[pts_columns].multiply(d[weights_cols], axis='index')
+            d[pts_columns] = pd.DataFrame(d[pts_columns].values * d[weights_cols].values, columns=d[pts_columns].columns, index=d[pts_columns].index)
+            weights_cols = [i.split('_')[0] + '_weight' for i in min_columns]
+            d[min_columns] = pd.DataFrame(d[min_columns].values * d[weights_cols].values, columns=d[min_columns].columns, index=d[min_columns].index)
+            new_data.append(d.copy())
+
+        combined_data = pd.concat(new_data, ignore_index=True)
+        combined_data = combined_data.copy()
+        combined_data['real_id'] = combined_data['review_id']
+        combined_data.reset_index(drop=True, inplace=True)
+
+        key_dict = {}
+        for i in combined_data.columns.to_list():
+            if '_weight' in i: # weight column
+                key_dict[i] = 'sum'
+            elif "_xMins" in i:
+                key_dict[i] = 'sum'
+            elif '_Pts' in i:
+                key_dict[i] = 'sum'
+            else:
+                key_dict[i] = 'first'
+
+        # key_dict = {i: 'first' if ("_x" not in i and "_P" not in i) else 'median' for i in main_keys}
+        grouped_data = combined_data.groupby('real_id').agg(key_dict)
+        final_data = grouped_data[grouped_data['review_id'] != 0].copy()
+        # adjust by weight sum for each player
+        for c in final_data.columns:
+            if '_Pts' in c or '_xMins' in c:
+                gw = c.split('_')[0]
+                final_data[c] = final_data[c] / final_data[gw + '_weight']
+
+        return final_data
+
+
 # To remove accents in names
 def fix_name_dialect(name):
     new_name = ''.join([c for c in normalize('NFKD', name) if not combining(c)])
@@ -149,6 +219,39 @@ def convert_mikkel_to_review(target):
 
     df_final.set_index('fpl_id', inplace=True)
     df_final.to_csv(f'../data/mikkel.csv')
+
+
+def rename_kiwi_columns(review_data):
+    # Rename column headers if the projections are from FPL Kiwi
+    for col_name in review_data.columns:
+        if ' ' in col_name:
+            kiwi_category = col_name.split(' ')[0]
+            if kiwi_category == 'xMin':
+                kiwi_category = 'xMins'
+            elif kiwi_category == 'xPts':
+                kiwi_category = 'Pts'
+            kiwi_week = col_name.split(' ')[1]
+            review_data.rename(columns = {col_name : f'{kiwi_week}_{kiwi_category}'}, inplace=True)
+    return review_data
+
+def get_kiwi_review_avg(gw, review_data, kiwi_data):
+    joined = kiwi_data.set_index('ID', drop=False).join(review_data.set_index('ID', drop=False), how='inner', lsuffix='_kiw', rsuffix='_rev')
+    fplrev_gws = range(gw, min(39, gw+5))
+    for gw in fplrev_gws:
+        # if gw data is present in kiwi data take avg else take fplreview data
+        if f'xPts {gw}' in kiwi_data.columns.to_list():
+            joined[f'{gw} avg pts'] = (joined[f'xPts {gw}'] + joined[f'{gw}_Pts'])/2
+            joined[f'{gw} avg mins'] = (joined[f'xMin {gw}'] + joined[f'{gw}_xMins'])/2
+        else:
+            joined[f'{gw} avg pts'] = joined[f'{gw}_Pts']
+            joined[f'{gw} avg mins'] = joined[f'{gw}_xMins']
+    cols = ['Pos_rev', 'ID_rev', 'Name_rev', 'BV', 'SV', 'Team_rev']\
+         + sorted(([f'{gw} avg pts' for gw in fplrev_gws] + [f'{gw} avg mins' for gw in fplrev_gws]), \
+            key=lambda desc : (int(desc.split(' ')[0]), desc.split(' ')[-1]))
+
+    new_df = joined[cols]
+    new_df.columns = review_data.columns
+    return new_df
 
 
 # convert_mikkel_to_review("../data/TransferAlgorithm.csv")
