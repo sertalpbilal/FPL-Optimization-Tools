@@ -169,6 +169,7 @@ def convert_mikkel_to_review(target):
     new_names = {i: i.strip() for i in raw_data.columns}
     raw_data.rename(columns=new_names, inplace=True)
 
+    raw_data['Price'] = pd.to_numeric(raw_data['Price'], errors='coerce')
     df_clean = raw_data[raw_data['Price'] < 20].copy()
     df_clean['Weighted minutes'].fillna('90', inplace=True)
     df_clean['review_id'] = df_clean['FPL ID'].astype(int)
