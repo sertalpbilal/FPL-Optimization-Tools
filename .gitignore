@@ -3,10 +3,13 @@
 *.sol
 *.cmd
 *.code-workspace
+**/__pycache__/
 output/*
 archive/*
 solver/*
 */.ipynb_checkpoints/*
 data/fplreview.csv
+data/kiwi.csv
+data/TransferAlgorithm.csv
 data/login.json
 run/results/*.csv

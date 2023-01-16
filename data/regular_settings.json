@@ -22,9 +22,14 @@
     "future_transfer_limit": null,
     "no_transfer_gws": [],
     "booked_transfers": [],
-    "preseason": true,
+    "preseason": false,
     "use_login": false,
     "cbc_path": "",
     "no_opposing_play": false,
-    "pick_prices": {"G": "", "D": "", "M": "", "F": ""}
+    "pick_prices": {"G": "", "D": "", "M": "", "F": ""},
+    "iteration": 1,
+    "iteration_criteria": "this_gw_transfer_in",
+    "datasource" : "review",
+    "data_weights": {"review": 50, "review-odds": 25, "mikkel": 15, "kiwi": 10},
+    "export_data": "final.csv"
 }
