@@ -85,6 +85,8 @@ def get_best_score(r):
 # To add FPL ID column to Mikkel's data and clean empty rows
 def fix_mikkel(file_address):
     df = pd.read_csv(file_address, encoding='latin1')
+    # Fix column names
+    df.columns = df.columns.str.strip()
     remove_accents = fix_name_dialect
     r = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
     players = r.json()['elements']
@@ -99,7 +101,7 @@ def fix_mikkel(file_address):
     for t in teams:
         t['mikkel_short'] = mikkel_team_dict.get(t['short_name'], t['short_name'])
 
-    df['BCV_clean'] = df[' BCV '].astype(str).str.replace('\((.*)\)', '-\\1', regex=True).astype(str).str.strip()
+    df['BCV_clean'] = df['BCV'].astype(str).str.replace('\((.*)\)', '-\\1', regex=True).astype(str).str.strip()
     df['BCV_numeric'] = pd.to_numeric(df['BCV_clean'], errors='coerce')
     # drop -1 BCV
     df = df[df['BCV_numeric'] != -1].copy()
@@ -164,9 +166,9 @@ def fix_mikkel(file_address):
         missing_players.append({
             'Position': element_type_dict[p['element_type']],
             'Player': p['web_name'],
-            ' Price ': p['now_cost'] / 10,
+            'Price': p['now_cost'] / 10,
             'FPL ID': p['id'],
-            ' Weighted minutes ': 0
+            'Weighted minutes': 0
         })
 
     df_full = pd.concat([df_cleaned, pd.DataFrame(missing_players)]).fillna(0)
