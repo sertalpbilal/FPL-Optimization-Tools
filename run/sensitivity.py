@@ -9,7 +9,7 @@ print()
 directory = '../data/results/'
 no_plans = len(os.listdir(directory))
 
-if situation == "N" or "n": 
+if situation == "N" or situation == "n": 
 
     buys = []
     sells = []
@@ -43,7 +43,7 @@ if situation == "N" or "n":
     print('\n'.join(sell_sum.to_string(index = False).split('\n')[1:]))
     print()
 
-elif situation == "Y" or "y":
+elif situation == "Y" or situation == "y":
 
     goalkeepers = []
     defenders = []
