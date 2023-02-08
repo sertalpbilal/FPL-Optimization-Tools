@@ -3,9 +3,9 @@ import os
 import glob
 import time
 
-print("Remember to delete results folder and enable noise!")
+print("Remember to delete results folder and enable noise! Also note: you may reach your results faster to run multiple tabs of this script")
 print("")
-runs = int(input("How many simulations? "))
+runs = int(input("How many simulations would you like to run? "))
 
 start = time.time()
 
