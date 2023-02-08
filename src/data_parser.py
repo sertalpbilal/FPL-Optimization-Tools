@@ -85,6 +85,8 @@ def get_best_score(r):
 # To add FPL ID column to Mikkel's data and clean empty rows
 def fix_mikkel(file_address):
     df = pd.read_csv(file_address, encoding='latin1')
+    # Fix column names
+    df.columns = df.columns.str.strip()
     remove_accents = fix_name_dialect
     r = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
     players = r.json()['elements']
@@ -99,10 +101,11 @@ def fix_mikkel(file_address):
     for t in teams:
         t['mikkel_short'] = mikkel_team_dict.get(t['short_name'], t['short_name'])
 
-    df['BCV_clean'] = df[' BCV '].astype(str).str.replace('\((.*)\)', '-\\1', regex=True).astype(str).str.strip()
+    df['BCV_clean'] = df['BCV'].astype(str).str.replace('\((.*)\)', '-\\1', regex=True).astype(str).str.strip()
     df['BCV_numeric'] = pd.to_numeric(df['BCV_clean'], errors='coerce')
+    # drop -1 BCV
+    df = df[df['BCV_numeric'] != -1].copy()
     df_cleaned = df[~((df['Player'] == '0') | (df['No.'].isnull()) | (df['BCV_numeric'].isnull()) | (df['No.'].isnull()))].copy()
-    print(len(df), len(df_cleaned))
     df_cleaned['Clean_Name'] = df_cleaned['Player'].apply(remove_accents)
     df_cleaned.head()
     mikkel_team_fix = {'WHU': 'WHM'}
@@ -134,10 +137,26 @@ def fix_mikkel(file_address):
         # print(player['Player'], player['Team'], best_match)
 
     entries_df = pd.DataFrame(entries)
+    entries_df['score'] = entries_df[['wn_score', 'cn_score']].max(axis=1)
     entries_df['name_team'] = entries_df['player_input'] + ' @ ' + entries_df['team_input']
     entry_dict = entries_df.set_index('name_team')['id'].to_dict()
+    fpl_name_dict = entries_df.set_index('id')['web_name'].to_dict()
+    score_dict = entries_df.set_index('name_team')['score'].to_dict()
     df_cleaned['name_team'] = df_cleaned['Player'] + ' @ ' + df_cleaned['Team']
     df_cleaned['FPL ID'] = df_cleaned['name_team'].map(entry_dict)
+    df_cleaned['fpl_name'] = df_cleaned['FPL ID'].map(fpl_name_dict)
+    df_cleaned['score'] = df_cleaned['name_team'].map(score_dict)
+
+    # Check for duplicate IDs
+    duplicate_rows = df_cleaned['FPL ID'].duplicated(keep=False)
+    if len(duplicate_rows) > 0:
+        print("WARNING: There are players with duplicate IDs, lowest name match accuracy (score) will be dropped")
+        print(df_cleaned[duplicate_rows][['Player', 'fpl_name', 'score']].head())
+    df_cleaned.sort_values(by=['score'], ascending=[False], inplace=True)
+    df_cleaned = df_cleaned[~df_cleaned['FPL ID'].duplicated(keep='first')].copy()
+    df_cleaned.sort_index(inplace=True)
+
+    print(len(df), len(df_cleaned))
 
     existing_ids = df_cleaned['FPL ID'].tolist()
     missing_players = []
@@ -147,12 +166,14 @@ def fix_mikkel(file_address):
         missing_players.append({
             'Position': element_type_dict[p['element_type']],
             'Player': p['web_name'],
-            ' Price ': p['now_cost'] / 10,
+            'Price': p['now_cost'] / 10,
             'FPL ID': p['id'],
-            ' Weighted minutes ': 0
+            'Weighted minutes': 0
         })
 
     df_full = pd.concat([df_cleaned, pd.DataFrame(missing_players)]).fillna(0)
+
+    # df_full.to_csv("debug.csv")
 
     return df_full
 
