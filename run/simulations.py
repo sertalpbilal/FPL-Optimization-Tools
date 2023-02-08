@@ -3,7 +3,7 @@ import os
 import glob
 import time
 
-print("Remember to delete results folder and enable noise (if wanted)!")
+print("Remember to delete results folder and enable noise!")
 print("")
 runs = int(input("How many simulations? "))
 
