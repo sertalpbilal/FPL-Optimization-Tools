@@ -81,6 +81,35 @@ def read_data(options, source, weights=None):
                 gw = c.split('_')[0]
                 final_data[c] = final_data[c] / final_data[gw + '_weight']
 
+        # Find missing players and add them
+
+        r = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
+        players = r.json()['elements']
+        existing_ids = final_data['review_id'].tolist()
+        element_type_dict = {1: 'G', 2: 'D', 3: 'M', 4: 'F'}
+        teams = r.json()['teams']
+        team_code_dict = {i['code']: i for i in teams}
+        missing_players = []
+        for p in players:
+            if p['id'] in existing_ids:
+                continue
+            missing_players.append({
+                'fpl_id': p['id'],
+                'review_id': p['id'],
+                'ID': p['id'],
+                'real_id': p['id'],
+                'team': '',
+                'Name': p['web_name'],
+                'Pos': element_type_dict[p['element_type']],
+                'Value': p['now_cost'] / 10,
+                'Team': team_code_dict[p['team_code']]['name'],
+                'Missing': 1
+            })
+
+        final_data = pd.concat([final_data, pd.DataFrame(missing_players)]).fillna(0)
+
+
+
         return final_data
 
 
@@ -178,7 +207,8 @@ def fix_mikkel(file_address):
             'Player': p['web_name'],
             'Price': p['now_cost'] / 10,
             'FPL ID': p['id'],
-            'Weighted minutes': 0
+            'Weighted minutes': 0,
+            'Missing': 1
         })
 
     df_full = pd.concat([df_cleaned, pd.DataFrame(missing_players)]).fillna(0)
