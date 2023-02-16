@@ -27,7 +27,17 @@ def read_data(options, source, weights=None):
         # Get each source separately and mix with given weights
         all_data = []
         for (name, weight) in weights.items():
+            if (weight == 0):
+                continue
             df = read_data(options, name, None)
+            # drop players without data
+            first_gw_col = None
+            for col in df.columns:
+                if '_Pts' in col:
+                    first_gw_col = col
+                    break
+            # drop missing ones
+            df = df[~df[first_gw_col].isnull()].copy()
             for col in df.columns:
                 if '_Pts' in col:
                     df[col.split('_')[0] + '_weight'] = weight
