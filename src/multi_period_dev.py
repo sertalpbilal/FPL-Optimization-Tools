@@ -420,6 +420,10 @@ def solve_multi_period_fpl(data, options):
                 target_players = [p for p in players if merged_data.loc[p, 'Pos'] == pos and buy_price[p] >= key - buffer and buy_price[p] <= key + buffer]
                 model.add_constraints((so.expr_sum(squad[p,w] for p in target_players) >= count for w in gameweeks), name=f'price_point_{pos}_{con_iter}')
                 con_iter += 1
+                
+    if len(options.get("no_chip_gws", [])) > 0:
+        no_chip_gws = options['no_chip_gws']
+        model.add_constraint(so.expr_sum(use_bb[w] + use_wc[w] + use_fh[w] for w in no_chip_gws) == 0, name='no_chip_gws')
 
     # Objectives
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
@@ -494,9 +498,11 @@ def solve_multi_period_fpl(data, options):
                 for v in model.get_variables():
                     v.set_value(0)
                 for line in f:
+                    words = line.split()
+                    if words[0] == 'Infeasible':
+                        raise ValueError("Infeasible problem instance, check your parameters")
                     if 'objective value' in line:
                         continue
-                    words = line.split()
                     var = model.get_variable(words[1])
                     var.set_value(float(words[2]))
 
@@ -505,8 +511,9 @@ def solve_multi_period_fpl(data, options):
             highs_exec = options.get('solver_path', 'highs')
 
             secs = options.get('secs', 20*60)
+            presolve = options.get('presolve', 'off')
 
-            command = f'{highs_exec} --presolve off --model_file tmp/{problem_name}_{problem_id}_{iter}.mps --time_limit {secs} --solution_file tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
+            command = f'{highs_exec} --presolve {presolve} --model_file tmp/{problem_name}_{problem_id}_{iter}.mps --time_limit {secs} --solution_file tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
             if use_cmd:
                 os.system(command)
             else:

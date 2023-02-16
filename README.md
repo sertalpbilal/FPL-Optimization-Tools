@@ -78,7 +78,7 @@ You will need to follow steps below to install required platform and also optimi
 ### Multi-period GW optimization
 
 
-- Edit content of `regular_settings.json` file
+- Edit content of `data/regular_settings.json` file
 
   ``` json
     {
@@ -103,6 +103,7 @@ You will need to follow steps below to install required platform and also optimi
         "use_bb": null,
         "use_fh": null,
         "chip_limits": {"bb": 0, "wc": 0, "fh": 0, "tc": 0},
+        "no_chip_gws": [],
         "num_transfers": null,
         "hit_limit": null,
         "preseason": false,
