@@ -116,10 +116,17 @@ def prep_data(my_data, options):
 
     # Filter players by xMin
     initial_squad = [int(i['element']) for i in my_data['picks']]
-    # safe_players = initial_squad + 
     xmin_lb = options.get('xmin_lb', 1)
     print(len(merged_data), "total players (before)")
     merged_data = merged_data[(merged_data['total_min'] >= xmin_lb) | (merged_data['review_id'].isin(initial_squad))].copy()
+
+    # Filter by ev per price
+    ev_per_price_cutoff = options.get('ev_per_price_cutoff', 0)
+    safe_players = initial_squad + options.get('locked', []) + options.get('banned', []) + options.get('keep', [])
+    if ev_per_price_cutoff != 0:
+        cutoff = (merged_data['total_ev'] / merged_data['now_cost']).quantile(ev_per_price_cutoff/100)
+        merged_data = merged_data[(merged_data['total_ev'] / merged_data['now_cost'] > cutoff) | (merged_data['review_id'].isin(safe_players))].copy()
+
     print(len(merged_data), "total players (after)")
 
     if options.get('randomized', False):

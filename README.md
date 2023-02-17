@@ -126,6 +126,7 @@ You will need to follow steps below to install required platform and also optimi
   - `no_transfer_last_gws`: the number of gws at the end of the period you want to ban transfers
   - `randomized`: `true` or `false` whether you would like to add random noise to EV
   - `xmin_lb`: cut-off for dropping players below this many minutes expectation
+  - `ev_per_price_cutoff`: cut-off percentile for dropping players based on total EV per price (e.g. `20` means drop players below 20% percentile)
   - `bench_weights`: percentage weights in objective for bench players (gk and 3 outfield)
   - `banned`: list of banned player IDs
   - `locked`: list of player IDs to always have during the horizon (e.g. `233` for Salah)

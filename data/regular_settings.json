@@ -6,8 +6,10 @@
     "no_transfer_last_gws": 2,
     "randomized": false,
     "xmin_lb": 2,
+    "ev_per_price_cutoff": 20,
     "banned": [],
     "locked": [],
+    "keep": [],
     "delete_tmp": true,
     "single_solve": true,
     "secs": 300,
@@ -31,6 +33,6 @@
     "iteration": 1,
     "iteration_criteria": "this_gw_transfer_in",
     "datasource" : "review",
-    "data_weights": {"review": 50, "review-odds": 25, "mikkel": 15, "kiwi": 10},
+    "data_weights": {"review": 40, "review-odds": 30, "mikkel": 30, "kiwi": 0},
     "export_data": "final.csv"
 }
