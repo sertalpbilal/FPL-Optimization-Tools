@@ -90,6 +90,7 @@ You will need to follow steps below to install required platform and also optimi
         "no_transfer_last_gws": 0,
         "randomized": false,
         "xmin_lb": 2,
+        "ev_per_price_cutoff": 20,
         "bench_weights": {"0": 0.03, "1": 0.21, "2": 0.06, "3": 0.003},
         "banned": [],
         "locked": [],
@@ -142,6 +143,7 @@ You will need to follow steps below to install required platform and also optimi
   - `use_bb`: GW to use bench boost (fixed)
   - `use_fh`: GW to use free hit (fixed)
   - `chip_limits`: how many chips of each kind can be used by solver (you need to set it to at least 1 when force using a chip)
+  - `no_chip_gws`: list of GWs to ban solver from using a chip
   - `num_transfers`: fixed number of transfers for this GW
   - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
   - `preseason`: solve flag for GW1 where team data is not important
