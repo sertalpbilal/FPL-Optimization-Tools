@@ -188,7 +188,7 @@ def fix_mikkel(file_address):
 
     # Check for duplicate IDs
     duplicate_rows = df_cleaned['FPL ID'].duplicated(keep=False)
-    if len(duplicate_rows) > 0:
+    if len(df_cleaned[duplicate_rows]) > 0:
         print("WARNING: There are players with duplicate IDs, lowest name match accuracy (score) will be dropped")
         print(df_cleaned[duplicate_rows][['Player', 'fpl_name', 'score']].head())
     df_cleaned.sort_values(by=['score'], ascending=[False], inplace=True)
