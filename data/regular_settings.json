@@ -34,5 +34,7 @@
     "iteration_criteria": "this_gw_transfer_in",
     "datasource" : "review",
     "data_weights": {"review": 40, "review-odds": 30, "mikkel": 30, "kiwi": 0},
-    "export_data": "final.csv"
+    "export_data": "final.csv",
+    "team_data": "json",
+    "team_id": null
 }
