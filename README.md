@@ -115,7 +115,9 @@ You will need to follow steps below to install required platform and also optimi
         "iteration_criteria": "this_gw_transfer_in",
         "datasource" : "review",
         "data_weights": {"review": 50, "review-odds": 25, "mikkel": 15, "kiwi": 10},
-        "export_data": "final.csv"
+        "export_data": "final.csv",
+        "team_data": "json",
+        "team_id": null
     }
   ```
 
@@ -165,6 +167,8 @@ You will need to follow steps below to install required platform and also optimi
     under `data` folder to be present
   - `data_weights`: weight percentage for each data source, given as a dictionary, where keys should be one of valid data sources
   - `export_data`: option for exporting final data as a CSV file (when using `mixed` data)
+  - `team_data`: option for using `team_id` value rather than the `team.json` file. Uses `team.json` by default, set value to `ID` to use `team_id`. Note that with this method, any transfers already made this gameweek won't be taken into account, so they must be added to `booked_transfers`
+  - `team_id`: the team_id to optimise for. Requires `team_data` to be set to `ID`
 
 - Run the multi-period optimization
 
