@@ -40,7 +40,7 @@ if __name__=="__main__":
             if team_id is None:
                 print("You must supply your team_id in data/regular_settings.json")
                 exit(0)
-            my_data = generate_team_json(team_id)
+            my_data = generate_team_json(team_id, options)
         else:
             try:
                 with open('../data/team.json') as f:

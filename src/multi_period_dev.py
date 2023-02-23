@@ -68,7 +68,7 @@ def get_my_data(session, team_id):
     return d
 
 
-def generate_team_json(team_id):
+def generate_team_json(team_id, options):
     BASE_URL = "https://fantasy.premierleague.com/api"
     with requests.Session() as session:
         static_url = f"{BASE_URL}/bootstrap-static/"
@@ -118,6 +118,40 @@ def generate_team_json(team_id):
                 "element": player_id,
                 "purchase_price": purchase_price,
                 "selling_price": selling_price,
+            }
+        )
+
+    # handle transfers that have already been made this gameweek
+    current_gw_transfers = options.get("current_gw_transfers", [])
+    for transfer in current_gw_transfers:
+        player_in = transfer.get("element_in", None)
+        purchase_price = transfer.get("element_in_cost", None)
+        player_out = transfer.get("element_out", None)
+        selling_price = transfer.get("element_out_cost", None)
+
+        if not all([player_in, purchase_price, player_out, selling_price]):
+            print(f"""Not a valid transfer: 'element_in', 'element_in_cost', 'element_out', and 'element_out_cost'
+                        must all be provided \n {json.dumps(transfer, indent=2)}""")
+            exit(0)
+
+        my_data["transfers"]["bank"] -= purchase_price
+        my_data["transfers"]["bank"] += selling_price
+        my_data["transfers"]["made"] += 1
+
+        # calculate current price of new player to check if they have risen >= 2 times since making transfer
+        current_price = [x for x in static["elements"] if x["id"] == player_in][0]["now_cost"]
+        diff = current_price - purchase_price
+        if diff > 0:
+            selling_price = purchase_price + diff // 2
+        else:
+            selling_price = current_price
+
+        my_data["picks"] = [x for x in my_data["picks"] if x["element"] != player_out]
+        my_data["picks"].append(
+            {
+                "element": player_in,
+                "purchase_price": purchase_price,
+                "selling_price": selling_price
             }
         )
     return my_data
@@ -284,6 +318,7 @@ def solve_multi_period_fpl(data, options):
     if ft <= 0:
         ft = 0
     chip_limits = options.get('chip_limits', dict())
+    current_gw_transfers = options.get("current_gw_transfers", [])
     booked_transfers = options.get('booked_transfers', [])
     preseason = options.get('preseason', False)
 
