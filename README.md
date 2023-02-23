@@ -169,6 +169,11 @@ You will need to follow steps below to install required platform and also optimi
   - `export_data`: option for exporting final data as a CSV file (when using `mixed` data)
   - `team_data`: option for using `team_id` value rather than the `team.json` file. Uses `team.json` by default, set value to `ID` to use `team_id`. Note that with this method, any transfers already made this gameweek won't be taken into account, so they must be added to `booked_transfers`
   - `team_id`: the team_id to optimise for. Requires `team_data` to be set to `ID`
+  - `current_gw_transfers`: list of transfers that have already been made this gameweek. All transfers must have a `transfer_in`, `transfer_in_cost`, `transfer_out`, and a `transfer_out_cost` key. Here, `transfer_in_cost` and `transfer_out_cost` are equal to 10 times the player's value. For example, selling Fernandes (ID 333, sell price 9.8) for Salah (283, purchase price 12.6), use
+
+    `"current_gw_transfers": [{"transfer_in": 283, "transfer_in_cost": 126, "transfer_out": 333, "transfer_out_cost": 98}]`
+
+    Note that this is only ever required if `team_data` is set to `ID` - if possible, consider using the `json` setting for `team_data` instead. If you want to force a transfer for this gameweek but it is yet to be made, do this in `booked_transfers`.
 
 - Run the multi-period optimization
 
