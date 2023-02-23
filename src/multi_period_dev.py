@@ -661,6 +661,13 @@ def solve_multi_period_fpl(data, options):
                     + so.expr_sum(transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() < 0.5) \
                     + so.expr_sum(1-transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() > 0.5) \
                     + so.expr_sum(transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() < 0.5)
+        elif iteration_criteria == 'chip_gws':
+            actions = so.expr_sum(1-use_wc[w] for w in gameweeks if use_wc[w].get_value() > 0.5) \
+                    + so.expr_sum(use_wc[w] for w in gameweeks if use_wc[w].get_value() < 0.5) \
+                    + so.expr_sum(1-use_bb[w] for w in gameweeks if use_bb[w].get_value() > 0.5) \
+                    + so.expr_sum(use_bb[w] for w in gameweeks if use_bb[w].get_value() < 0.5) \
+                    + so.expr_sum(1-use_fh[w] for w in gameweeks if use_fh[w].get_value() > 0.5) \
+                    + so.expr_sum(use_fh[w] for w in gameweeks if use_fh[w].get_value() < 0.5)
         model.add_constraint(actions >= 1, name=f'cutoff_{iter}')
 
     return solutions
