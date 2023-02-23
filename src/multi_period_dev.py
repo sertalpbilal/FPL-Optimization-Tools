@@ -214,6 +214,7 @@ def solve_multi_period_fpl(data, options):
     if ft <= 0:
         ft = 0
     chip_limits = options.get('chip_limits', dict())
+    allowed_chip_gws = options.get('allowed_chip_gws', dict())
     booked_transfers = options.get('booked_transfers', [])
     preseason = options.get('preseason', False)
 
@@ -350,6 +351,16 @@ def solve_multi_period_fpl(data, options):
     if options.get('use_fh', None) is not None:
         model.add_constraint(use_fh[options['use_fh']] == 1, name='force_fh')
     
+    if len(allowed_chip_gws.get('wc', [])) > 0:
+        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['wc']]
+        model.add_constraints((use_wc[w] == 0 for w in gws_banned), name='banned_wc_gws')
+    if len(allowed_chip_gws.get('fh', [])) > 0:
+        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['fh']]
+        model.add_constraints((use_fh[w] == 0 for w in gws_banned), name='banned_fh_gws')
+    if len(allowed_chip_gws.get('bb', [])) > 0:
+        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['bb']]
+        model.add_constraints((use_bb[w] == 0 for w in gws_banned), name='banned_bb_gws')
+
     ## Multiple-sell fix
     model.add_constraints((transfer_out_first[p,w] + transfer_out_regular[p,w] <= 1 for p in price_modified_players for w in gameweeks), name='multi_sell_1')
     model.add_constraints((

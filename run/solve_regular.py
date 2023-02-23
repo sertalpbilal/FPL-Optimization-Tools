@@ -54,4 +54,4 @@ if __name__=="__main__":
         result['picks'].to_csv(f"../data/results/regular_{stamp}_{iter}.csv")
 
     result_table = pd.DataFrame(response)
-    print(result_table[['iter', 'buy', 'sell', 'score']])
+    print(result_table[['iter', 'sell', 'buy', 'score']])

@@ -105,6 +105,7 @@ You will need to follow steps below to install required platform and also optimi
         "use_fh": null,
         "chip_limits": {"bb": 0, "wc": 0, "fh": 0, "tc": 0},
         "no_chip_gws": [],
+        "allowed_chip_gws": {"bb": [], "wc": [], "fh": [], "tc": []},
         "num_transfers": null,
         "hit_limit": null,
         "preseason": false,
@@ -144,6 +145,9 @@ You will need to follow steps below to install required platform and also optimi
   - `use_fh`: GW to use free hit (fixed)
   - `chip_limits`: how many chips of each kind can be used by solver (you need to set it to at least 1 when force using a chip)
   - `no_chip_gws`: list of GWs to ban solver from using a chip
+  - `allowed_chip_gws`: dictionary of list of GWs to allow chips to be used. For example  
+    `"allowed_chip_gws": {"wc": [27,31]}`  
+    will allow solver to use WC in GW27 and GW31, but not in another GW
   - `num_transfers`: fixed number of transfers for this GW
   - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
   - `preseason`: solve flag for GW1 where team data is not important
