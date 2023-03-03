@@ -445,7 +445,7 @@ def solve_multi_period_fpl(data, options):
     if options.get("no_gk_rotation_after") is not None:
         target_gw = int(options['no_gk_rotation_after'])
         players_gk = [p for p in players if player_type[p] == 1]
-        model.add_constraints((lineup[p,w] >= lineup[p,target_gw] for p in players_gk for w in gameweeks if w > target_gw), name='fixed_lineup_gk')
+        model.add_constraints((lineup[p,w] >= lineup[p,target_gw] - use_fh[w] for p in players_gk for w in gameweeks if w > target_gw), name='fixed_lineup_gk')
 
     if len(options.get("no_chip_gws", [])) > 0:
         no_chip_gws = options['no_chip_gws']
