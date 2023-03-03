@@ -31,6 +31,7 @@
     "cbc_path": "",
     "no_opposing_play": false,
     "pick_prices": {"G": "", "D": "", "M": "", "F": ""},
+    "no_gk_rotation_after": null,
     "iteration": 1,
     "iteration_criteria": "this_gw_transfer_in",
     "datasource" : "review",

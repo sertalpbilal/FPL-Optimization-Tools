@@ -339,18 +339,21 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((aux[w] <= 1-use_wc[w-1] for w in gameweeks if w > next_gw), name='ft_after_wc')
     model.add_constraints((aux[w] <= 1-use_fh[w-1] for w in gameweeks if w > next_gw), name='ft_after_fh')
 
+    if options.get('use_wc', None) is not None:
+        model.add_constraint(use_wc[options['use_wc']] == 1, name='force_wc')
+        chip_limits['wc'] = 1
+    if options.get('use_bb', None) is not None:
+        model.add_constraint(use_bb[options['use_bb']] == 1, name='force_bb')
+        chip_limits['bb'] = 1
+    if options.get('use_fh', None) is not None:
+        model.add_constraint(use_fh[options['use_fh']] == 1, name='force_fh')
+        chip_limits['fh'] = 1
+    
     model.add_constraint(so.expr_sum(use_wc[w] for w in gameweeks) <= chip_limits.get('wc', 0), name='use_wc_limit')
     model.add_constraint(so.expr_sum(use_bb[w] for w in gameweeks) <= chip_limits.get('bb', 0), name='use_bb_limit')
     model.add_constraint(so.expr_sum(use_fh[w] for w in gameweeks) <= chip_limits.get('fh', 0), name='use_fh_limit')
     model.add_constraints((squad_fh[p,w] <= use_fh[w] for p in players for w in gameweeks), name='fh_squad_logic')
 
-    if options.get('use_wc', None) is not None:
-        model.add_constraint(use_wc[options['use_wc']] == 1, name='force_wc')
-    if options.get('use_bb', None) is not None:
-        model.add_constraint(use_bb[options['use_bb']] == 1, name='force_bb')
-    if options.get('use_fh', None) is not None:
-        model.add_constraint(use_fh[options['use_fh']] == 1, name='force_fh')
-    
     if len(allowed_chip_gws.get('wc', [])) > 0:
         gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['wc']]
         model.add_constraints((use_wc[w] == 0 for w in gws_banned), name='banned_wc_gws')
@@ -439,6 +442,11 @@ def solve_multi_period_fpl(data, options):
                 model.add_constraints((so.expr_sum(squad[p,w] for p in target_players) >= count for w in gameweeks), name=f'price_point_{pos}_{con_iter}')
                 con_iter += 1
                 
+    if options.get("no_gk_rotation_after") is not None:
+        target_gw = int(options['no_gk_rotation_after'])
+        players_gk = [p for p in players if player_type[p] == 1]
+        model.add_constraints((lineup[p,w] >= lineup[p,target_gw] for p in players_gk for w in gameweeks if w > target_gw), name='fixed_lineup_gk')
+
     if len(options.get("no_chip_gws", [])) > 0:
         no_chip_gws = options['no_chip_gws']
         model.add_constraint(so.expr_sum(use_bb[w] + use_wc[w] + use_fh[w] for w in no_chip_gws) == 0, name='no_chip_gws')
