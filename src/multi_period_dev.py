@@ -82,18 +82,26 @@ def generate_team_json(team_id):
         transfers_url = f"{BASE_URL}/entry/{team_id}/transfers/"
         transfers = session.get(transfers_url).json()[::-1]
 
+        chips_url = f"{BASE_URL}/entry/{team_id}/history/"
+        chips = session.get(chips_url).json()["chips"]
+        fh = [x for x in chips if x["name"] == "freehit"]
+        if fh:
+            fh = fh[0]["event"]
+
     # squad will remain an ID:puchase_price map throughout iteration over transfers
     # once they have been iterated through, can then add on the current selling price
     squad = {x["element"]: start_prices[x["element"]] for x in gw1["picks"]}
 
     itb = 1000 - sum(squad.values())
     for t in transfers:
+        if t["event"] == fh:
+            continue
         itb += t["element_out_cost"]
         itb -= t["element_in_cost"]
         del squad[t["element_out"]]
         squad[t["element_in"]] = t["element_in_cost"]
 
-    fts = calculate_fts(transfers, next_gw)
+    fts = calculate_fts(transfers, next_gw, fh)
     my_data = {
         "chips": [],
         "picks": [],
@@ -123,13 +131,16 @@ def generate_team_json(team_id):
     return my_data
 
 
-def calculate_fts(transfers, next_gw):
+def calculate_fts(transfers, next_gw, fh):
     n_transfers = {gw: 0 for gw in range(2, next_gw)}
     for t in transfers:
         n_transfers[t["event"]] += 1
     fts = {gw: 0 for gw in range(2, next_gw + 1)}
     fts[2] = 1
     for i in range(3, next_gw + 1):
+        if (i - 1) == fh:
+            fts[i] = 1
+            continue
         fts[i] = fts[i - 1]
         fts[i] -= n_transfers[i - 1]
         fts[i] = max(fts[i], 0)
