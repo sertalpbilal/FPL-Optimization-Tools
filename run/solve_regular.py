@@ -9,7 +9,7 @@ import argparse
 if __name__=="__main__":
     base_folder = pathlib.Path()
     sys.path.append(str(base_folder / "../src"))
-    from multi_period_dev import connect, get_my_data, prep_data, solve_multi_period_fpl
+    from multi_period_dev import connect, get_my_data, prep_data, solve_multi_period_fpl, generate_team_json
     import data_parser as pr
 
     with open('../data/regular_settings.json') as f:
@@ -35,12 +35,24 @@ if __name__=="__main__":
         if session is None and team_id is None:
             exit(0)
     else:
-        try:
-            with open('../data/team.json') as f:
-                my_data = json.load(f)
-        except FileNotFoundError:
-            print("Download your team data from https://fantasy.premierleague.com/api/my-team/YOUR-TEAM-ID/ and save it under data folder with name 'team.json'")
-            exit(0)
+        if options.get("team_data", "json").lower() == "id":
+            team_id = options.get("team_id", None)
+            if team_id is None:
+                print("You must supply your team_id in data/regular_settings.json")
+                exit(0)
+            my_data = generate_team_json(team_id)
+        else:
+            try:
+                with open('../data/team.json') as f:
+                    my_data = json.load(f)
+            except FileNotFoundError:
+                print(
+                    """You must either:
+                        1. Download your team data from https://fantasy.premierleague.com/api/my-team/YOUR-TEAM-ID/ and
+                            save it under data folder with name 'team.json', or
+                        2. Set "team_data" in regular_settings to "ID", and set the "team_id" value to your team's ID
+                    """)
+                exit(0)
     data = prep_data(my_data, options)
 
     response = solve_multi_period_fpl(data, options)
