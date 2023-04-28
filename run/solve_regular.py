@@ -55,3 +55,23 @@ if __name__=="__main__":
 
     result_table = pd.DataFrame(response)
     print(result_table[['iter', 'sell', 'buy', 'score']])
+
+    # Detailed print
+    for result in response:
+        picks = result['picks']
+        gws = picks['week'].unique()
+        print(f"Solution {result['iter']+1}")
+        for gw in gws:
+            line_text = ''
+            chip_text = picks[picks['week']==gw].iloc[0]['chip']
+            if chip_text != '':
+                line_text += '(' + chip_text + ') '
+            sell_text = ', '.join(picks[(picks['week'] == gw) & (picks['transfer_out'] == 1)]['name'].to_list())
+            buy_text = ', '.join(picks[(picks['week'] == gw) & (picks['transfer_in'] == 1)]['name'].to_list())
+            if sell_text != '':
+                line_text += sell_text + ' -> ' + buy_text
+            else:
+                line_text += "Roll"
+            print(f"\tGW{gw}: {line_text}")
+
+

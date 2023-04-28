@@ -123,6 +123,11 @@ def prep_data(my_data, options):
     # Filter by ev per price
     ev_per_price_cutoff = options.get('ev_per_price_cutoff', 0)
     safe_players = initial_squad + options.get('locked', []) + options.get('banned', []) + options.get('keep', [])
+    for bt in options.get('booked_transfers', []):
+        if bt.get('transfer_in'):
+            safe_players.append(bt['transfer_in'])
+        if bt.get('transfer_out'):
+            safe_players.append(bt['transfer_out'])
     if ev_per_price_cutoff != 0:
         cutoff = (merged_data['total_ev'] / merged_data['now_cost']).quantile(ev_per_price_cutoff/100)
         merged_data = merged_data[(merged_data['total_ev'] / merged_data['now_cost'] > cutoff) | (merged_data['review_id'].isin(safe_players))].copy()
@@ -451,6 +456,21 @@ def solve_multi_period_fpl(data, options):
         no_chip_gws = options['no_chip_gws']
         model.add_constraint(so.expr_sum(use_bb[w] + use_wc[w] + use_fh[w] for w in no_chip_gws) == 0, name='no_chip_gws')
 
+    if options.get('only_booked_transfers') is True:
+        forced_in = []
+        forced_out = []
+        for bt in options.get('booked_transfers', []):
+            if bt['gw'] == next_gw:
+                if bt.get('transfer_in') is not None:
+                    forced_in.append(bt['transfer_in'])
+                if bt.get('transfer_out') is not None:
+                    forced_out.append(bt['transfer_out'])
+
+        in_players = {(p): 1 if p in forced_in else 0 for p in players}
+        out_players = {(p): 1 if p in forced_out else 0 for p in players}
+        model.add_constraints((transfer_in[p,next_gw] == in_players[p] for p in players), name='fix_tgw_tr_in')
+        model.add_constraints((transfer_out[p,next_gw] == out_players[p] for p in players), name='fix_tgw_tr_out')
+
     # Objectives
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
     gw_total = {w: gw_xp[w] - 4 * penalized_transfers[w] + ft_value * free_transfers[w] + itb_value * in_the_bank[w] for w in gameweeks}
@@ -690,6 +710,13 @@ def solve_multi_period_fpl(data, options):
                     + so.expr_sum(use_bb[w] for w in gameweeks if use_bb[w].get_value() < 0.5) \
                     + so.expr_sum(1-use_fh[w] for w in gameweeks if use_fh[w].get_value() > 0.5) \
                     + so.expr_sum(use_fh[w] for w in gameweeks if use_fh[w].get_value() < 0.5)
+        elif iteration_criteria == 'target_gws_transfer_in':
+            target_gws = options.get('iteration_target', [next_gw])
+            transferred_players = [[p,w] for p in players for w in target_gws if transfer_in[p,w].get_value() > 0.5]
+            remaining_players = [[p,w] for p in players for w in target_gws if transfer_in[p,w].get_value() < 0.5]
+            actions = so.expr_sum(1-transfer_in[p,w] for [p,w] in transferred_players) \
+                    + so.expr_sum(transfer_in[p,w] for [p,w] in remaining_players)
+
         model.add_constraint(actions >= 1, name=f'cutoff_{iter}')
 
     return solutions
