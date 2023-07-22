@@ -150,6 +150,10 @@ def fix_mikkel(file_address):
     mikkel_team_fix = {'WHU': 'WHM'}
     df_cleaned['Team'] = df_cleaned['Team'].replace(mikkel_team_fix)
     df_cleaned['Position'] = df_cleaned['Position'].replace({'GK': 'G'})
+
+    # Drop players without team name
+    df_cleaned.dropna(subset=['Team'], inplace=True)
+
     element_type_dict = {1: 'G', 2: 'D', 3: 'M', 4: 'F'}
     team_code_dict = {i['code']: i for i in teams}
     player_names = [{
