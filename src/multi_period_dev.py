@@ -324,6 +324,9 @@ def solve_multi_period_fpl(data, options):
     element_types = type_data.index.to_list()
     teams = team_data['name'].to_list()
     last_gw = next_gw + horizon - 1
+    if last_gw > 38:
+        last_gw = 38
+        horizon = 39 - next_gw
     gameweeks = list(range(next_gw, last_gw + 1))
     all_gw = [next_gw-1] + gameweeks
     order = [0, 1, 2, 3]
@@ -551,6 +554,10 @@ def solve_multi_period_fpl(data, options):
         out_players = {(p): 1 if p in forced_out else 0 for p in players}
         model.add_constraints((transfer_in[p,next_gw] == in_players[p] for p in players), name='fix_tgw_tr_in')
         model.add_constraints((transfer_out[p,next_gw] == out_players[p] for p in players), name='fix_tgw_tr_out')
+
+    if options.get('have_2ft_in_gws', None) is not None:
+        for gw in options['have_2ft_in_gws']:
+            model.add_constraint(free_transfers[gw] == 2, name=f'have_2ft_{gw}')
 
     # Objectives
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}

@@ -88,6 +88,7 @@ You will need to follow steps below to install required platform and also optimi
         "decay_base": 0.84,
         "no_future_transfer": true,
         "no_transfer_last_gws": 0,
+        "have_2ft_in_gws": [],
         "randomized": false,
         "xmin_lb": 2,
         "ev_per_price_cutoff": 20,
@@ -131,6 +132,8 @@ You will need to follow steps below to install required platform and also optimi
   - `decay_base`: value assigned to decay rate of expected points
   - `no_future_transfer`: `true` or `false` whether you want to plan future transfers or not
   - `no_transfer_last_gws`: the number of gws at the end of the period you want to ban transfers
+  - `have_2ft_in_gws`: list of GWs where you want to have 2 FTs, for example  
+    `"have_2ft_in_gws":[38]` will force solver to have 2 FTs at the beginning of GW38
   - `randomized`: `true` or `false` whether you would like to add random noise to EV
   - `xmin_lb`: cut-off for dropping players below this many minutes expectation
   - `ev_per_price_cutoff`: cut-off percentile for dropping players based on total EV per price (e.g. `20` means drop players below 20% percentile)
@@ -142,8 +145,7 @@ You will need to follow steps below to install required platform and also optimi
   - `use_cmd`: whether to use `os.system` or `subprocess` for running solver, default is `false`
   - `future_transfer_limit`: upper bound how many transfers are allowed in future GWs
   - `no_transfer_gws`: list of GW numbers where transfers are not allowed
-  - `booked_transfers`: list of booked transfers for future gameweeks, needs to have a `gw` key and at least one of `transfer_in` or `transfer_out` with the player ID. For example, to book a transfer of buying Kane (427) on GW5 and selling him on GW7, use
-
+  - `booked_transfers`: list of booked transfers for future gameweeks, needs to have a `gw` key and at least one of `transfer_in` or `transfer_out` with the player ID. For example, to book a transfer of buying Kane (427) on GW5 and selling him on GW7, use  
     `"booked_transfers": [{"gw": 5, "transfer_in": 427}, {"gw": 7, "transfer_out": 427}]`
   - `only_booked_transfers`: (for next GW) use only booked transfers
   - `use_wc`: GW to use wildcard (fixed)
@@ -164,8 +166,7 @@ You will need to follow steps below to install required platform and also optimi
     `"pick_prices": {"G": "", "D": "", "M": "8", "F": "11.5,11.5"}`
   - `no_gk_rotation_after`: use same lineup GK after given GW, e.g. setting this value to `26` means all GWs after 26 will use same lineup GK
   - `iteration`: number of different solutions to be generated, the criteria is controlled by `iteration_criteria`
-  - `iteration_criteria`: rule on separating what a different solution mean
-
+  - `iteration_criteria`: rule on separating what a different solution mean  
     - `this_gw_transfer_in` will force to replace players to buy current GW in each solution
     - `this_gw_transfer_out` will force to replace players to sell current GW in each solution
     - `this_gw_transfer_in_out` will force to replace players to buy or sell current GW in each solution
@@ -173,8 +174,7 @@ You will need to follow steps below to install required platform and also optimi
     - `target_gws_transfer_in` will force to replace players to buy in target GW (provided by `iteration_target` parameter)
 
   - `iteration_target`: list of GWs where plans will be forced to replace in each iteration
-  - `datasource` : `review`, `kiwi`, `mikkel` or `avg` specifies the data to be used.
-
+  - `datasource` : `review`, `kiwi`, `mikkel` or `avg` specifies the data to be used.  
     - `review` requires `fplreview.csv` file
     - `review-odds` requires `fplreview-odds.csv` file
     - `kiwi` requires `kiwi.csv` file
