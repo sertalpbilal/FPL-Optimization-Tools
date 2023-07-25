@@ -15,23 +15,36 @@ def get_random_id(n):
 
 def solve_regular(runtime_options=None):
 
+    try:
+        import google.colab
+        is_colab = True
+    except:
+        is_colab = False
+
     base_folder = pathlib.Path()
     sys.path.append(str(base_folder / "../src"))
     from multi_period_dev import connect, get_my_data, prep_data, solve_multi_period_fpl, generate_team_json
     import data_parser as pr
 
-    with open('../data/regular_settings.json') as f:
-        options = json.load(f)
+    if is_colab:
+        # Read options from the file
+        with open('settings.json') as f:
+            options = json.load(f)
 
-        parser = argparse.ArgumentParser(add_help=False)
-        for key in options.keys():
-            if isinstance(options[key], (list, dict)):
-                continue
+    else:
+        # Read options from the file
+        with open('../data/regular_settings.json') as f:
+            options = json.load(f)
 
-            parser.add_argument(f"--{key}", default=options[key], type=type(options[key]))
+    parser = argparse.ArgumentParser(add_help=False)
+    for key in options.keys():
+        if isinstance(options[key], (list, dict)):
+            continue
 
-        args = parser.parse_known_args()[0]
-        options = {**options, **vars(args)}
+        parser.add_argument(f"--{key}", default=options[key], type=type(options[key]))
+
+    args = parser.parse_known_args()[0]
+    options = {**options, **vars(args)}
     
     if runtime_options is not None:
         options = {**options, **runtime_options}
