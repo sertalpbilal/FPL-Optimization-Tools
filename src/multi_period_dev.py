@@ -764,6 +764,7 @@ def solve_multi_period_fpl(data, options):
         print("Cumulative xPts: " + str(round(cumulative_xpts,2)) + "\n---\n\n")
 
         if options.get('delete_tmp'):
+            time.sleep(0.1)
             try:
                 os.unlink(f"tmp/{problem_name}_{problem_id}_{iter}.mps")
                 os.unlink(f"tmp/{problem_name}_{problem_id}_{iter}_sol.txt")
