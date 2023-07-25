@@ -38,10 +38,13 @@ if __name__ == "__main__":
     try:
         parser = argparse.ArgumentParser(description="Run sensitivity analysis")
         parser.add_argument("--no", type=int, help="Number of runs")
+        parser.add_argument("--parallel", type=int, help="Number of parallel runs")
         args = parser.parse_args()
         options = {}
         if args.no:
             options['count'] = args.no
+        if args.parallel:
+            options['processes'] = args.parallel
     except:
         options = None
 

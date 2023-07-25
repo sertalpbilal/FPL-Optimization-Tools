@@ -221,6 +221,41 @@ Then, to pull the Docker image, build it, and then run the solver, simply run th
 
 After the initial setup, re-running this command will skip the pull and build steps and simply run the solver.
 
+## Sensitivity Analysis
+
+If you want to run sensitivity analysis, instead of running `solve_regular.py`,
+
+0. Make sure that data/results directory is empty (doesn't include old files)
+
+1. Run 
+   
+   ``` shell
+   python simulations.py
+   ```
+
+   When called from the terminal, it will ask you to give number of runs (how many times you want to solve), and number of parallel jobs.
+   If you are not sure, use 1 for parallel jobs.
+
+   You can also pass parameters from the command line as
+
+   ``` shell
+   python simulations.py --no 10 --parallel 4
+   ```
+
+2. After runs are completed, run
+
+  ``` shell
+  python sensitivity.py
+  ```
+
+  to get a summary of results.
+
+  Similarly, you can give gameweek and wildcard parameters from the command line, such as
+
+  ``` shell
+  python sensitivity.py --gw 1 --wildcard Y
+  ``` 
+
 # License
 
 [Apache-2.0 License](LICENSE)
