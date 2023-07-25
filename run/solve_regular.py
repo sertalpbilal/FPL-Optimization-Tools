@@ -49,7 +49,7 @@ def solve_regular(runtime_options=None):
     if runtime_options is not None:
         options = {**options, **runtime_options}
 
-    if options.get("cbc_path") != "" or options.get("cbc_path") is not None:
+    if options.get("cbc_path") != "" and options.get("cbc_path") is not None:
         os.environ['PATH'] += os.pathsep + options.get("cbc_path")
 
     if options.get("preseason"):
