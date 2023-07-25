@@ -5,8 +5,16 @@ import json
 import datetime
 import pandas as pd
 import argparse
+import random
+import string
 
-if __name__=="__main__":
+
+def get_random_id(n):
+    return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
+
+
+def solve_regular(runtime_options=None):
+
     base_folder = pathlib.Path()
     sys.path.append(str(base_folder / "../src"))
     from multi_period_dev import connect, get_my_data, prep_data, solve_multi_period_fpl, generate_team_json
@@ -17,13 +25,16 @@ if __name__=="__main__":
 
         parser = argparse.ArgumentParser(add_help=False)
         for key in options.keys():
-            if isinstance(options[key], (bool, list, dict)):
+            if isinstance(options[key], (list, dict)):
                 continue
 
             parser.add_argument(f"--{key}", default=options[key], type=type(options[key]))
 
         args = parser.parse_known_args()[0]
         options = {**options, **vars(args)}
+    
+    if runtime_options is not None:
+        options = {**options, **runtime_options}
 
     if options.get("cbc_path") != "":
         os.environ['PATH'] += os.pathsep + options.get("cbc_path")
@@ -56,6 +67,7 @@ if __name__=="__main__":
     data = prep_data(my_data, options)
 
     response = solve_multi_period_fpl(data, options)
+    run_id = get_random_id(5)
     for result in response:
         iter = result['iter']
         print(result['summary'])
@@ -63,7 +75,7 @@ if __name__=="__main__":
         stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
         if not (os.path.exists("../data/results/")):
             os.mkdir("../data/results/")
-        result['picks'].to_csv(f"../data/results/regular_{stamp}_{iter}.csv")
+        result['picks'].to_csv(f"../data/results/regular_{stamp}_{run_id}_{iter}.csv")
 
     result_table = pd.DataFrame(response)
     print(result_table[['iter', 'sell', 'buy', 'score']])
@@ -87,3 +99,5 @@ if __name__=="__main__":
             print(f"\tGW{gw}: {line_text}")
 
 
+if __name__ == "__main__":
+    solve_regular()
