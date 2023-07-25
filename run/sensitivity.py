@@ -7,7 +7,7 @@ def read_sensitivity(options=None):
 
     if options is None or options.get('gw') is None:
         gw = int(input("What GW are you assessing? "))
-        situation = input("Is this a wildcard? (y/n) ")
+        situation = input("Is this a wildcard or preseason (GW1) solve? (y/n) ")
     else:
         gw = options['gw']
         situation = options.get('situation', 'n')
