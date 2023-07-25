@@ -6,7 +6,7 @@ from concurrent.futures import ProcessPoolExecutor
 import argparse
 from solve_regular import solve_regular
 
-def run_sensitivity(options):
+def run_sensitivity(options=None):
 
     if options is None or 'count' not in options:
 
