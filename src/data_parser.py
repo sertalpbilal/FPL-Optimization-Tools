@@ -134,7 +134,8 @@ def fix_mikkel(file_address):
       'CRY': 'CPL',
       'NFO': 'NOT',
       'SOU': 'SOT',
-      'WHU': 'WHM'
+      'WHU': 'WHM',
+      'SHU': 'SHE'
     }
     teams = r.json()['teams']
     for t in teams:
@@ -147,7 +148,7 @@ def fix_mikkel(file_address):
     df_cleaned = df[~((df['Player'] == '0') | (df['No.'].isnull()) | (df['BCV_numeric'].isnull()) | (df['No.'].isnull()))].copy()
     df_cleaned['Clean_Name'] = df_cleaned['Player'].apply(remove_accents)
     df_cleaned.head()
-    mikkel_team_fix = {'WHU': 'WHM'}
+    mikkel_team_fix = {'WHU': 'WHM', 'SHU': 'SHE'}
     df_cleaned['Team'] = df_cleaned['Team'].replace(mikkel_team_fix)
     df_cleaned['Position'] = df_cleaned['Position'].replace({'GK': 'G'})
 
