@@ -118,8 +118,10 @@ def solve_regular(runtime_options=None):
 
 def get_fplteam_link(options, response):
     
-    print("\nYou can see the solutions on a planner using following links:")
+    print("\nYou can see the solutions on a planner using the following FPL.Team links:")
     team_id = options.get('team_id', 1)
+    if options.get('team_id') is None:
+        print("(Do not forget to add your team ID to regular_settings.json file to get a custom link.)")
     url_base = f"https://fpl.team/plan/{team_id}/?"
     for result in response:
         result_url = url_base
