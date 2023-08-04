@@ -139,6 +139,9 @@ def get_fplteam_link(options, response):
                 bought_players = []
             
             tr_string = ';'.join([f"{i},{j}" for (i,j) in zip (sold_players, bought_players)])
+            
+            if tr_string == '':
+                tr_string = ';'
 
             sub_text = ''
             if gw == 1:
@@ -151,6 +154,9 @@ def get_fplteam_link(options, response):
                 now_lineup = picks[(picks['week'] == gw) & (picks['lineup'] > 0.5)].sort_values(by='type')['id'].astype(str).to_list()
                 bench_to_lineup = [i for i in prev_bench if i in now_lineup]
                 sub_text = ';'.join([f"{i},{j}" for (i,j) in zip (lineup_to_bench, bench_to_lineup)])
+                
+                if sub_text == '':
+                    sub_text = ';'
 
             gw_params = f'lineup{gw}={lineup_players}&bench{gw}={bench_players}&cap{gw}={cap}&vcap{gw}={vcap}&chip{gw}={chip}&transfers{gw}={tr_string}&subs{gw}={sub_text}&opt=true'
             result_url += ("" if gw == gws[0] else "&") + gw_params
