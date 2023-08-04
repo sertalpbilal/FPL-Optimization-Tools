@@ -112,5 +112,51 @@ def solve_regular(runtime_options=None):
             print(f"\tGW{gw}: {line_text}")
 
 
+    # Link to FPL.Team
+    get_fplteam_link(options, response)
+
+
+def get_fplteam_link(options, response):
+    
+    print("\nYou can see the solutions on a planner using following links:")
+    team_id = options.get('team_id', 1)
+    url_base = f"https://fpl.team/plan/{team_id}/?"
+    for result in response:
+        result_url = url_base
+        picks = result['picks']
+        gws = picks['week'].unique()
+        for gw in gws:
+            lineup_players = ",".join(picks[(picks['week']==gw)&(picks['lineup']>0.5)]['id'].astype(str).to_list())
+            bench_players = ",".join(picks[(picks['week']==gw)&(picks['bench']>-0.5)]['id'].astype(str).to_list())
+            cap = picks[(picks['week']==gw)&(picks['captain']>0.5)].iloc[0]['id']
+            vcap = picks[(picks['week']==gw)&(picks['vicecaptain']>0.5)].iloc[0]['id']
+            chip = picks[picks['week']==gw].iloc[0]['chip']
+            sold_players = picks[(picks['week'] == gw) & (picks['transfer_out'] > 0.5)].sort_values(by='type')['id'].astype(str).to_list()
+            bought_players = picks[(picks['week'] == gw) & (picks['transfer_in'] > 0.5)].sort_values(by='type')['id'].astype(str).to_list()
+            
+            if gw == 1:
+                sold_players = []
+                bought_players = []
+            
+            tr_string = ';'.join([f"{i},{j}" for (i,j) in zip (sold_players, bought_players)])
+
+            sub_text = ''
+            if gw == 1:
+                sub_text = ';'
+            else:
+                prev_lineup = picks[(picks['week'] == gw-1) & (picks['lineup'] > 0.5)].sort_values(by='type')['id'].astype(str).to_list()
+                now_bench = picks[(picks['week'] == gw) & (picks['bench'] > -0.5)].sort_values(by='type')['id'].astype(str).to_list()
+                lineup_to_bench = [i for i in prev_lineup if i in now_bench]
+                prev_bench = picks[(picks['week'] == gw-1) & (picks['bench'] > -0.5)].sort_values(by='type')['id'].astype(str).to_list()
+                now_lineup = picks[(picks['week'] == gw) & (picks['lineup'] > 0.5)].sort_values(by='type')['id'].astype(str).to_list()
+                bench_to_lineup = [i for i in prev_bench if i in now_lineup]
+                sub_text = ';'.join([f"{i},{j}" for (i,j) in zip (lineup_to_bench, bench_to_lineup)])
+
+            gw_params = f'lineup{gw}={lineup_players}&bench{gw}={bench_players}&cap{gw}={cap}&vcap{gw}={vcap}&chip{gw}={chip}&transfers{gw}={tr_string}&subs{gw}={sub_text}&opt=true'
+            result_url += ("" if gw == gws[0] else "&") + gw_params
+        print(f"Solution {result['iter']+1}: {result_url}")
+
+
+
 if __name__ == "__main__":
     solve_regular()
