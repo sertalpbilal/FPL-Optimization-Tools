@@ -111,6 +111,7 @@ You will need to follow steps below to install required platform and also optimi
         "num_transfers": null,
         "hit_limit": null,
         "preseason": false,
+        "no_trs_except_wc": false,
         "cbc_path": "",
         "no_opposing_play": false,
         "pick_prices": {"G": "", "D": "", "M": "", "F": ""},
@@ -159,6 +160,7 @@ You will need to follow steps below to install required platform and also optimi
   - `num_transfers`: fixed number of transfers for this GW
   - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
   - `preseason`: solve flag for GW1 where team data is not important
+  - `no_trs_except_wc`: when `true` prevents solver to make transfers except using wildcard
   - `cbc_path`: binary location of the cbc solver (`bin` folder)
   - `no_opposing_play`: `true` if you do not want to have players in your lineup playing against each other in a GW
   - `pick_prices`: price points of players you want to force in a comma separated string

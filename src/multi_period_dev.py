@@ -559,6 +559,9 @@ def solve_multi_period_fpl(data, options):
         for gw in options['have_2ft_in_gws']:
             model.add_constraint(free_transfers[gw] == 2, name=f'have_2ft_{gw}')
 
+    if options.get('no_trs_except_wc', False) is True:
+        model.add_constraints((number_of_transfers[w] <= 15 * use_wc[w] for w in gameweeks), name='wc_trs_only')
+
     # Objectives
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
     gw_total = {w: gw_xp[w] - 4 * penalized_transfers[w] + ft_value * free_transfers[w] + itb_value * in_the_bank[w] for w in gameweeks}
