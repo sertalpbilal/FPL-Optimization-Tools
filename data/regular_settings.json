@@ -1,5 +1,6 @@
 {
     "horizon": 5,
+    "decay_base": 0.84,
     "ft_value": 1.5,
     "itb_value": 0.08,
     "no_future_transfer": false,
