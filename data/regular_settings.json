@@ -29,7 +29,7 @@
     "no_transfer_gws": [],
     "booked_transfers": [],
     "only_booked_transfers": false,
-    "no_trs_except_wc": true,
+    "no_trs_except_wc": false,
     "preseason": false,
     "use_login": false,
     "cbc_path": "",
