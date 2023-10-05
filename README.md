@@ -84,7 +84,9 @@ You will need to follow steps below to install required platform and also optimi
     {
         "horizon": 5,
         "ft_value": 1.5,
+        "ft_use_penalty": 0,
         "itb_value": 0.2,
+        "itb_loss_per_transfer": 0,
         "decay_base": 0.84,
         "no_future_transfer": true,
         "no_transfer_last_gws": 0,
@@ -129,7 +131,9 @@ You will need to follow steps below to install required platform and also optimi
 
   - `horizon`: length of planning horizon
   - `ft_value`: value assigned to the extra free transfer
+  - `ft_use_penalty`: penalty on objective function when an FT is used
   - `itb_value`: value assigned to having 1.0 extra budget
+  - `itb_loss_per_transfer`: reduction in ITB amount per scheduled transfers in future
   - `decay_base`: value assigned to decay rate of expected points
   - `no_future_transfer`: `true` or `false` whether you want to plan future transfers or not
   - `no_transfer_last_gws`: the number of gws at the end of the period you want to ban transfers

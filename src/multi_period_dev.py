@@ -295,6 +295,7 @@ def solve_multi_period_fpl(data, options):
     bench_weights = {int(key): value for (key,value) in bench_weights.items()}
     # wc_limit = options.get('wc_limit', 0)
     ft_value = options.get('ft_value', 1.5)
+    ft_use_penalty = options.get('ft_use_penalty', None)
     itb_value = options.get('itb_value', 0.08)
     ft = data.get('ft', 1)
     if ft <= 0:
@@ -303,6 +304,9 @@ def solve_multi_period_fpl(data, options):
     allowed_chip_gws = options.get('allowed_chip_gws', dict())
     booked_transfers = options.get('booked_transfers', [])
     preseason = options.get('preseason', False)
+    itb_loss_per_transfer = options.get('itb_loss_per_transfer', None)
+    if itb_loss_per_transfer is None:
+        itb_loss_per_transfer = 0
 
     # Data
     problem_name = f'mp_h{horizon}_regular' if objective == 'regular' else f'mp_h{horizon}_o{objective[0]}_d{decay_base}'
@@ -354,6 +358,7 @@ def solve_multi_period_fpl(data, options):
     # Add a constraint for future transfers to be between 1 and 2
     penalized_transfers = model.add_variables(gameweeks, name='pt', vartype=so.integer, lb=0)
     aux = model.add_variables(gameweeks, name='aux', vartype=so.binary)
+    transfer_count = model.add_variables(gameweeks, name='trc', vartype=so.integer, lb=0, ub=15)
 
     use_wc = model.add_variables(gameweeks, name='use_wc', vartype=so.binary)
     use_bb = model.add_variables(gameweeks, name='use_bb', vartype=so.binary)
@@ -412,7 +417,7 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((so.expr_sum(squad_fh[p,w] for p in players if merged_data.loc[p, 'name'] == t) <= 3 * use_fh[w] for t in teams for w in gameweeks), name='team_limit_fh')
     ## Transfer constraints
     model.add_constraints((squad[p,w] == squad[p,w-1] + transfer_in[p,w] - transfer_out[p,w] for p in players for w in gameweeks), name='squad_transfer_rel')
-    model.add_constraints((in_the_bank[w] == in_the_bank[w-1] + sold_amount[w] - bought_amount[w] for w in gameweeks), name='cont_budget')
+    model.add_constraints((in_the_bank[w] == in_the_bank[w-1] + sold_amount[w] - bought_amount[w] - (transfer_count[w] * itb_loss_per_transfer if w > next_gw else 0) for w in gameweeks), name='cont_budget')
     model.add_constraints((so.expr_sum(fh_sell_price[p] * squad[p,w-1] for p in players) + in_the_bank[w-1] >= so.expr_sum(fh_sell_price[p] * squad_fh[p,w] for p in players) for w in gameweeks), name='fh_budget')
     model.add_constraints((transfer_in[p,w] <= 1-use_fh[w] for p in players for w in gameweeks), name='no_tr_in_fh')
     model.add_constraints((transfer_out[p,w] <= 1-use_fh[w] for p in players for w in gameweeks), name='no_tr_out_fh')
@@ -464,6 +469,14 @@ def solve_multi_period_fpl(data, options):
 
     ## Transfer in/out fix
     model.add_constraints((transfer_in[p,w] + transfer_out[p,w] <= 1 for p in players for w in gameweeks), name='tr_in_out_limit')
+
+    ## Tr Count Constraints
+    ft_penalty = {w: 0 for w in gameweeks}
+    model.add_constraints((transfer_count[w] >= number_of_transfers[w] - 15 * use_wc[w] for w in gameweeks), name='trc_lb')
+    model.add_constraints((transfer_count[w] <= number_of_transfers[w] for w in gameweeks), name='trc_ub1')
+    model.add_constraints((transfer_count[w] <= 15 * (1 - use_wc[w]) for w in gameweeks), name='trc_ub2')
+    if ft_use_penalty is not None:
+        ft_penalty = {w: ft_use_penalty * transfer_count[w] for w in gameweeks}
 
     ## Optional constraints
     if options.get('banned', None) is not None:
@@ -564,7 +577,7 @@ def solve_multi_period_fpl(data, options):
 
     # Objectives
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
-    gw_total = {w: gw_xp[w] - 4 * penalized_transfers[w] + ft_value * free_transfers[w] + itb_value * in_the_bank[w] for w in gameweeks}
+    gw_total = {w: gw_xp[w] - 4 * penalized_transfers[w] + ft_value * free_transfers[w] - ft_penalty[w] + itb_value * in_the_bank[w] for w in gameweeks}
     if objective == 'regular':
         total_xp = so.expr_sum(gw_total[w] for w in gameweeks)
         model.set_objective(-total_xp, sense='N', name='total_regular_xp')
