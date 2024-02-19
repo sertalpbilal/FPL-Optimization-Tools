@@ -121,6 +121,7 @@ You will need to follow steps below to install required platform and also optimi
         "iteration": 1,
         "iteration_criteria": "this_gw_transfer_in",
         "iteration_target": [],
+        "report_decay_base": [0.85, 0.9, 0.95, 1.0, 1.017],
         "datasource" : "review",
         "data_weights": {"review": 50, "review-odds": 25, "mikkel": 15, "kiwi": 10},
         "export_data": "final.csv",
@@ -180,6 +181,7 @@ You will need to follow steps below to install required platform and also optimi
     - `target_gws_transfer_in` will force to replace players to buy in target GW (provided by `iteration_target` parameter)
 
   - `iteration_target`: list of GWs where plans will be forced to replace in each iteration
+  - `report_decay_base`: list of decay bases to be measured and reported at the end of the solve
   - `datasource` : `review`, `kiwi`, `mikkel` or `avg` specifies the data to be used.  
     - `review` requires `fplreview.csv` file
     - `review-odds` requires `fplreview-odds.csv` file

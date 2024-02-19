@@ -90,8 +90,20 @@ def solve_regular(runtime_options=None):
             os.mkdir("../data/results/")
         result['picks'].to_csv(f"../data/results/regular_{stamp}_{run_id}_{iter}.csv")
 
+    print("Result Summary")
     result_table = pd.DataFrame(response)
     print(result_table[['iter', 'sell', 'buy', 'score']])
+
+    if len(options.get('report_decay_base', [])) > 0:
+        print("Decay Metrics")
+        metrics_df = pd.DataFrame([{'iter': result['iter'], **result['decay_metrics']} for result in response])
+        print(metrics_df)
+
+        # print("Difference to Best")
+        # metrics_diff_df = metrics_df.copy()
+        # keys = list(response[0]['decay_metrics'].keys())
+        # metrics_diff_df[keys] = metrics_diff_df[keys] - metrics_diff_df[keys].max(axis=0)
+        # print(metrics_diff_df)
 
     # Detailed print
     for result in response:

@@ -579,6 +579,7 @@ def solve_multi_period_fpl(data, options):
     # Objectives
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
     gw_total = {w: gw_xp[w] - 4 * penalized_transfers[w] + ft_value * free_transfers[w] - ft_penalty[w] + itb_value * in_the_bank[w] for w in gameweeks}
+    
     if objective == 'regular':
         total_xp = so.expr_sum(gw_total[w] for w in gameweeks)
         model.set_objective(-total_xp, sense='N', name='total_regular_xp')
@@ -586,6 +587,9 @@ def solve_multi_period_fpl(data, options):
         decay_objective = so.expr_sum(gw_total[w] * pow(decay_base, w-next_gw) for w in gameweeks)
         model.set_objective(-decay_objective, sense='N', name='total_decay_xp')
 
+    report_decay_base = options.get("report_decay_base", [])
+    decay_metrics = {i: so.expr_sum(gw_total[w] * pow(i, w-next_gw) for w in gameweeks) for i in report_decay_base}
+    
     iteration = options.get("iteration", 1)
     iteration_criteria = options.get("iteration_criteria", "this_gw_transfer_in")
     solutions = []
@@ -800,7 +804,17 @@ def solve_multi_period_fpl(data, options):
             return [{'iter': iter, 'model': model, 'picks': picks_df, 'total_xp': total_xp, 'summary': summary_of_actions, 'buy': buy_decisions, 'sell': sell_decisions, 'score': -model.get_objective_value()}]
 
         # Add current solution to a list, and add a new cut
-        solutions.append({'iter': iter, 'model': model, 'picks': picks_df, 'total_xp': total_xp, 'summary': summary_of_actions, 'buy': buy_decisions, 'sell': sell_decisions, 'score': -model.get_objective_value()})
+        solutions.append({
+            'iter': iter,
+            'model': model,
+            'picks': picks_df,
+            'total_xp': total_xp,
+            'summary': summary_of_actions,
+            'buy': buy_decisions,
+            'sell': sell_decisions,
+            'score': -model.get_objective_value(),
+            'decay_metrics': {key: value.get_value() for key, value in decay_metrics.items()}
+            })
         if iteration_criteria == 'this_gw_transfer_in':
             actions = so.expr_sum(1-transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() > 0.5) \
                     + so.expr_sum(transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() < 0.5)
