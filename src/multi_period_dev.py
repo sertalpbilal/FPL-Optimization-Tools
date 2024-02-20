@@ -800,9 +800,6 @@ def solve_multi_period_fpl(data, options):
         if sell_decisions == '':
             sell_decisions = '-'
 
-        if iteration == 1:
-            return [{'iter': iter, 'model': model, 'picks': picks_df, 'total_xp': total_xp, 'summary': summary_of_actions, 'buy': buy_decisions, 'sell': sell_decisions, 'score': -model.get_objective_value()}]
-
         # Add current solution to a list, and add a new cut
         solutions.append({
             'iter': iter,
@@ -815,6 +812,10 @@ def solve_multi_period_fpl(data, options):
             'score': -model.get_objective_value(),
             'decay_metrics': {key: value.get_value() for key, value in decay_metrics.items()}
             })
+        
+        if iteration == 1:
+            return solutions
+        
         if iteration_criteria == 'this_gw_transfer_in':
             actions = so.expr_sum(1-transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() > 0.5) \
                     + so.expr_sum(transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() < 0.5)
