@@ -4,6 +4,8 @@ import sasoptpy as so
 import requests
 import os
 import time
+import subprocess
+import threading
 from subprocess import Popen, DEVNULL
 from pathlib import Path
 import json
@@ -615,12 +617,14 @@ def solve_multi_period_fpl(data, options):
 
         if solver == 'cbc':
 
+            cbc_exec = options.get('solver_path') or 'cbc'
+
             if options.get('single_solve') is True:
 
                 gap = options.get('gap', 0)
                 secs = options.get('secs', 20*60)
 
-                command = f'cbc tmp/{problem_name}_{problem_id}_{iter}.mps cost column ratio {gap} sec {secs} solve solu tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
+                command = f'{cbc_exec} tmp/{problem_name}_{problem_id}_{iter}.mps cost column ratio {gap} sec {secs} solve solu tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
                 if use_cmd:
                     os.system(command)
                 else:
@@ -629,14 +633,14 @@ def solve_multi_period_fpl(data, options):
 
             else:
 
-                command = f'cbc tmp/{problem_name}_{problem_id}_{iter}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt'
+                command = f'{cbc_exec} tmp/{problem_name}_{problem_id}_{iter}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt'
                 if use_cmd:
                     os.system(command)
                 else:
                     process = Popen(command, shell=False)
                     process.wait()
                 secs = options.get('secs', 20*60)
-                command = f'cbc tmp/{problem_name}_{problem_id}_{iter}.mps mips tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt cost column sec {secs} solve solu tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
+                command = f'{cbc_exec} tmp/{problem_name}_{problem_id}_{iter}.mps mips tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt cost column sec {secs} solve solu tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
                 if use_cmd:
                     os.system(command)
                 else:
@@ -663,17 +667,35 @@ def solve_multi_period_fpl(data, options):
 
         elif solver == 'highs':
 
-            highs_exec = options.get('solver_path', 'highs')
+            highs_exec = options.get('solver_path') or 'highs'
 
             secs = options.get('secs', 20*60)
-            presolve = options.get('presolve', 'off')
+            presolve = options.get('presolve', 'on')
 
             command = f'{highs_exec} --presolve {presolve} --model_file tmp/{problem_name}_{problem_id}_{iter}.mps --time_limit {secs} --solution_file tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
             if use_cmd:
+                # highs occasionally freezes in Windows, if it happens, try use_cmd value as False
                 os.system(command)
             else:
-                process = Popen(command, shell=False)
-                process.wait()
+                if options.get('experimental', True):
+                    def print_output(process):
+                        while True:
+                            output = process.stdout.readline()
+                            if 'Solving report' in output:
+                                time.sleep(2)
+                                process.kill()
+                            elif output == '' and process.poll() is not None:
+                                break
+                            elif output:
+                                print(output.strip())
+
+                    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+                    output_thread = threading.Thread(target=print_output, args=(process,))
+                    output_thread.start()
+                    output_thread.join()
+                else:
+                    process = Popen(command, shell=False)
+                    process.wait()
 
             # Parsing
             with open(f'tmp/{problem_name}_{problem_id}_{iter}_sol.txt', 'r') as f:

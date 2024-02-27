@@ -166,7 +166,10 @@ You will need to follow steps below to install required platform and also optimi
   - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
   - `preseason`: solve flag for GW1 where team data is not important
   - `no_trs_except_wc`: when `true` prevents solver to make transfers except using wildcard
-  - `cbc_path`: binary location of the cbc solver (`bin` folder)
+  - `solver`: solver engine, can use either `cbc` (default) or `highs`  
+    In order to use `highs` solver, you need to download the binary from the following repository  
+    https://github.com/JuliaBinaryWrappers/HiGHSstatic_jll.jl
+  - `solver_path`: binary location of the solver
   - `no_opposing_play`: `true` if you do not want to have players in your lineup playing against each other in a GW
   - `pick_prices`: price points of players you want to force in a comma separated string
     For example, to force two 11.5M forwards, and one 8M midfielder, use
