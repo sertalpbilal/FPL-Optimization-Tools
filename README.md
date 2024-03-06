@@ -164,6 +164,7 @@ You will need to follow steps below to install required platform and also optimi
     will allow solver to use WC in GW27 and GW31, but not in another GW
   - `num_transfers`: fixed number of transfers for this GW
   - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
+  - `hit_cost`: cost of a hit, 4 points by default but can be overriden to reduce hits suggested
   - `preseason`: solve flag for GW1 where team data is not important
   - `no_trs_except_wc`: when `true` prevents solver to make transfers except using wildcard
   - `solver`: solver engine, can use either `cbc` (default) or `highs`  

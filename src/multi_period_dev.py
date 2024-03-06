@@ -579,8 +579,9 @@ def solve_multi_period_fpl(data, options):
         model.add_constraints((number_of_transfers[w] <= 15 * use_wc[w] for w in gameweeks), name='wc_trs_only')
 
     # Objectives
+    hit_cost = options.get('hit_cost', 4)
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
-    gw_total = {w: gw_xp[w] - 4 * penalized_transfers[w] + ft_value * free_transfers[w] - ft_penalty[w] + itb_value * in_the_bank[w] for w in gameweeks}
+    gw_total = {w: gw_xp[w] - hit_cost * penalized_transfers[w] + ft_value * free_transfers[w] - ft_penalty[w] + itb_value * in_the_bank[w] for w in gameweeks}
     
     if objective == 'regular':
         total_xp = so.expr_sum(gw_total[w] for w in gameweeks)

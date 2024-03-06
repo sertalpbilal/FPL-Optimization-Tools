@@ -21,6 +21,7 @@
     "use_cmd": true,
     "num_transfers": null,
     "hit_limit": null,
+    "hit_cost": 4,
     "use_wc": null,
     "use_bb": null,
     "use_fh": null,
