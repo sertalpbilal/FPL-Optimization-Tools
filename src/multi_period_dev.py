@@ -849,6 +849,7 @@ def solve_multi_period_fpl(data, options):
         if iteration_criteria == 'this_gw_transfer_in':
             actions = so.expr_sum(1-transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() > 0.5) \
                     + so.expr_sum(transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() < 0.5)
+            model.add_constraint(actions >= 1, name=f'cutoff_{iter}')
         elif iteration_criteria == 'this_gw_transfer_out':
             actions = so.expr_sum(1-transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() > 0.5) \
                     + so.expr_sum(transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() < 0.5)
