@@ -415,26 +415,29 @@ def solve_multi_period_fpl(data, options):
         chip_combinations = get_dict_combinations(run_chip_combinations)
         
         if len(chip_combinations) > 0:
-            print("You have active chip combinations, iteration parameter will be overridden")
-            options['iteration'] = len(chip_combinations)
-            options['iteration_criteria'] = 'chip_combinations'
-
-        current_chips = chip_combinations[0]
-        pairs = [
-            {'chip': 'wc', 'variable': use_wc},
-            {'chip': 'fh', 'variable': use_fh},
-            {'chip': 'bb', 'variable': use_bb},
-            {'chip': 'tc', 'variable': use_tc_gw}
-        ]
-        for pair in pairs:
-            chip = pair['chip']
-            variable = pair['variable']
-            if current_chips.get(chip) is not None:
-                model.add_constraint(variable[current_chips[chip]] == 1, name=f"cc_{chip}")
-                options['chip_limits'][chip] = 1
+            if set(chip_combinations[0].values()) == {None}:
+                pass # No possible chip combination
             else:
-                model.add_constraint(so.expr_sum(variable[w] for w in gameweeks) == 0, name=f"cc_{chip}")
-                options['chip_limits'][chip] = 0
+                print("You have active chip combinations, iteration parameter will be overridden")
+                options['iteration'] = len(chip_combinations)
+                options['iteration_criteria'] = 'chip_combinations'
+
+                current_chips = chip_combinations[0]
+                pairs = [
+                    {'chip': 'wc', 'variable': use_wc},
+                    {'chip': 'fh', 'variable': use_fh},
+                    {'chip': 'bb', 'variable': use_bb},
+                    {'chip': 'tc', 'variable': use_tc_gw}
+                ]
+                for pair in pairs:
+                    chip = pair['chip']
+                    variable = pair['variable']
+                    if current_chips.get(chip) is not None:
+                        model.add_constraint(variable[current_chips[chip]] == 1, name=f"cc_{chip}")
+                        options['chip_limits'][chip] = 1
+                    else:
+                        model.add_constraint(so.expr_sum(variable[w] for w in gameweeks) == 0, name=f"cc_{chip}")
+                        options['chip_limits'][chip] = 0
     
 
     # Initial conditions
