@@ -13,6 +13,7 @@ from requests import Session
 import random
 import string
 from data_parser import read_data
+from itertools import product
 
 def get_random_id(n):
     return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
@@ -21,6 +22,22 @@ def get_random_id(n):
 def xmin_to_prob(xmin, sub_on=0.5, sub_off=0.3):
     start = min( max ( (xmin - 25 * sub_on) / (90 * (1-sub_off) + 65 * sub_off - 25 * sub_on), 0.001), 0.999)
     return start + (1-start) * sub_on
+
+
+def get_dict_combinations(my_dict):
+    keys = my_dict.keys()
+    for key in keys:
+        if my_dict[key] is None or len(my_dict[key]) == 0:
+            my_dict[key] = [None]
+    all_combs = [dict(zip(my_dict.keys(), values)) for values in product(*my_dict.values())]
+    feasible_combs = []
+    for comb in all_combs:
+        c_values = [i for i in comb.values() if i is not None]
+        if len(c_values) == len(set(c_values)):
+            feasible_combs.append(comb)
+        # else we have a duplicate
+    return feasible_combs
+
 
 def connect():
     print("This method is provided for people who want to automate login. However with 2FA changes, it is unlikely to work, and I'd suggest using team.json method from now on as explained in README file.")
@@ -304,11 +321,14 @@ def solve_multi_period_fpl(data, options):
         ft = 0
     chip_limits = options.get('chip_limits', dict())
     allowed_chip_gws = options.get('allowed_chip_gws', dict())
+    forced_chip_gws = options.get('forced_chip_gws', dict())
+    run_chip_combinations = options.get('run_chip_combinations', dict())
     booked_transfers = options.get('booked_transfers', [])
     preseason = options.get('preseason', False)
     itb_loss_per_transfer = options.get('itb_loss_per_transfer', None)
     if itb_loss_per_transfer is None:
         itb_loss_per_transfer = 0
+
 
     # Data
     problem_name = f'mp_h{horizon}_regular' if objective == 'regular' else f'mp_h{horizon}_o{objective[0]}_d{decay_base}'
@@ -365,6 +385,7 @@ def solve_multi_period_fpl(data, options):
     use_wc = model.add_variables(gameweeks, name='use_wc', vartype=so.binary)
     use_bb = model.add_variables(gameweeks, name='use_bb', vartype=so.binary)
     use_fh = model.add_variables(gameweeks, name='use_fh', vartype=so.binary)
+    use_tc = model.add_variables(players, gameweeks, name='use_tc', vartype=so.binary)
 
     # Dictionaries
     lineup_type_count = {(t,w): so.expr_sum(lineup[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
@@ -387,6 +408,34 @@ def solve_multi_period_fpl(data, options):
     number_of_transfers = {w: so.expr_sum(transfer_out[p,w] for p in players) for w in gameweeks}
     number_of_transfers[next_gw-1] = 1
     transfer_diff = {w: number_of_transfers[w] - free_transfers[w] - 15 * use_wc[w] for w in gameweeks}
+    use_tc_gw = {w: so.expr_sum(use_tc[p,w] for p in players) for w in gameweeks}
+
+    # Chip combinations
+    if run_chip_combinations is not None:
+        chip_combinations = get_dict_combinations(run_chip_combinations)
+        
+        if len(chip_combinations) > 0:
+            print("You have active chip combinations, iteration parameter will be overridden")
+            options['iteration'] = len(chip_combinations)
+            options['iteration_criteria'] = 'chip_combinations'
+
+        current_chips = chip_combinations[0]
+        pairs = [
+            {'chip': 'wc', 'variable': use_wc},
+            {'chip': 'fh', 'variable': use_fh},
+            {'chip': 'bb', 'variable': use_bb},
+            {'chip': 'tc', 'variable': use_tc_gw}
+        ]
+        for pair in pairs:
+            chip = pair['chip']
+            variable = pair['variable']
+            if current_chips.get(chip) is not None:
+                model.add_constraint(variable[current_chips[chip]] == 1, name=f"cc_{chip}")
+                options['chip_limits'][chip] = 1
+            else:
+                model.add_constraint(so.expr_sum(variable[w] for w in gameweeks) == 0, name=f"cc_{chip}")
+                options['chip_limits'][chip] = 0
+    
 
     # Initial conditions
     model.add_constraints((squad[p, next_gw-1] == 1 for p in initial_squad), name='initial_squad_players')
@@ -431,9 +480,10 @@ def solve_multi_period_fpl(data, options):
         model.add_constraint(free_transfers[threshold_gw] == 1, name='ps_initial_ft')
     model.add_constraints((penalized_transfers[w] >= transfer_diff[w] for w in gameweeks), name='pen_transfer_rel')
     ## Chip constraints
-    model.add_constraints((use_wc[w] + use_fh[w] + use_bb[w] <= 1 for w in gameweeks), name='single_chip')
+    model.add_constraints((use_wc[w] + use_fh[w] + use_bb[w] + use_tc_gw[w] <= 1 for w in gameweeks), name='single_chip')
     model.add_constraints((aux[w] <= 1-use_wc[w-1] for w in gameweeks if w > next_gw), name='ft_after_wc')
     model.add_constraints((aux[w] <= 1-use_fh[w-1] for w in gameweeks if w > next_gw), name='ft_after_fh')
+
 
     if options.get('use_wc', None) is not None:
         model.add_constraint(use_wc[options['use_wc']] == 1, name='force_wc')
@@ -444,10 +494,15 @@ def solve_multi_period_fpl(data, options):
     if options.get('use_fh', None) is not None:
         model.add_constraint(use_fh[options['use_fh']] == 1, name='force_fh')
         chip_limits['fh'] = 1
+    if options.get('use_tc', None) is not None:
+        model.add_constraint(use_tc_gw[options['use_tc']] == 1, name='force_tc')
+        chip_limits['tc'] = 1
     
     model.add_constraint(so.expr_sum(use_wc[w] for w in gameweeks) <= chip_limits.get('wc', 0), name='use_wc_limit')
     model.add_constraint(so.expr_sum(use_bb[w] for w in gameweeks) <= chip_limits.get('bb', 0), name='use_bb_limit')
     model.add_constraint(so.expr_sum(use_fh[w] for w in gameweeks) <= chip_limits.get('fh', 0), name='use_fh_limit')
+    model.add_constraint(so.expr_sum(use_tc_gw[w] for w in gameweeks) <= chip_limits.get('tc', 0), name='use_tc_limit')
+
     model.add_constraints((squad_fh[p,w] <= use_fh[w] for p in players for w in gameweeks), name='fh_squad_logic')
 
     if len(allowed_chip_gws.get('wc', [])) > 0:
@@ -459,6 +514,22 @@ def solve_multi_period_fpl(data, options):
     if len(allowed_chip_gws.get('bb', [])) > 0:
         gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['bb']]
         model.add_constraints((use_bb[w] == 0 for w in gws_banned), name='banned_bb_gws')
+    if len(allowed_chip_gws.get('tc', [])) > 0:
+        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['tc']]
+        model.add_constraints((use_tc_gw[w] == 0 for w in gws_banned), name='banned_tc_gws')
+
+    if len(forced_chip_gws.get('wc', [])) > 0:
+        model.add_constraint(so.expr_sum(use_wc[w] for w in forced_chip_gws['wc']) == 1, name='force_wc_gw')
+        chip_limits['wc'] = 1
+    if len(forced_chip_gws.get('fh', [])) > 0:
+        model.add_constraint(so.expr_sum(use_fh[w] for w in forced_chip_gws['fh']) == 1, name='force_fh_gw')
+        chip_limits['fh'] = 1
+    if len(forced_chip_gws.get('bb', [])) > 0:
+        model.add_constraint(so.expr_sum(use_bb[w] for w in forced_chip_gws['bb']) == 1, name='force_bb_gw')
+        chip_limits['bb'] = 1
+    if len(forced_chip_gws.get('tc', [])) > 0:
+        model.add_constraint(so.expr_sum(use_tc_gw[w] for w in forced_chip_gws['tc']) == 1, name='force_tc_gw')
+        chip_limits['tc'] = 1
 
     ## Multiple-sell fix
     model.add_constraints((transfer_out_first[p,w] + transfer_out_regular[p,w] <= 1 for p in price_modified_players for w in gameweeks), name='multi_sell_1')
@@ -585,7 +656,7 @@ def solve_multi_period_fpl(data, options):
 
     # Objectives
     hit_cost = options.get('hit_cost', 4)
-    gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
+    gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + use_tc[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
     gw_total = {w: gw_xp[w] - hit_cost * penalized_transfers[w] + ft_value * free_transfers[w] - ft_penalty[w] + itb_value * in_the_bank[w] for w in gameweeks}
     
     if objective == 'regular':
@@ -618,18 +689,13 @@ def solve_multi_period_fpl(data, options):
                 file.write(model.to_optmodel())
 
         use_cmd = options.get('use_cmd', False)
-
         solver = options.get('solver', 'cbc')
 
         if solver == 'cbc':
-
             cbc_exec = options.get('solver_path') or 'cbc'
-
             if options.get('single_solve') is True:
-
                 gap = options.get('gap', 0)
                 secs = options.get('secs', 20*60)
-
                 command = f'{cbc_exec} tmp/{problem_name}_{problem_id}_{iter}.mps cost column ratio {gap} sec {secs} solve solu tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
                 if use_cmd:
                     os.system(command)
@@ -638,7 +704,6 @@ def solve_multi_period_fpl(data, options):
                     process.wait()
 
             else:
-
                 command = f'{cbc_exec} tmp/{problem_name}_{problem_id}_{iter}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt'
                 if use_cmd:
                     os.system(command)
@@ -739,6 +804,7 @@ def solve_multi_period_fpl(data, options):
                     is_squad = 1 if (use_fh[w].get_value() < 0.5 and squad[p,w].get_value() > 0.5) or (use_fh[w].get_value() > 0.5 and squad_fh[p,w].get_value() > 0.5) else 0
                     is_lineup = 1 if lineup[p,w].get_value() > 0.5 else 0
                     is_vice = 1 if vicecap[p,w].get_value() > 0.5 else 0
+                    is_tc = 1 if use_tc[p,w].get_value() > 0.5 else 0
                     is_transfer_in = 1 if transfer_in[p,w].get_value() > 0.5 else 0
                     is_transfer_out = 1 if transfer_out[p,w].get_value() > 0.5 else 0
                     bench_value = -1
@@ -748,7 +814,7 @@ def solve_multi_period_fpl(data, options):
                     position = type_data.loc[lp['element_type'], 'singular_name_short']
                     player_buy_price = 0 if not is_transfer_in else buy_price[p]
                     player_sell_price = 0 if not is_transfer_out else (sell_price[p] if p in price_modified_players and transfer_out_first[p,w].get_value() > 0.5 else buy_price[p])
-                    multiplier = 1*(is_lineup==1) + 1*(is_captain==1)
+                    multiplier = 1*(is_lineup==1) + 1*(is_captain==1) + 1*(is_tc==1)
                     xp_cont = points_player_week[p,w] * multiplier
 
                     # chip
@@ -758,7 +824,8 @@ def solve_multi_period_fpl(data, options):
                         chip_text = 'FH'
                     elif use_bb[w].get_value() > 0.5:
                         chip_text = 'BB'
-                    # elif use_tc
+                    elif use_tc[p,w].get_value() > 0.5:
+                        chip_text = 'TC'
                     else:
                         chip_text = ''
                     
@@ -773,13 +840,14 @@ def solve_multi_period_fpl(data, options):
 
         # Writing summary
         summary_of_actions = ""
-        move_summary = {'buy': [], 'sell': []}
+        move_summary = {'chip': [], 'buy': [], 'sell': []}
         cumulative_xpts = 0
         for w in gameweeks:
             summary_of_actions += f"** GW {w}:\n"
-            chip_decision = ("WC" if use_wc[w].get_value() > 0.5 else "") + ("FH" if use_fh[w].get_value() > 0.5 else "") + ("BB" if use_bb[w].get_value() > 0.5 else "")
+            chip_decision = ("WC" if use_wc[w].get_value() > 0.5 else "") + ("FH" if use_fh[w].get_value() > 0.5 else "") + ("BB" if use_bb[w].get_value() > 0.5 else "") + ("TC" if use_tc_gw[w].get_value() > 0.5 else "")
             if chip_decision != "":
                 summary_of_actions += "CHIP " + chip_decision + "\n"
+                move_summary['chip'].append(chip_decision + str(w))
             summary_of_actions += f"ITB={in_the_bank[w].get_value()}, FT={free_transfers[w].get_value()}, PT={penalized_transfers[w].get_value()}, NT={number_of_transfers[w].get_value()}\n"
             for p in players:
                 if transfer_in[p,w].get_value() > 0.5:
@@ -823,10 +891,13 @@ def solve_multi_period_fpl(data, options):
 
         buy_decisions = ', '.join(move_summary['buy'])
         sell_decisions = ', '.join(move_summary['sell'])
+        chip_decisions = ', '.join(move_summary['chip'])
         if buy_decisions == '':
             buy_decisions = '-'
         if sell_decisions == '':
             sell_decisions = '-'
+        if chip_decisions == '':
+            chip_decisions = '-'
 
         # Add current solution to a list, and add a new cut
         solutions.append({
@@ -837,6 +908,7 @@ def solve_multi_period_fpl(data, options):
             'summary': summary_of_actions,
             'buy': buy_decisions,
             'sell': sell_decisions,
+            'chip': chip_decisions,
             'score': -model.get_objective_value(),
             'decay_metrics': {key: value.get_value() for key, value in decay_metrics.items()}
             })
@@ -878,7 +950,28 @@ def solve_multi_period_fpl(data, options):
         elif iteration_criteria == 'this_gw_lineup':
             selected_lineup = [p for p in players if lineup[p,next_gw].get_value() > 0.5]
             model.add_constraint(so.expr_sum(lineup[p, next_gw] for p in selected_lineup) <= len(selected_lineup) - iter_diff, name=f'cutoff_{iter}')
-
+        elif iteration_criteria == 'chip_combinations':
+            try:
+                current_chips = chip_combinations[iter+1]
+            except:
+                break
+            pairs = [
+                {'chip': 'wc', 'variable': use_wc},
+                {'chip': 'fh', 'variable': use_fh},
+                {'chip': 'bb', 'variable': use_bb},
+                {'chip': 'tc', 'variable': use_tc_gw}
+            ]
+            for pair in pairs:
+                chip = pair['chip']
+                variable = pair['variable']
+                model.drop_constraint(model.get_constraint(f'cc_{chip}'))
+                if current_chips.get(chip) is not None:
+                    model.add_constraint(variable[current_chips[chip]] == 1, name=f"cc_{chip}")
+                    options['chip_limits'][chip] = 1
+                else:
+                    model.add_constraint(so.expr_sum(variable[w] for w in gameweeks) == 0, name=f"cc_{chip}")
+                    options['chip_limits'][chip] = 0
+            
         
 
     return solutions

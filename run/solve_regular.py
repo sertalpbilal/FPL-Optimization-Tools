@@ -92,7 +92,7 @@ def solve_regular(runtime_options=None):
 
     print("Result Summary")
     result_table = pd.DataFrame(response)
-    print(result_table[['iter', 'sell', 'buy', 'score']])
+    print(result_table[['iter', 'sell', 'buy', 'chip', 'score']])
 
     if len(options.get('report_decay_base', [])) > 0:
         try:
