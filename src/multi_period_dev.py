@@ -322,7 +322,7 @@ def solve_multi_period_fpl(data, options):
     chip_limits = options.get('chip_limits', dict())
     allowed_chip_gws = options.get('allowed_chip_gws', dict())
     forced_chip_gws = options.get('forced_chip_gws', dict())
-    run_chip_combinations = options.get('run_chip_combinations', dict())
+    run_chip_combinations = options.get('run_chip_combinations', None)
     booked_transfers = options.get('booked_transfers', [])
     preseason = options.get('preseason', False)
     itb_loss_per_transfer = options.get('itb_loss_per_transfer', None)
