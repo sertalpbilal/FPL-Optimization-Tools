@@ -1,5 +1,5 @@
 {
-    "horizon": 10,
+    "horizon": 9,
     "decay_base": 0.84,
     "ft_value": 1.5,
     "ft_use_penalty": 0,
@@ -24,7 +24,7 @@
     "hit_cost": 4.1,
     "use_wc": 0,
     "use_bb": null,
-    "use_fh": null,
+    "use_fh": 0,
     "use_tc": null,
     "chip_limits": {"bb": 0, "wc": 0, "fh": 0, "tc": 0},
     "no_chip_gws": [],
