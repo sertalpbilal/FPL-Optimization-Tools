@@ -34911,3 +34911,279 @@ Solving report
                     4076 (separation)
                     13266 (heuristics)
 Writing the solution to tmp/mp_h9_od_d0.84_ecFHm_0_sol.txt
+Running HiGHS 1.6.0: Copyright (c) 2023 HiGHS under MIT licence terms
+Number of PL entries in BOUNDS section is 2
+Number of BV entries in BOUNDS section is 5251
+MIP  mp_h2_od_d0.9_o3b3I_0 has 8354 rows; 5261 cols; 32808 nonzeros; 5258 integer variables
+Presolving model
+5617 rows, 3999 cols, 19562 nonzeros
+4105 rows, 3561 cols, 15835 nonzeros
+3832 rows, 3342 cols, 14443 nonzeros
+
+Solving MIP model with:
+   3832 rows
+   3342 cols (3341 binary, 0 integer, 1 implied int., 0 continuous)
+   14443 nonzeros
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+     Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   -1114.599506    inf                  inf        0      0      0         0     0.1s
+ R       0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      0      1553     0.2s
+
+10.1% inactive integer columns, restarting
+Model after restart has 3166 rows, 3004 cols (3003 bin., 0 int., 1 impl., 0 cont.), and 11765 nonzeros
+
+         0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      0      1553     0.3s
+         0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      2      1553     0.3s
+ L       0       0         0   0.00%   -140.4693918    -140.453158        0.01%      370      6     14      1742     0.6s
+
+Solving report
+  Status            Optimal
+  Primal bound      -140.453158
+  Dual bound        -140.457999228
+  Gap               0.00345% (tolerance: 0.01%)
+  Solution status   feasible
+                    -140.453158 (objective)
+                    0 (bound viol.)
+                    1.07691633389e-14 (int. viol.)
+                    0 (row viol.)
+  Timing            0.64 (total)
+                    0.08 (presolve)
+                    0.00 (postsolve)
+  Nodes             1
+  LP iterations     2010 (total)
+                    0 (strong br.)
+                    189 (separation)
+                    225 (heuristics)
+Writing the solution to tmp/mp_h2_od_d0.9_o3b3I_0_sol.txt
+Running HiGHS 1.6.0: Copyright (c) 2023 HiGHS under MIT licence terms
+Number of PL entries in BOUNDS section is 2
+Number of BV entries in BOUNDS section is 5251
+MIP  mp_h2_od_d0.9_HmhoW_0 has 8354 rows; 5261 cols; 32808 nonzeros; 5258 integer variables
+Presolving model
+5617 rows, 3999 cols, 19562 nonzeros
+4105 rows, 3561 cols, 15835 nonzeros
+3832 rows, 3342 cols, 14443 nonzeros
+
+Solving MIP model with:
+   3832 rows
+   3342 cols (3341 binary, 0 integer, 1 implied int., 0 continuous)
+   14443 nonzeros
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+     Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   -1114.599506    inf                  inf        0      0      0         0     0.1s
+ R       0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      0      1553     0.2s
+
+10.1% inactive integer columns, restarting
+Model after restart has 3166 rows, 3004 cols (3003 bin., 0 int., 1 impl., 0 cont.), and 11765 nonzeros
+
+         0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      0      1553     0.3s
+         0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      2      1553     0.3s
+ L       0       0         0   0.00%   -140.4693918    -140.453158        0.01%      370      6     14      1742     0.8s
+
+Solving report
+  Status            Optimal
+  Primal bound      -140.453158
+  Dual bound        -140.457999228
+  Gap               0.00345% (tolerance: 0.01%)
+  Solution status   feasible
+                    -140.453158 (objective)
+                    0 (bound viol.)
+                    1.07691633389e-14 (int. viol.)
+                    0 (row viol.)
+  Timing            0.78 (total)
+                    0.12 (presolve)
+                    0.00 (postsolve)
+  Nodes             1
+  LP iterations     2010 (total)
+                    0 (strong br.)
+                    189 (separation)
+                    225 (heuristics)
+Writing the solution to tmp/mp_h2_od_d0.9_HmhoW_0_sol.txt
+Running HiGHS 1.6.0: Copyright (c) 2023 HiGHS under MIT licence terms
+Number of PL entries in BOUNDS section is 2
+Number of BV entries in BOUNDS section is 5251
+MIP  mp_h2_od_d0.9_oH58c_0 has 8354 rows; 5261 cols; 32808 nonzeros; 5258 integer variables
+Presolving model
+5617 rows, 3999 cols, 19562 nonzeros
+4105 rows, 3561 cols, 15835 nonzeros
+3832 rows, 3342 cols, 14443 nonzeros
+
+Solving MIP model with:
+   3832 rows
+   3342 cols (3341 binary, 0 integer, 1 implied int., 0 continuous)
+   14443 nonzeros
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+     Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   -1114.599506    inf                  inf        0      0      0         0     0.1s
+ R       0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      0      1553     0.2s
+
+10.1% inactive integer columns, restarting
+Model after restart has 3166 rows, 3004 cols (3003 bin., 0 int., 1 impl., 0 cont.), and 11765 nonzeros
+
+         0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      0      1553     0.3s
+         0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      2      1553     0.3s
+ L       0       0         0   0.00%   -140.4693918    -140.453158        0.01%      370      6     14      1742     0.7s
+
+Solving report
+  Status            Optimal
+  Primal bound      -140.453158
+  Dual bound        -140.457999228
+  Gap               0.00345% (tolerance: 0.01%)
+  Solution status   feasible
+                    -140.453158 (objective)
+                    0 (bound viol.)
+                    1.07691633389e-14 (int. viol.)
+                    0 (row viol.)
+  Timing            0.76 (total)
+                    0.10 (presolve)
+                    0.00 (postsolve)
+  Nodes             1
+  LP iterations     2010 (total)
+                    0 (strong br.)
+                    189 (separation)
+                    225 (heuristics)
+Writing the solution to tmp/mp_h2_od_d0.9_oH58c_0_sol.txt
+Running HiGHS 1.6.0: Copyright (c) 2023 HiGHS under MIT licence terms
+Number of PL entries in BOUNDS section is 2
+Number of BV entries in BOUNDS section is 5251
+MIP  mp_h2_od_d0.9_CXYtK_0 has 8354 rows; 5261 cols; 32808 nonzeros; 5258 integer variables
+Presolving model
+5617 rows, 3999 cols, 19562 nonzeros
+4105 rows, 3561 cols, 15835 nonzeros
+3832 rows, 3342 cols, 14443 nonzeros
+
+Solving MIP model with:
+   3832 rows
+   3342 cols (3341 binary, 0 integer, 1 implied int., 0 continuous)
+   14443 nonzeros
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+     Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   -1114.599506    inf                  inf        0      0      0         0     0.1s
+ R       0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      0      1553     0.2s
+
+10.1% inactive integer columns, restarting
+Model after restart has 3166 rows, 3004 cols (3003 bin., 0 int., 1 impl., 0 cont.), and 11765 nonzeros
+
+         0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      0      1553     0.2s
+         0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      2      1553     0.2s
+ L       0       0         0   0.00%   -140.4693918    -140.453158        0.01%      370      6     14      1742     0.6s
+
+Solving report
+  Status            Optimal
+  Primal bound      -140.453158
+  Dual bound        -140.457999228
+  Gap               0.00345% (tolerance: 0.01%)
+  Solution status   feasible
+                    -140.453158 (objective)
+                    0 (bound viol.)
+                    1.07691633389e-14 (int. viol.)
+                    0 (row viol.)
+  Timing            0.63 (total)
+                    0.10 (presolve)
+                    0.00 (postsolve)
+  Nodes             1
+  LP iterations     2010 (total)
+                    0 (strong br.)
+                    189 (separation)
+                    225 (heuristics)
+Writing the solution to tmp/mp_h2_od_d0.9_CXYtK_0_sol.txt
+Running HiGHS 1.6.0: Copyright (c) 2023 HiGHS under MIT licence terms
+Number of PL entries in BOUNDS section is 2
+Number of BV entries in BOUNDS section is 5251
+MIP  mp_h2_od_d0.9_dOTMo_0 has 8354 rows; 5261 cols; 32808 nonzeros; 5258 integer variables
+Presolving model
+5617 rows, 3999 cols, 19562 nonzeros
+4105 rows, 3561 cols, 15835 nonzeros
+3832 rows, 3342 cols, 14443 nonzeros
+
+Solving MIP model with:
+   3832 rows
+   3342 cols (3341 binary, 0 integer, 1 implied int., 0 continuous)
+   14443 nonzeros
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+     Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   -1114.599506    inf                  inf        0      0      0         0     0.1s
+ R       0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      0      1553     0.2s
+
+10.1% inactive integer columns, restarting
+Model after restart has 3166 rows, 3004 cols (3003 bin., 0 int., 1 impl., 0 cont.), and 11765 nonzeros
+
+         0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      0      1553     0.2s
+         0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      2      1553     0.2s
+ L       0       0         0   0.00%   -140.4693918    -140.453158        0.01%      370      6     14      1742     0.6s
+
+Solving report
+  Status            Optimal
+  Primal bound      -140.453158
+  Dual bound        -140.457999228
+  Gap               0.00345% (tolerance: 0.01%)
+  Solution status   feasible
+                    -140.453158 (objective)
+                    0 (bound viol.)
+                    1.07691633389e-14 (int. viol.)
+                    0 (row viol.)
+  Timing            0.61 (total)
+                    0.10 (presolve)
+                    0.00 (postsolve)
+  Nodes             1
+  LP iterations     2010 (total)
+                    0 (strong br.)
+                    189 (separation)
+                    225 (heuristics)
+Writing the solution to tmp/mp_h2_od_d0.9_dOTMo_0_sol.txt
+Running HiGHS 1.6.0: Copyright (c) 2023 HiGHS under MIT licence terms
+Number of PL entries in BOUNDS section is 2
+Number of BV entries in BOUNDS section is 5251
+MIP  mp_h2_od_d0.9_29vtQ_0 has 8354 rows; 5261 cols; 32808 nonzeros; 5258 integer variables
+Presolving model
+5617 rows, 3999 cols, 19562 nonzeros
+4105 rows, 3561 cols, 15835 nonzeros
+3832 rows, 3342 cols, 14443 nonzeros
+
+Solving MIP model with:
+   3832 rows
+   3342 cols (3341 binary, 0 integer, 1 implied int., 0 continuous)
+   14443 nonzeros
+
+        Nodes      |    B&B Tree     |            Objective Bounds              |  Dynamic Constraints |       Work      
+     Proc. InQueue |  Leaves   Expl. | BestBound       BestSol              Gap |   Cuts   InLp Confl. | LpIters     Time
+
+         0       0         0   0.00%   -1114.599506    inf                  inf        0      0      0         0     0.1s
+ R       0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      0      1553     0.2s
+
+10.1% inactive integer columns, restarting
+Model after restart has 3166 rows, 3004 cols (3003 bin., 0 int., 1 impl., 0 cont.), and 11765 nonzeros
+
+         0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      0      1553     0.2s
+         0       0         0   0.00%   -140.5430822    -137.345746        2.33%        0      0      2      1553     0.2s
+ L       0       0         0   0.00%   -140.4693918    -140.453158        0.01%      370      6     14      1742     0.6s
+
+Solving report
+  Status            Optimal
+  Primal bound      -140.453158
+  Dual bound        -140.457999228
+  Gap               0.00345% (tolerance: 0.01%)
+  Solution status   feasible
+                    -140.453158 (objective)
+                    0 (bound viol.)
+                    1.07691633389e-14 (int. viol.)
+                    0 (row viol.)
+  Timing            0.62 (total)
+                    0.11 (presolve)
+                    0.00 (postsolve)
+  Nodes             1
+  LP iterations     2010 (total)
+                    0 (strong br.)
+                    189 (separation)
+                    225 (heuristics)
+Writing the solution to tmp/mp_h2_od_d0.9_29vtQ_0_sol.txt
