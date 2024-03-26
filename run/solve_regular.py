@@ -104,10 +104,10 @@ def solve_regular(runtime_options=None):
         print(result["summary"])
         time_now = datetime.datetime.now()
         stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
-        if not (os.path.exists("../data/results/")):
-            os.mkdir("../data/results/")
+        if not (os.path.exists("../data/results/bb_test")):
+            os.mkdir("../data/results/bb_test")
         result["picks"].to_csv(
-            f"../data/results/{chip_used}__FT{ft_value}_decay{decay}_{datasource}.csv"
+            f"../data/results/bb_test/{chip_used}_FT{ft_value}_decay{decay}_{datasource}_{run_id}.csv"
         )
     # for result in response:
     #    iter = result['iter']
