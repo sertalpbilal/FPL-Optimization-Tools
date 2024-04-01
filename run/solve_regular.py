@@ -102,13 +102,14 @@ def solve_regular(runtime_options=None):
         datasource = options.get("datasource", None)
         chip_used = result["chip"].replace(",", "_")
         condition = options.get("condition", "Standard")
+        randomized = options.get("randomized", False)
         print(result["summary"])
         time_now = datetime.datetime.now()
         stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
         if not (os.path.exists("../data/results/")):
             os.mkdir("../data/results/")
         result["picks"].to_csv(
-            f"../data/results/{condition}_FT{ft_value}_decay{decay}_{datasource}_{run_id}_{iter}_{stamp}.csv"
+            f"../data/results/{datasource}_randomized{randomized}_{run_id}_{iter}_{stamp}.csv"
         )
     # for result in response:
     #    iter = result['iter']

@@ -379,6 +379,9 @@ def solve_multi_period_fpl(data, options):
     preseason = options.get("preseason", False)
     itb_loss_per_transfer = options.get("itb_loss_per_transfer", None)
     condition = options.get("condition", "Standard")
+    wc_week = options.get("use_wc", None)
+    fh_week = options.get("use_fh", None)
+    bb_week = options.get("use_bb", None)
     if itb_loss_per_transfer is None:
         itb_loss_per_transfer = 0
 
@@ -1444,6 +1447,11 @@ def solve_multi_period_fpl(data, options):
                             xp_cont,
                             chip_text,
                             condition,
+                            ft_value,
+                            decay_base,
+                            wc_week,
+                            fh_week,
+                            bb_week,
                         ]
                     )
 
@@ -1471,6 +1479,11 @@ def solve_multi_period_fpl(data, options):
                 "xp_cont",
                 "chip",
                 "condition",
+                "ft_value",
+                "decay_base",
+                "wc_week",
+                "fh_week",
+                "bb_week",
             ],
         ).sort_values(
             by=["week", "lineup", "type", "xP"], ascending=[True, False, True, True]
