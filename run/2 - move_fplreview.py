@@ -5,9 +5,7 @@ from datetime import datetime
 import pytz
 
 downloads_folder = Path.home() / "Downloads"
-data_folder = Path(
-    "C:/Users/erknud3/OneDrive - Norgesgruppen/Skrivebord/fpl-optimization/data"
-)
+data_folder = Path("C:/Users/erknud3/fpl-optimization/data")
 filename_prefix = "fplreview"
 
 # Oslo time zone

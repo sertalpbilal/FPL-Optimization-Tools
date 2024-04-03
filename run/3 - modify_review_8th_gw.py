@@ -11,9 +11,7 @@ def get_current_event():
 
 
 def add_decayed_last_four_gws_to_eight():
-    directory = (
-        "C:/Users/erknud3/OneDrive - NorgesGruppen/Skrivebord/fpl-optimization/data"
-    )
+    directory = "C:/Users/erknud3/fpl-optimization/data"
     input_file = os.path.join(directory, "fplreview_12gws.csv")
     output_file = os.path.join(directory, "fplreview.csv")
 

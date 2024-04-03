@@ -15,7 +15,7 @@ def read_sensitivity(options=None):
 
     print()
 
-    directory = "../data/results/sakalocked"
+    directory = "../data/results"
     # no_plans = len(os.listdir(directory))
 
     if situation == "N" or situation == "n":
