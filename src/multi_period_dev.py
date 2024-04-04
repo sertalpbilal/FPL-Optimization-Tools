@@ -322,7 +322,7 @@ def solve_multi_period_fpl(data, options):
     chip_limits = options.get('chip_limits', dict())
     allowed_chip_gws = options.get('allowed_chip_gws', dict())
     forced_chip_gws = options.get('forced_chip_gws', dict())
-    run_chip_combinations = options.get('run_chip_combinations', dict())
+    run_chip_combinations = options.get('run_chip_combinations', None)
     booked_transfers = options.get('booked_transfers', [])
     preseason = options.get('preseason', False)
     itb_loss_per_transfer = options.get('itb_loss_per_transfer', None)
@@ -559,10 +559,18 @@ def solve_multi_period_fpl(data, options):
         banned_players = options['banned']
         model.add_constraints((so.expr_sum(squad[p,w] for w in gameweeks) == 0 for p in banned_players), name='ban_player')
         model.add_constraints((so.expr_sum(squad_fh[p,w] for w in gameweeks) == 0 for p in banned_players), name='ban_player_fh')
+    
+    if options.get('banned_next_gw', None) is not None:
+        banned_in_gw = [(x, gameweeks[0]) if isinstance(x, int) else tuple(x) for x in options['banned_next_gw']]
+        model.add_constraints((squad[p0, p1] == 0 for (p0, p1) in banned_in_gw), name='ban_player_specified_gw')
 
     if options.get('locked', None) is not None:
         locked_players = options['locked']
         model.add_constraints((squad[p,w] + squad_fh[p,w] == 1 for p in locked_players for w in gameweeks), name='lock_player')
+    
+    if options.get('locked_next_gw', None) is not None:
+        locked_in_gw = [(x, gameweeks[0]) if isinstance(x, int) else tuple(x) for x in options['locked_next_gw']]
+        model.add_constraints((squad[p0, p1] == 1 for (p0, p1) in locked_in_gw), name='lock_player_specified_gw')
 
     if options.get("no_future_transfer"):
         model.add_constraint(so.expr_sum(transfer_in[p,w] for p in players for w in gameweeks if w > next_gw and w != options.get('use_wc')) == 0, name='no_future_transfer')
