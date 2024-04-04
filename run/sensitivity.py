@@ -21,35 +21,65 @@ def read_sensitivity(options=None):
 
         buys = []
         sells = []
+        move = []
         no_plans = 0
 
         for filename in Path(directory).glob("*.csv"):
             plan = pd.read_csv(filename)
+            try:
+                iter = plan.iloc[0]['iter']
+            except:
+                iter = 0
             if plan[(plan['week']==gw) & (plan['transfer_in']==1)]['name'].to_list() == []:
-                buys += ['No transfer']
-                sells += ['No transfer']
+                buys.append({'move': 'No transfer', 'iter': iter})
+                sells.append({'move': 'No transfer', 'iter': iter})
+                move.append({'move': 'No transfer', 'iter': iter})
             else:
                 buy_list = plan[(plan['week']==gw) & (plan['transfer_in']==1)]['name'].to_list()
                 buy = ', '.join(buy_list)
-                buys.append(buy)
+                buys.append({'move': buy, 'iter': iter})
 
                 sell_list = plan[(plan['week']==gw) & (plan['transfer_out']==1)]['name'].to_list()
                 sell = ', '.join(sell_list)
-                sells.append(sell)
+                sells.append({'move': sell, 'iter': iter})
+                move.append({'move': sell + ' -> ' + buy, 'iter': iter})
             no_plans += 1
 
-        buy_sum = pd.DataFrame(buys, columns=['player']).value_counts().reset_index(name='PSB')
-        sell_sum = pd.DataFrame(sells, columns=['player']).value_counts().reset_index(name='PSB')
+        iter_scoring = {1: 3, 2: 2, 3: 1}
 
-        buy_sum['PSB'] = ["{:.0%}".format(buy_sum['PSB'][x]/no_plans) for x in range(buy_sum.shape[0])]
-        sell_sum['PSB'] = ["{:.0%}".format(sell_sum['PSB'][x]/no_plans) for x in range(sell_sum.shape[0])]
+        buy_df = pd.DataFrame(buys)
+        buy_pivot = buy_df.pivot_table(index='move', columns='iter', aggfunc='size', fill_value=0)
+        iters = sorted(buy_df['iter'].unique())
+        buy_pivot['PSB'] = buy_pivot.loc[:, iters].sum(axis=1) / buy_pivot.sum().sum()
+        buy_pivot['PSB'] = buy_pivot['PSB'].apply(lambda x: f"{x:.0%}")
+        buy_pivot['Score'] = buy_pivot.apply(lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1)
+        buy_pivot.sort_values(by='Score', ascending=False, inplace=True)
+
+        sell_df = pd.DataFrame(sells)
+        sell_pivot = sell_df.pivot_table(index='move', columns='iter', aggfunc='size', fill_value=0)
+        iters = sorted(sell_df['iter'].unique())
+        sell_pivot['PSB'] = sell_pivot.loc[:, iters].sum(axis=1) / sell_pivot.sum().sum()
+        sell_pivot['PSB'] = sell_pivot['PSB'].apply(lambda x: f"{x:.0%}")
+        sell_pivot['Score'] = sell_pivot.apply(lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1)
+        sell_pivot.sort_values(by='Score', ascending=False, inplace=True)
+
+        move_df = pd.DataFrame(move)
+        move_pivot = move_df.pivot_table(index='move', columns='iter', aggfunc='size', fill_value=0)
+        iters = sorted(move_df['iter'].unique())
+        move_pivot['PSB'] = move_pivot.loc[:, iters].sum(axis=1) / move_pivot.sum().sum()
+        move_pivot['PSB'] = move_pivot['PSB'].apply(lambda x: f"{x:.0%}")
+        move_pivot['Score'] = move_pivot.apply(lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1)
+        move_pivot.sort_values(by='Score', ascending=False, inplace=True)
+
 
         print('Buy:')
-        print('\n'.join(buy_sum.to_string(index = False).split('\n')[1:]))
+        print(buy_pivot)
         print()
         print('Sell:')
-        print('\n'.join(sell_sum.to_string(index = False).split('\n')[1:]))
+        print(sell_pivot)
         print()
+        print("Move:")
+        print(move_pivot)
 
     elif situation == "Y" or situation == "y":
 

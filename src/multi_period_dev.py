@@ -819,6 +819,7 @@ def solve_multi_period_fpl(data, options):
                     player_sell_price = 0 if not is_transfer_out else (sell_price[p] if p in price_modified_players and transfer_out_first[p,w].get_value() > 0.5 else buy_price[p])
                     multiplier = 1*(is_lineup==1) + 1*(is_captain==1) + 1*(is_tc==1)
                     xp_cont = points_player_week[p,w] * multiplier
+                    currrent_iter = iter + 1
 
                     # chip
                     if use_wc[w].get_value() > 0.5:
@@ -833,10 +834,10 @@ def solve_multi_period_fpl(data, options):
                         chip_text = ''
                     
                     picks.append([
-                        p, w, lp['web_name'], position, lp['element_type'], lp['name'], player_buy_price, player_sell_price, round(points_player_week[p,w],2), minutes_player_week[p,w], is_squad, is_lineup, bench_value, is_captain, is_vice, is_transfer_in, is_transfer_out, multiplier, xp_cont, chip_text
+                        p, w, lp['web_name'], position, lp['element_type'], lp['name'], player_buy_price, player_sell_price, round(points_player_week[p,w],2), minutes_player_week[p,w], is_squad, is_lineup, bench_value, is_captain, is_vice, is_transfer_in, is_transfer_out, multiplier, xp_cont, chip_text, currrent_iter
                     ])
 
-        picks_df = pd.DataFrame(picks, columns=['id', 'week', 'name', 'pos', 'type', 'team', 'buy_price', 'sell_price', 'xP', 'xMin', 'squad', 'lineup', 'bench', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out', 'multiplier', 'xp_cont', 'chip']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
+        picks_df = pd.DataFrame(picks, columns=['id', 'week', 'name', 'pos', 'type', 'team', 'buy_price', 'sell_price', 'xP', 'xMin', 'squad', 'lineup', 'bench', 'captain', 'vicecaptain', 'transfer_in', 'transfer_out', 'multiplier', 'xp_cont', 'chip', 'iter']).sort_values(by=['week', 'lineup', 'type', 'xP'], ascending=[True, False, True, True])
         total_xp = so.expr_sum((lineup[p,w] + captain[p,w]) * points_player_week[p,w] for p in players for w in gameweeks).get_value()
 
         picks_df.sort_values(by=['week', 'squad', 'lineup', 'bench', 'type'], ascending=[True, False, False, True, True], inplace=True)
