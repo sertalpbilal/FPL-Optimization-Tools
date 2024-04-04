@@ -374,7 +374,7 @@ def solve_multi_period_fpl(data, options):
     chip_limits = options.get("chip_limits", dict())
     allowed_chip_gws = options.get("allowed_chip_gws", dict())
     forced_chip_gws = options.get("forced_chip_gws", dict())
-    run_chip_combinations = options.get("run_chip_combinations", dict())
+    run_chip_combinations = options.get("run_chip_combinations", None)
     booked_transfers = options.get("booked_transfers", [])
     preseason = options.get("preseason", False)
     itb_loss_per_transfer = options.get("itb_loss_per_transfer", None)
@@ -939,7 +939,6 @@ def solve_multi_period_fpl(data, options):
         ft_penalty = {w: ft_use_penalty * transfer_count[w] for w in gameweeks}
 
     ## Optional constraints
-
     if options.get("banned", None) is not None:
         banned_players = options["banned"]
         model.add_constraints(
@@ -955,10 +954,13 @@ def solve_multi_period_fpl(data, options):
         )
 
     if options.get("banned_next_gw", None) is not None:
-        banned_next_gw = options["banned_next_gw"]
+        banned_in_gw = [
+            (x, gameweeks[0]) if isinstance(x, int) else tuple(x)
+            for x in options["banned_next_gw"]
+        ]
         model.add_constraints(
-            (squad[p, gameweeks[0]] == 0 for p in banned_next_gw),
-            name="ban_player_next_gw",
+            (squad[p0, p1] == 0 for (p0, p1) in banned_in_gw),
+            name="ban_player_specified_gw",
         )
 
     if options.get("locked", None) is not None:
@@ -973,10 +975,13 @@ def solve_multi_period_fpl(data, options):
         )
 
     if options.get("locked_next_gw", None) is not None:
-        locked_next_gw = options["locked_next_gw"]
+        locked_in_gw = [
+            (x, gameweeks[0]) if isinstance(x, int) else tuple(x)
+            for x in options["locked_next_gw"]
+        ]
         model.add_constraints(
-            (squad[p, gameweeks[0]] == 1 for p in locked_next_gw),
-            name="lock_player_next_gw",
+            (squad[p0, p1] == 1 for (p0, p1) in locked_in_gw),
+            name="lock_player_specified_gw",
         )
 
     if options.get("no_future_transfer"):
@@ -1411,6 +1416,7 @@ def solve_multi_period_fpl(data, options):
                         1 * (is_lineup == 1) + 1 * (is_captain == 1) + 1 * (is_tc == 1)
                     )
                     xp_cont = points_player_week[p, w] * multiplier
+                    currrent_iter = iter + 1
 
                     # chip
                     if use_wc[w].get_value() > 0.5:
