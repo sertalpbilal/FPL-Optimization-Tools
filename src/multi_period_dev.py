@@ -3,6 +3,7 @@ import numpy as np
 import sasoptpy as so
 import requests
 import os
+import datetime
 import time
 import subprocess
 import threading
@@ -382,6 +383,19 @@ def solve_multi_period_fpl(data, options):
     wc_week = options.get("use_wc", None)
     fh_week = options.get("use_fh", None)
     bb_week = options.get("use_bb", None)
+    randomized = options.get("randomized", None)
+    xmin_lb = options.get("xmin_lb", 20)
+    ev_per_price_cutoff = options.get("ev_per_price_cutoff", 50)
+    banned = options.get("banned", [])
+    locked = options.get("locked", [])
+    banned_next_gw = options.get("banned_next_gw", [])
+    locked_next_gw = options.get("locked_next_gw", [])
+    hit_limit = options.get("hit_limit", None)
+    hit_cost = options.get("hit_cost", None)
+    datasource = options.get("datasource", None)
+    team_id = options.get("team_id", None)
+    time_now = datetime.datetime.now()
+    stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
     if itb_loss_per_transfer is None:
         itb_loss_per_transfer = 0
 
@@ -1416,7 +1430,7 @@ def solve_multi_period_fpl(data, options):
                         1 * (is_lineup == 1) + 1 * (is_captain == 1) + 1 * (is_tc == 1)
                     )
                     xp_cont = points_player_week[p, w] * multiplier
-                    currrent_iter = iter + 1
+                    current_iter = iter + 1
 
                     # chip
                     if use_wc[w].get_value() > 0.5:
@@ -1452,13 +1466,26 @@ def solve_multi_period_fpl(data, options):
                             multiplier,
                             xp_cont,
                             chip_text,
-                            currrent_iter,
+                            current_iter,
+                            datasource,
+                            randomized,
                             condition,
+                            team_id,
                             ft_value,
                             decay_base,
+                            xmin_lb,
+                            ev_per_price_cutoff,
+                            banned,
+                            banned_next_gw,
+                            locked,
+                            locked_next_gw,
+                            hit_limit,
+                            hit_cost,
+                            booked_transfers,
                             wc_week,
                             fh_week,
                             bb_week,
+                            stamp,
                         ]
                     )
 
@@ -1485,13 +1512,26 @@ def solve_multi_period_fpl(data, options):
                 "multiplier",
                 "xp_cont",
                 "chip",
-                "condition",
                 "iter",
+                "datasource",
+                "randomized",
+                "condition",
+                "team_id",
                 "ft_value",
                 "decay_base",
+                "xmin_lb",
+                "ev_per_price_cutoff",
+                "banned",
+                "banned_next_gw",
+                "locked",
+                "locked_next_gw",
+                "hit_limit",
+                "hit_cost",
+                "booked_transfers",
                 "wc_week",
                 "fh_week",
                 "bb_week",
+                "stamp",
             ],
         ).sort_values(
             by=["week", "lineup", "type", "xP"], ascending=[True, False, True, True]

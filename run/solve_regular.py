@@ -109,7 +109,7 @@ def solve_regular(runtime_options=None):
         if not (os.path.exists("../data/results/")):
             os.mkdir("../data/results/")
         result["picks"].to_csv(
-            f"../data/results/{datasource}_randomized{randomized}_{run_id}_{iter}_{stamp}.csv"
+            f"../data/results/{datasource}_{stamp}_{run_id}_{iter}.csv"
         )
     # for result in response:
     #    iter = result['iter']

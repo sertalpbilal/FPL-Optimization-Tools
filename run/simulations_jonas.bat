@@ -1,4 +1,4 @@
-python .\simulations.py --datasource review1 --no 10 --parallel 10
+python .\simulations.py --datasource review1 --no 10 --parallel 10 
 python .\simulations.py --datasource review1 --no 10 --parallel 10
 python .\simulations.py --datasource review1 --no 10 --parallel 10
 python .\simulations.py --datasource review1 --no 10 --parallel 10
