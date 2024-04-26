@@ -820,8 +820,11 @@ def solve_multi_period_fpl(data, options):
         model.add_constraint(use_wc[options["use_wc"]] == 1, name="force_wc")
         chip_limits["wc"] = 1
     if options.get("use_bb", None) is not None:
-        model.add_constraint(use_bb[options["use_bb"]] == 1, name="force_bb")
-        chip_limits["bb"] = 1
+        if options.get("use_bb", None) == 0:
+            chip_limits["bb"] = 0
+        else:
+            model.add_constraint(use_bb[options["use_bb"]] == 1, name="force_bb")
+            chip_limits["bb"] = 1
     if options.get("use_fh", None) is not None:
         model.add_constraint(use_fh[options["use_fh"]] == 1, name="force_fh")
         chip_limits["fh"] = 1

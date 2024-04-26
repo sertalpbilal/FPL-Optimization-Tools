@@ -1,3 +1,5 @@
-python .\simulations.py --datasource review1 --no 10 --parallel 10 --team_id 98027 --condition jonas
-python .\simulations.py --datasource review1 --no 10 --parallel 10 --team_id 98027 --condition jonas
-python .\simulations.py --datasource review1 --no 10 --parallel 10 --team_id 98027 --condition jonas
+python .\simulations.py --no 20 --parallel 10 --condition thursdayevening --team_id 98027 --use_bb 37
+python .\simulations.py --no 20 --parallel 10 --condition thursdayevening --team_id 98027 --use_bb 37
+python .\simulations.py --no 20 --parallel 10 --condition thursdayevening --team_id 98027 --use_bb 37
+python .\simulations.py --no 20 --parallel 10 --condition thursdayevening --team_id 98027 --use_bb 37
+python .\simulations.py --no 20 --parallel 10 --condition thursdayevening --team_id 98027 --use_bb 37
