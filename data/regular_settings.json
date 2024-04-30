@@ -38,6 +38,7 @@
     "booked_transfers": [],
     "only_booked_transfers": false,
     "no_trs_except_wc": false,
+    "ft_custom_value": {},
     "preseason": false,
     "use_login": false,
     "solver": "cbc",

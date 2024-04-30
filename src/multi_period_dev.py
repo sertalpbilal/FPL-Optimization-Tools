@@ -314,6 +314,7 @@ def solve_multi_period_fpl(data, options):
     bench_weights = {int(key): value for (key,value) in bench_weights.items()}
     # wc_limit = options.get('wc_limit', 0)
     ft_value = options.get('ft_value', 1.5)
+    ft_gw_value = {}
     ft_use_penalty = options.get('ft_use_penalty', None)
     itb_value = options.get('itb_value', 0.08)
     ft = data.get('ft', 1)
@@ -586,6 +587,10 @@ def solve_multi_period_fpl(data, options):
     if options.get("hit_limit", None) is not None:
         model.add_constraint(so.expr_sum(penalized_transfers[w] for w in gameweeks) <= options['hit_limit'], name='horizon_hit_limit')
 
+    if options.get("ft_custom_value", None) is not None:
+        ft_custom_value = {int(key): value for (key, value) in options.get('ft_custom_value', {}).items()}
+        ft_gw_value = {**{gw: ft_value for gw in gameweeks}, **ft_custom_value}
+
     if options.get("future_transfer_limit", None) is not None:
         model.add_constraint(so.expr_sum(transfer_in[p,w] for p in players for w in gameweeks if w > next_gw and w != options.get('use_wc')) <= options['future_transfer_limit'], name='future_tr_limit')
 
@@ -668,7 +673,7 @@ def solve_multi_period_fpl(data, options):
     # Objectives
     hit_cost = options.get('hit_cost', 4)
     gw_xp = {w: so.expr_sum(points_player_week[p,w] * (lineup[p,w] + captain[p,w] + 0.1*vicecap[p,w] + use_tc[p,w] + so.expr_sum(bench_weights[o] * bench[p,w,o] for o in order)) for p in players) for w in gameweeks}
-    gw_total = {w: gw_xp[w] - hit_cost * penalized_transfers[w] + ft_value * free_transfers[w] - ft_penalty[w] + itb_value * in_the_bank[w] for w in gameweeks}
+    gw_total = {w: gw_xp[w] - hit_cost * penalized_transfers[w] + ft_gw_value.get(w, ft_value) * free_transfers[w] - ft_penalty[w] + itb_value * in_the_bank[w] for w in gameweeks}
     
     if objective == 'regular':
         total_xp = so.expr_sum(gw_total[w] for w in gameweeks)
