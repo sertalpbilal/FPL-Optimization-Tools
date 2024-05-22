@@ -94,7 +94,7 @@ You will need to follow steps below to install required platform and also optimi
         "randomized": false,
         "xmin_lb": 2,
         "ev_per_price_cutoff": 20,
-        "bench_weights": {"0": 0.03, "1": 0.21, "2": 0.06, "3": 0.003},
+        "bench_weights": {"0": 0.03, "1": 0.21, "2": 0.06, "3": 0.002},
         "banned": [],
         "banned_next_gw": [],
         "locked": [],
