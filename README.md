@@ -283,6 +283,19 @@ If you want to run sensitivity analysis, instead of running `solve_regular.py`,
   python sensitivity.py --gw 1 --wildcard Y
   ``` 
 
-# License
 
-[Apache-2.0 License](LICENSE)
+## License
+
+This project is dual-licensed under the Apache License 2.0 and a Commercial License.
+
+### Apache License 2.0
+
+You may use this project under the terms of the Apache License 2.0. See [LICENSE](./LICENSE) file for details.
+
+### Commercial License
+
+For commercial use, please contact info@fploptimized.com to obtain a commercial license.
+
+## Contributor License Agreement
+
+By contributing to this project, you agree that your contributions can be licensed under both the Apache License 2.0 and the Commercial License.

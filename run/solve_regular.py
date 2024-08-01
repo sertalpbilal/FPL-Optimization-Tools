@@ -128,7 +128,7 @@ def solve_regular(runtime_options=None):
 
 
     # Link to FPL.Team
-    get_fplteam_link(options, response)
+    # get_fplteam_link(options, response)
 
 
 def get_fplteam_link(options, response):
