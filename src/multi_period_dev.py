@@ -691,7 +691,7 @@ def solve_multi_period_fpl(data, options):
     # FT gain
     ft_state_value = {}
     for s in ft_states:
-        ft_state_value[s] = ft_state_value.get(s-1, 0) + ft_value_list.get(s, ft_value)
+        ft_state_value[s] = ft_state_value.get(s-1, 0) + ft_value_list.get(str(s), ft_value)
     print(f"Using FT state values of {ft_state_value}")
     gw_ft_value = {w: so.expr_sum(ft_state_value[s] * free_transfers_state[w,s] for s in ft_states) for w in gameweeks}
     gw_ft_gain = {w: gw_ft_value[w] - gw_ft_value.get(w-1, 0) for w in gameweeks}
