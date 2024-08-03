@@ -170,7 +170,7 @@ def solve_regular(runtime_options=None):
             print(f"\tGW{gw}: {line_text}")
 
     # Link to FPL.Team
-    get_fplteam_link(options, response)
+    # get_fplteam_link(options, response)
 
 
 def get_fplteam_link(options, response):

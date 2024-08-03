@@ -149,7 +149,7 @@ def fix_mikkel(file_address):
         "BHA": "BRI",
         "CRY": "CPL",
         "NFO": "NOT",
-        "SOU": "SOT",
+        # 'SOU': 'SOT',
         "WHU": "WHM",
         "SHU": "SHE",
     }

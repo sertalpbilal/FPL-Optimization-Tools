@@ -94,7 +94,7 @@ You will need to follow steps below to install required platform and also optimi
         "randomized": false,
         "xmin_lb": 2,
         "ev_per_price_cutoff": 20,
-        "bench_weights": {"0": 0.03, "1": 0.21, "2": 0.06, "3": 0.003},
+        "bench_weights": {"0": 0.03, "1": 0.21, "2": 0.06, "3": 0.002},
         "banned": [],
         "banned_next_gw": [],
         "locked": [],
@@ -116,6 +116,7 @@ You will need to follow steps below to install required platform and also optimi
         "run_chip_combinations": {"bb": [], "wc": [], "fh": [], "tc": []},
         "num_transfers": null,
         "hit_limit": null,
+        "ft_custom_value": null,
         "preseason": false,
         "no_trs_except_wc": false,
         "cbc_path": "",
@@ -174,6 +175,9 @@ You will need to follow steps below to install required platform and also optimi
   - `num_transfers`: fixed number of transfers for this GW
   - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
   - `hit_cost`: cost of a hit, 4 points by default but can be overriden to reduce hits suggested
+  - `ft_custom_value`: value of keeping your 2nd free transfer before a GW. For example  
+    `"ft_custom_value": {"35": 2, "38": 0.5}`  
+    will set value of 2nd FT for GW35 to 2 EV, and for GW38 to 0.5 EV
   - `preseason`: solve flag for GW1 where team data is not important
   - `no_trs_except_wc`: when `true` prevents solver to make transfers except using wildcard
   - `solver`: solver engine, can use either `cbc` (default) or `highs`  
@@ -279,6 +283,19 @@ If you want to run sensitivity analysis, instead of running `solve_regular.py`,
   python sensitivity.py --gw 1 --wildcard Y
   ``` 
 
-# License
 
-[Apache-2.0 License](LICENSE)
+## License
+
+This project is dual-licensed under the Apache License 2.0 and a Commercial License.
+
+### Apache License 2.0
+
+You may use this project under the terms of the Apache License 2.0. See [LICENSE](./LICENSE) file for details.
+
+### Commercial License
+
+For commercial use, please contact info@fploptimized.com to obtain a commercial license.
+
+## Contributor License Agreement
+
+By contributing to this project, you agree that your contributions can be licensed under both the Apache License 2.0 and the Commercial License.
