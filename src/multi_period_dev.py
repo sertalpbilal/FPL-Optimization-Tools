@@ -681,9 +681,17 @@ def solve_multi_period_fpl(data, options):
         model.add_constraints((transfer_in[p,next_gw] == in_players[p] for p in players), name='fix_tgw_tr_in')
         model.add_constraints((transfer_out[p,next_gw] == out_players[p] for p in players), name='fix_tgw_tr_out')
 
-    if options.get('have_2ft_in_gws', None) is not None:
-        for gw in options['have_2ft_in_gws']:
-            model.add_constraint(free_transfers[gw] == 2, name=f'have_2ft_{gw}')
+    # if options.get('have_2ft_in_gws', None) is not None:
+    #     for gw in options['have_2ft_in_gws']:
+    #         model.add_constraint(free_transfers[gw] == 2, name=f'have_2ft_{gw}')
+
+    if options.get('force_ft_state_lb', None) is not None:
+        for gw,ft_pos in options['force_ft_state_lb']:
+            model.add_constraint(free_transfers[gw] >= ft_pos, name=f'cft_lb_{gw}')
+
+    if options.get('force_ft_state_ub', None) is not None:
+        for gw,ft_pos in options['force_ft_state_ub']:
+            model.add_constraint(free_transfers[gw] <= ft_pos, name=f'cft_ub_{gw}')
 
     if options.get('no_trs_except_wc', False) is True:
         model.add_constraints((number_of_transfers[w] <= 15 * use_wc[w] for w in gameweeks), name='wc_trs_only')
