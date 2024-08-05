@@ -84,6 +84,7 @@ You will need to follow steps below to install required platform and also optimi
     {
         "horizon": 5,
         "ft_value": 1.5,
+        "ft_value_list": {},
         "ft_use_penalty": 0,
         "itb_value": 0.2,
         "itb_loss_per_transfer": 0,
@@ -137,7 +138,11 @@ You will need to follow steps below to install required platform and also optimi
 
   - `horizon`: length of planning horizon
   - `ft_value`: value assigned to the extra free transfer
-  - `ft_use_penalty`: penalty on objective function when an FT is used
+  - `ft_value_list`: values of rolling FTs in different states, for example  
+    `"ft_value_list": {"2": 2.1, "3": 1.8, "4": 1.5, "5": 1.1}`  
+    assigns a value of 2.1 for rolling from 1FT to 2FTs, 1.8 value for rolling from 2FTs to 3FTs, etc...
+  - `ft_use_penalty`: penalty on objective function when an FT is used  
+    this parameter ensures that no future transfer (excluding this GW) is scheduled unless the gain is above this threshold
   - `itb_value`: value assigned to having 1.0 extra budget
   - `itb_loss_per_transfer`: reduction in ITB amount per scheduled transfers in future
   - `decay_base`: value assigned to decay rate of expected points
