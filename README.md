@@ -84,13 +84,15 @@ You will need to follow steps below to install required platform and also optimi
     {
         "horizon": 5,
         "ft_value": 1.5,
+        "ft_value_list": {},
         "ft_use_penalty": 0,
         "itb_value": 0.2,
         "itb_loss_per_transfer": 0,
         "decay_base": 0.84,
         "no_future_transfer": true,
         "no_transfer_last_gws": 0,
-        "have_2ft_in_gws": [],
+        "force_ft_state_lb": [],
+        "force_ft_state_ub": [],
         "randomized": false,
         "xmin_lb": 2,
         "ev_per_price_cutoff": 20,
@@ -137,14 +139,20 @@ You will need to follow steps below to install required platform and also optimi
 
   - `horizon`: length of planning horizon
   - `ft_value`: value assigned to the extra free transfer
-  - `ft_use_penalty`: penalty on objective function when an FT is used
+  - `ft_value_list`: values of rolling FTs in different states, for example  
+    `"ft_value_list": {"2": 2.1, "3": 1.8, "4": 1.5, "5": 1.1}`  
+    assigns a value of 2.1 for rolling from 1FT to 2FTs, 1.8 value for rolling from 2FTs to 3FTs, etc...
+  - `ft_use_penalty`: penalty on objective function when an FT is used  
+    this parameter ensures that no future transfer (excluding this GW) is scheduled unless the gain is above this threshold
   - `itb_value`: value assigned to having 1.0 extra budget
   - `itb_loss_per_transfer`: reduction in ITB amount per scheduled transfers in future
   - `decay_base`: value assigned to decay rate of expected points
   - `no_future_transfer`: `true` or `false` whether you want to plan future transfers or not
   - `no_transfer_last_gws`: the number of gws at the end of the period you want to ban transfers
-  - `have_2ft_in_gws`: list of GWs where you want to have 2 FTs, for example  
-    `"have_2ft_in_gws":[38]` will force solver to have 2 FTs at the beginning of GW38
+  - `force_ft_state_lb`: list of GWs and minimum number of FTs to force to have (format is (GW, state))  
+    `"force_ft_state":[[4,3], [7,2]]` will force solver to have at least 3 FTs in GW4, and 2 FTs in GW7
+  - `force_ft_state_ub`: list of GWs and maximum number of FTs to force to have (format is (GW, state))  
+    `"force_ft_state":[[4,4], [7,3]]` will force solver to have at most 4 FTs in GW4, and 3 FTs in GW7
   - `randomized`: `true` or `false` whether you would like to add random noise to EV
   - `xmin_lb`: cut-off for dropping players below this many minutes expectation
   - `ev_per_price_cutoff`: cut-off percentile for dropping players based on total EV per price (e.g. `20` means drop players below 20% percentile)
