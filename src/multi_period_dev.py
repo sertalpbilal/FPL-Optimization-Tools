@@ -717,10 +717,14 @@ def solve_multi_period_fpl(data, options):
 
     for iter in range(iteration):
 
+        mps_file_name = f"tmp/{problem_name}_{problem_id}_{iter}.mps"
+        sol_file_name = f"tmp/{problem_name}_{problem_id}_{iter}_sol.txt"
+        opt_file_name = f'tmp/{problem_name}_{problem_id}_{iter}.opt'
+
         # Solve
         tmp_folder = Path() / "tmp"
         tmp_folder.mkdir(exist_ok=True, parents=True)
-        model.export_mps(f'tmp/{problem_name}_{problem_id}_{iter}.mps')
+        model.export_mps(mps_file_name)
         print(f"Exported problem with name: {problem_name}_{problem_id}_{iter}")
 
         t0 = time.time()
@@ -735,10 +739,11 @@ def solve_multi_period_fpl(data, options):
 
         if solver == 'cbc':
             cbc_exec = options.get('solver_path') or 'cbc'
+            
             if options.get('single_solve') is True:
                 gap = options.get('gap', 0)
                 secs = options.get('secs', 20*60)
-                command = f'{cbc_exec} tmp/{problem_name}_{problem_id}_{iter}.mps cost column ratio {gap} sec {secs} solve solu tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
+                command = f'{cbc_exec} {mps_file_name} cost column ratio {gap} sec {secs} solve solu {sol_file_name}'
                 if use_cmd:
                     os.system(command)
                 else:
@@ -746,14 +751,14 @@ def solve_multi_period_fpl(data, options):
                     process.wait()
 
             else:
-                command = f'{cbc_exec} tmp/{problem_name}_{problem_id}_{iter}.mps cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt'
+                command = f'{cbc_exec} {mps_file_name} cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt'
                 if use_cmd:
                     os.system(command)
                 else:
                     process = Popen(command, shell=False)
                     process.wait()
                 secs = options.get('secs', 20*60)
-                command = f'{cbc_exec} tmp/{problem_name}_{problem_id}_{iter}.mps mips tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt cost column sec {secs} solve solu tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
+                command = f'{cbc_exec} {mps_file_name} mips tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt cost column sec {secs} solve solu {sol_file_name}'
                 if use_cmd:
                     os.system(command)
                 else:
@@ -766,7 +771,7 @@ def solve_multi_period_fpl(data, options):
             print(t1-t0, "seconds passed")
 
             # Parsing
-            with open(f'tmp/{problem_name}_{problem_id}_{iter}_sol.txt', 'r') as f:
+            with open(sol_file_name, 'r') as f:
                 for v in model.get_variables():
                     v.set_value(0)
                 for line in f:
@@ -784,34 +789,35 @@ def solve_multi_period_fpl(data, options):
 
             secs = options.get('secs', 20*60)
             presolve = options.get('presolve', 'on')
+            gap = options.get('gap', 0)
 
-            command = f'{highs_exec} --presolve {presolve} --model_file tmp/{problem_name}_{problem_id}_{iter}.mps --time_limit {secs} --solution_file tmp/{problem_name}_{problem_id}_{iter}_sol.txt'
+            with open(opt_file_name, 'w') as f:
+                f.write(f"mip_rel_gap = {gap}")
+
+            command = f'{highs_exec} --parallel on --options_file {opt_file_name} --presolve {presolve} --model_file {mps_file_name} --time_limit {secs} --solution_file {sol_file_name}'
             if use_cmd:
                 # highs occasionally freezes in Windows, if it happens, try use_cmd value as False
+                print('If you are using Windows, HiGHS occasionally freezes after solves are completed. Use \n"use_cmd": false\nin regular settings if it happens.')
                 os.system(command)
             else:
-                if options.get('experimental', True):
-                    def print_output(process):
-                        while True:
-                            output = process.stdout.readline()
-                            if 'Solving report' in output:
-                                time.sleep(2)
-                                process.kill()
-                            elif output == '' and process.poll() is not None:
-                                break
-                            elif output:
-                                print(output.strip())
+                def print_output(process):
+                    while True:
+                        output = process.stdout.readline()
+                        if 'Solving report' in output:
+                            time.sleep(2)
+                            process.kill()
+                        elif output == '' and process.poll() is not None:
+                            break
+                        elif output:
+                            print(output.strip())
 
-                    process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-                    output_thread = threading.Thread(target=print_output, args=(process,))
-                    output_thread.start()
-                    output_thread.join()
-                else:
-                    process = Popen(command, shell=False)
-                    process.wait()
+                process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+                output_thread = threading.Thread(target=print_output, args=(process,))
+                output_thread.start()
+                output_thread.join()
 
             # Parsing
-            with open(f'tmp/{problem_name}_{problem_id}_{iter}_sol.txt', 'r') as f:
+            with open(sol_file_name, 'r') as f:
                 for v in model.get_variables():
                     v.set_value(0)
                 cols_started = False
@@ -923,11 +929,21 @@ def solve_multi_period_fpl(data, options):
             cumulative_xpts = cumulative_xpts + round(lineup_players['xp_cont'].sum(),2)
         print("Cumulative xPts: " + str(round(cumulative_xpts,2)) + "\n---\n\n")
 
-        if options.get('delete_tmp'):
+        if options.get('delete_tmp', True):
             time.sleep(0.1)
             try:
-                os.unlink(f"tmp/{problem_name}_{problem_id}_{iter}.mps")
-                os.unlink(f"tmp/{problem_name}_{problem_id}_{iter}_sol.txt")
+                try:
+                    os.unlink(mps_file_name)
+                except:
+                    pass
+                try:
+                    os.unlink(sol_file_name)
+                except:
+                    pass
+                try:
+                    os.unlink(opt_file_name)
+                except:
+                    pass
             except:
                 print("Could not delete temporary files")
 
