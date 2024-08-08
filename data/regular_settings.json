@@ -8,6 +8,7 @@
     "itb_loss_per_transfer": 0,
     "no_future_transfer": false,
     "no_transfer_last_gws": null,
+    "no_transfer_by_position": [],
     "force_ft_state_lb": [],
     "force_ft_state_ub": [],
     "randomized": false,

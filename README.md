@@ -91,6 +91,7 @@ You will need to follow steps below to install required platform and also optimi
         "decay_base": 0.84,
         "no_future_transfer": true,
         "no_transfer_last_gws": 0,
+        "no_transfer_by_position": null,
         "force_ft_state_lb": [],
         "force_ft_state_ub": [],
         "randomized": false,
@@ -166,6 +167,7 @@ You will need to follow steps below to install required platform and also optimi
   - `use_cmd`: whether to use `os.system` or `subprocess` for running solver, default is `false`
   - `future_transfer_limit`: upper bound how many transfers are allowed in future GWs
   - `no_transfer_gws`: list of GW numbers where transfers are not allowed
+  - `no_transfer_by_position`: list of positions to not transfer in/out. Valid positions: `["G", "D", "M", "F"]`. E.g. to block out goalkeeper transfers set this option to `["G"]`
   - `booked_transfers`: list of booked transfers for future gameweeks, needs to have a `gw` key and at least one of `transfer_in` or `transfer_out` with the player ID. For example, to book a transfer of buying Kane (427) on GW5 and selling him on GW7, use  
     `"booked_transfers": [{"gw": 5, "transfer_in": 427}, {"gw": 7, "transfer_out": 427}]`
   - `only_booked_transfers`: (for next GW) use only booked transfers
