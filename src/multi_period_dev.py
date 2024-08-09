@@ -619,7 +619,7 @@ def solve_multi_period_fpl(data, options):
     if options.get('no_transfer_by_position', None) is not None:
         if len(options['no_transfer_by_position']) > 0:
             # ignore w=1 as you must transfer in a full squad
-            model.add_constraint(so.expr_sum(transfer_in[p,w] for p in players if merged_data.loc[p, 'Pos'] in options['no_transfer_by_position'] for w in gameweeks if w > 1) == 0, name='no_transfer_by_position')
+            model.add_constraints((transfer_in[p,w] <= use_wc[w] for p in players for w in gameweeks if w > 1 if merged_data.loc[p, 'Pos'] in options['no_transfer_by_position']), name='no_tr_by_pos')
 
     for booked_transfer in booked_transfers:
         transfer_gw = booked_transfer.get('gw', None)
