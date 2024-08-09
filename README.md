@@ -126,6 +126,7 @@ You will need to follow steps below to install required platform and also optimi
         "no_opposing_play": false,
         "pick_prices": {"G": "", "D": "", "M": "", "F": ""},
         "no_gk_rotation_after": null,
+        "max_defenders_per_team": 3,
         "iteration": 1,
         "iteration_criteria": "this_gw_transfer_in",
         "iteration_target": [],
@@ -200,6 +201,7 @@ You will need to follow steps below to install required platform and also optimi
     For example, to force two 11.5M forwards, and one 8M midfielder, use
     `"pick_prices": {"G": "", "D": "", "M": "8", "F": "11.5,11.5"}`
   - `no_gk_rotation_after`: use same lineup GK after given GW, e.g. setting this value to `26` means all GWs after 26 will use same lineup GK
+  - `max_defenders_per_team`: the maximum number of defenders and goalkeepers from one team in your squad, defaults to 3
   - `iteration`: number of different solutions to be generated, the criteria is controlled by `iteration_criteria`
   - `iteration_criteria`: rule on separating what a different solution mean  
     - `this_gw_transfer_in` will force to replace players to buy current GW in each solution
