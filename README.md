@@ -91,6 +91,7 @@ You will need to follow steps below to install required platform and also optimi
         "decay_base": 0.84,
         "no_future_transfer": true,
         "no_transfer_last_gws": 0,
+        "no_transfer_by_position": null,
         "force_ft_state_lb": [],
         "force_ft_state_ub": [],
         "randomized": false,
@@ -125,6 +126,7 @@ You will need to follow steps below to install required platform and also optimi
         "no_opposing_play": false,
         "pick_prices": {"G": "", "D": "", "M": "", "F": ""},
         "no_gk_rotation_after": null,
+        "max_defenders_per_team": 3,
         "iteration": 1,
         "iteration_criteria": "this_gw_transfer_in",
         "iteration_target": [],
@@ -166,6 +168,7 @@ You will need to follow steps below to install required platform and also optimi
   - `use_cmd`: whether to use `os.system` or `subprocess` for running solver, default is `false`
   - `future_transfer_limit`: upper bound how many transfers are allowed in future GWs
   - `no_transfer_gws`: list of GW numbers where transfers are not allowed
+  - `no_transfer_by_position`: list of positions to not transfer in/out. Valid positions: `["G", "D", "M", "F"]`. E.g. to block out goalkeeper transfers set this option to `["G"]`
   - `booked_transfers`: list of booked transfers for future gameweeks, needs to have a `gw` key and at least one of `transfer_in` or `transfer_out` with the player ID. For example, to book a transfer of buying Kane (427) on GW5 and selling him on GW7, use  
     `"booked_transfers": [{"gw": 5, "transfer_in": 427}, {"gw": 7, "transfer_out": 427}]`
   - `only_booked_transfers`: (for next GW) use only booked transfers
@@ -198,6 +201,7 @@ You will need to follow steps below to install required platform and also optimi
     For example, to force two 11.5M forwards, and one 8M midfielder, use
     `"pick_prices": {"G": "", "D": "", "M": "8", "F": "11.5,11.5"}`
   - `no_gk_rotation_after`: use same lineup GK after given GW, e.g. setting this value to `26` means all GWs after 26 will use same lineup GK
+  - `max_defenders_per_team`: the maximum number of defenders and goalkeepers from one team in your squad, defaults to 3
   - `iteration`: number of different solutions to be generated, the criteria is controlled by `iteration_criteria`
   - `iteration_criteria`: rule on separating what a different solution mean  
     - `this_gw_transfer_in` will force to replace players to buy current GW in each solution

@@ -240,23 +240,37 @@ def prep_data(my_data, options):
 
     merged_data.sort_values(by=["total_ev"], ascending=[False], inplace=True)
 
-    # Filter players by xMin
+    locked_next_gw = [int(i[0]) for i in options.get("locked_next_gw", [])]
+    safe_players_due_price = []
+    for pos, vals in options.get("pick_prices", {}).items():
+        if vals is None or vals == "":
+            continue
+        price_vals = [float(i) for i in vals.split(",")]
+        pp = merged_data[
+            (merged_data["Pos"] == pos)
+            & ((merged_data["now_cost"] / 10).isin(price_vals))
+        ]["review_id"].to_list()
+        safe_players_due_price += pp
+
     initial_squad = [int(i["element"]) for i in my_data["picks"]]
+    safe_players = (
+        initial_squad
+        + options.get("locked", [])
+        + options.get("keep", [])
+        + locked_next_gw
+        + safe_players_due_price
+    )
+
+    # Filter players by xMin
     xmin_lb = options.get("xmin_lb", 1)
     print(len(merged_data), "total players (before)")
     merged_data = merged_data[
         (merged_data["total_min"] >= xmin_lb)
-        | (merged_data["review_id"].isin(initial_squad))
+        | (merged_data["review_id"].isin(safe_players))
     ].copy()
 
     # Filter by ev per price
     ev_per_price_cutoff = options.get("ev_per_price_cutoff", 0)
-    safe_players = (
-        initial_squad
-        + options.get("locked", [])
-        + options.get("banned", [])
-        + options.get("keep", [])
-    )
     for bt in options.get("booked_transfers", []):
         if bt.get("transfer_in"):
             safe_players.append(bt["transfer_in"])
@@ -1104,6 +1118,51 @@ def solve_multi_period_fpl(data, options):
                 == 0,
                 name="banned_gws_for_tr",
             )
+
+    if options.get("no_transfer_by_position", None) is not None:
+        if len(options["no_transfer_by_position"]) > 0:
+            # ignore w=1 as you must transfer in a full squad
+            model.add_constraints(
+                (
+                    transfer_in[p, w] <= use_wc[w]
+                    for p in players
+                    for w in gameweeks
+                    if w > 1
+                    if merged_data.loc[p, "Pos"] in options["no_transfer_by_position"]
+                ),
+                name="no_tr_by_pos",
+            )
+
+    max_defs_per_team = options.get("max_defenders_per_team", 3)
+    if max_defs_per_team < 3:  # only add constraints if necessary
+        model.add_constraints(
+            (
+                so.expr_sum(
+                    squad[p, w]
+                    for p in players
+                    if merged_data.loc[p, "name"] == t
+                    and merged_data.loc[p, "Pos"] in {"G", "D"}
+                )
+                <= max_defs_per_team
+                for t in teams
+                for w in gameweeks
+            ),
+            name="defenders_per_team_limit",
+        )
+        model.add_constraints(
+            (
+                so.expr_sum(
+                    squad_fh[p, w]
+                    for p in players
+                    if merged_data.loc[p, "name"] == t
+                    and merged_data.loc[p, "Pos"] in {"G", "D"}
+                )
+                <= max_defs_per_team * use_fh[w]
+                for t in teams
+                for w in gameweeks
+            ),
+            name="defenders_per_team_limit_fh",
+        )
 
     for booked_transfer in booked_transfers:
         transfer_gw = booked_transfer.get("gw", None)
