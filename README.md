@@ -298,16 +298,18 @@ If you want to run sensitivity analysis, instead of running `solve_regular.py`,
 
 ## License
 
-This project is dual-licensed under the Apache License 2.0 and a Commercial License.
+This project is dual-licensed under the Apache License 2.0 for personal, educational, or non-commercial use, and a Commercial License for commercial entities.
 
-### Apache License 2.0
+### Apache License 2.0 (Non-commercial use)
 
-You may use this project under the terms of the Apache License 2.0. See [LICENSE](./LICENSE) file for details.
+You may use, view, and modify this project under the terms of the Apache License 2.0, provided that your use is non-commercial. See the [LICENSE](./LICENSE) file for details.
 
-### Commercial License
+### Commercial License (For Business/Commercial Use)
 
-For commercial use, please contact info@fploptimized.com to obtain a commercial license.
+Commercial entities must obtain a Commercial License before accessing, viewing, or using the code for any commercial purposes. Unauthorized access or use by commercial entities without a valid commercial license is strictly prohibited.
+
+To obtain a commercial license, please contact us at info@fploptimized.com.
 
 ## Contributor License Agreement
 
-By contributing to this project, you agree that your contributions can be licensed under both the Apache License 2.0 and the Commercial License.
+By contributing to this project, you agree that your contributions can be licensed under both the Apache License 2.0 for non-commercial use and the Commercial License for commercial use.
