@@ -315,6 +315,8 @@ def solve_multi_period_fpl(data, options):
         User controlled values for the problem instance
     """
 
+    print("This solver is free for personal, educational, or non-commercial use under the Apache License 2.0. Commercial entities must obtain a Commercial License before accessing, viewing, or using the code for any commercial purposes. Unauthorized access or use by commercial entities without a valid commercial license is strictly prohibited. To obtain a commercial license, please contact us at info@fploptimized.com.")
+
     # Arguments
     problem_id = get_random_id(5)
     horizon = options.get('horizon', 3)
