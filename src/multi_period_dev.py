@@ -371,7 +371,7 @@ def solve_multi_period_fpl(data, options):
     all_gw = [next_gw-1] + gameweeks
     order = [0, 1, 2, 3]
     price_modified_players = data['price_modified_players']
-    ft_states = [1, 2, 3, 4, 5]
+    ft_states = [0, 1, 2, 3, 4, 5]
 
     # Model
     model = so.Model(name=problem_name)
