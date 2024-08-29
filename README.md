@@ -124,6 +124,7 @@ You will need to follow steps below to install required platform and also optimi
     "cbc_path": "",
     "no_opposing_play": false,
     "opposing_play_group": "position",
+    "opposing_play_penalty": 0.5,
     "pick_prices": { "G": "", "D": "", "M": "", "F": "" },
     "no_gk_rotation_after": null,
     "max_defenders_per_team": 3,
