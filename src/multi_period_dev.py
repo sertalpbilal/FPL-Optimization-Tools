@@ -342,6 +342,7 @@ def solve_multi_period_fpl(data, options):
     itb_loss_per_transfer = options.get('itb_loss_per_transfer', None)
     if itb_loss_per_transfer is None:
         itb_loss_per_transfer = 0
+    weekly_hit_limit = options.get('weekly_hit_limit', None)
 
 
     # Data
@@ -427,6 +428,8 @@ def solve_multi_period_fpl(data, options):
     # number_of_transfers[next_gw-1] = 1
     transfer_diff = {w: number_of_transfers[w] - free_transfers[w] - 15 * use_wc[w] for w in gameweeks}
     use_tc_gw = {w: so.expr_sum(use_tc[p,w] for p in players) for w in gameweeks}
+    if weekly_hit_limit is not None:
+        penalized_transfers.set_bounds(ub=weekly_hit_limit)
 
     # Chip combinations
     if run_chip_combinations is not None:
@@ -864,11 +867,13 @@ def solve_multi_period_fpl(data, options):
             secs = options.get('secs', 20*60)
             presolve = options.get('presolve', 'on')
             gap = options.get('gap', 0)
+            random_seed = options.get('random_seed', 0)
 
             with open(opt_file_name, 'w') as f:
-                f.write(f"mip_rel_gap = {gap}")
+                f.write(f'''mip_rel_gap = {gap}''')
+                # mip_improving_solution_file="tmp/{problem_id}_incumbent.sol"
 
-            command = f'{highs_exec} --parallel on --options_file {opt_file_name} --presolve {presolve} --model_file {mps_file_name} --time_limit {secs} --solution_file {sol_file_name}'
+            command = f'{highs_exec} --parallel on --options_file {opt_file_name} --random_seed {random_seed} --presolve {presolve} --model_file {mps_file_name} --time_limit {secs} --solution_file {sol_file_name}'
             if use_cmd:
                 # highs occasionally freezes in Windows, if it happens, try use_cmd value as False
                 print('If you are using Windows, HiGHS occasionally freezes after solves are completed. Use \n"use_cmd": false\nin regular settings if it happens.')
