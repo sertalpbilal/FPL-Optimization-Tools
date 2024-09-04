@@ -428,8 +428,8 @@ def solve_multi_period_fpl(data, options):
     # number_of_transfers[next_gw-1] = 1
     transfer_diff = {w: number_of_transfers[w] - free_transfers[w] - 15 * use_wc[w] for w in gameweeks}
     use_tc_gw = {w: so.expr_sum(use_tc[p,w] for p in players) for w in gameweeks}
-    if weekly_hit_limit is not None:
-        penalized_transfers.set_bounds(ub=weekly_hit_limit)
+    # if weekly_hit_limit is not None:
+    #     penalized_transfers.set_bounds(ub=weekly_hit_limit)
 
     # Chip combinations
     if run_chip_combinations is not None:
