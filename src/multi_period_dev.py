@@ -619,7 +619,7 @@ def solve_multi_period_fpl(data, options):
         model.add_constraint(so.expr_sum(transfer_in[p,next_gw] for p in players) == options['num_transfers'], name='tr_limit')
 
     if options.get("hit_limit", None) is not None:
-        model.add_constraint(so.expr_sum(penalized_transfers[w] for w in gameweeks) <= options['hit_limit'], name='horizon_hit_limit')
+        model.add_constraint(so.expr_sum(penalized_transfers[w] for w in gameweeks) <= int(options['hit_limit']), name='horizon_hit_limit')
 
     if options.get("weekly_hit_limit") is not None:
         weekly_hit_limit = int(options.get('weekly_hit_limit'))
