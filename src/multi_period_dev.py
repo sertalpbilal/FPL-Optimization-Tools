@@ -240,7 +240,11 @@ def prep_data(my_data, options):
 
     merged_data.sort_values(by=["total_ev"], ascending=[False], inplace=True)
 
-    locked_next_gw = [int(i[0]) for i in options.get("locked_next_gw", [])]
+    # locked_next_gw = [int(i[0]) for i in options.get("locked_next_gw", [])]
+    locked_next_gw = [
+        i if isinstance(i, int) else int(i[0])
+        for i in options.get("locked_next_gw", [])
+    ]
     safe_players_due_price = []
     for pos, vals in options.get("pick_prices", {}).items():
         if vals is None or vals == "":
