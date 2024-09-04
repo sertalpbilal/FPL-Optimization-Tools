@@ -45,7 +45,6 @@ Reach out to me if you need the raw data to give it a try.
 
 You will need to follow steps below to install required platform and also optimization solver (CBC).
 
-
 - Download and install Python and Git to your machine
 - Download CBC optimization solver binary and add it to your environment path (example: https://youtu.be/DFXCXoR6Dvw?t=1642)
 - Clone the repository
@@ -54,7 +53,7 @@ You will need to follow steps below to install required platform and also optimi
 
 - Install required packages
 
-  ``` shell
+  ```shell
   cd fpl-optimization
   python -m pip install -r requirements.txt
   ```
@@ -77,66 +76,74 @@ You will need to follow steps below to install required platform and also optimi
 
 ### Multi-period GW optimization
 
-
 - Edit content of `data/regular_settings.json` file
 
-  ``` json
-    {
-        "horizon": 5,
-        "ft_value": 1.5,
-        "ft_value_list": {},
-        "ft_use_penalty": 0,
-        "itb_value": 0.2,
-        "itb_loss_per_transfer": 0,
-        "decay_base": 0.84,
-        "no_future_transfer": true,
-        "no_transfer_last_gws": 0,
-        "no_transfer_by_position": null,
-        "force_ft_state_lb": [],
-        "force_ft_state_ub": [],
-        "randomized": false,
-        "xmin_lb": 2,
-        "ev_per_price_cutoff": 20,
-        "bench_weights": {"0": 0.03, "1": 0.21, "2": 0.06, "3": 0.002},
-        "banned": [],
-        "banned_next_gw": [],
-        "locked": [],
-        "locked_next_gw": [],
-        "delete_tmp": true,
-        "secs": 300,
-        "use_cmd": false,
-        "future_transfer_limit": null,
-        "no_transfer_gws": [],
-        "booked_transfers": [],
-        "only_booked_transfers": false,
-        "use_wc": null,
-        "use_bb": null,
-        "use_fh": null,
-        "chip_limits": {"bb": 0, "wc": 0, "fh": 0, "tc": 0},
-        "no_chip_gws": [],
-        "allowed_chip_gws": {"bb": [], "wc": [], "fh": [], "tc": []},
-        "forced_chip_gws": {"bb": [], "wc": [], "fh": [], "tc": []},
-        "run_chip_combinations": {"bb": [], "wc": [], "fh": [], "tc": []},
-        "num_transfers": null,
-        "hit_limit": null,
-        "ft_custom_value": null,
-        "preseason": false,
-        "no_trs_except_wc": false,
-        "cbc_path": "",
-        "no_opposing_play": false,
-        "pick_prices": {"G": "", "D": "", "M": "", "F": ""},
-        "no_gk_rotation_after": null,
-        "max_defenders_per_team": 3,
-        "iteration": 1,
-        "iteration_criteria": "this_gw_transfer_in",
-        "iteration_target": [],
-        "report_decay_base": [0.85, 0.9, 0.95, 1.0, 1.017],
-        "datasource" : "review",
-        "data_weights": {"review": 50, "review-odds": 25, "mikkel": 15, "kiwi": 10},
-        "export_data": "final.csv",
-        "team_data": "json",
-        "team_id": null
-    }
+  ```json
+  {
+    "horizon": 5,
+    "ft_value": 1.5,
+    "ft_value_list": {},
+    "ft_use_penalty": 0,
+    "itb_value": 0.2,
+    "itb_loss_per_transfer": 0,
+    "decay_base": 0.84,
+    "no_future_transfer": true,
+    "no_transfer_last_gws": 0,
+    "no_transfer_by_position": null,
+    "force_ft_state_lb": [],
+    "force_ft_state_ub": [],
+    "randomized": false,
+    "xmin_lb": 2,
+    "ev_per_price_cutoff": 20,
+    "bench_weights": { "0": 0.03, "1": 0.21, "2": 0.06, "3": 0.002 },
+    "banned": [],
+    "banned_next_gw": [],
+    "locked": [],
+    "locked_next_gw": [],
+    "delete_tmp": true,
+    "secs": 300,
+    "use_cmd": false,
+    "future_transfer_limit": null,
+    "no_transfer_gws": [],
+    "booked_transfers": [],
+    "only_booked_transfers": false,
+    "use_wc": null,
+    "use_bb": null,
+    "use_fh": null,
+    "chip_limits": { "bb": 0, "wc": 0, "fh": 0, "tc": 0 },
+    "no_chip_gws": [],
+    "allowed_chip_gws": { "bb": [], "wc": [], "fh": [], "tc": [] },
+    "forced_chip_gws": { "bb": [], "wc": [], "fh": [], "tc": [] },
+    "run_chip_combinations": { "bb": [], "wc": [], "fh": [], "tc": [] },
+    "num_transfers": null,
+    "hit_limit": null,
+    "weekly_hit_limit": 1,
+    "ft_custom_value": null,
+    "preseason": false,
+    "no_trs_except_wc": false,
+    "cbc_path": "",
+    "no_opposing_play": false,
+    "opposing_play_group": "position",
+    "opposing_play_penalty": 0.5,
+    "pick_prices": { "G": "", "D": "", "M": "", "F": "" },
+    "no_gk_rotation_after": null,
+    "max_defenders_per_team": 3,
+    "double_defense_pick": false,
+    "iteration": 1,
+    "iteration_criteria": "this_gw_transfer_in",
+    "iteration_target": [],
+    "report_decay_base": [0.85, 0.9, 0.95, 1.0, 1.017],
+    "datasource": "review",
+    "data_weights": {
+      "review": 50,
+      "review-odds": 25,
+      "mikkel": 15,
+      "kiwi": 10
+    },
+    "export_data": "final.csv",
+    "team_data": "json",
+    "team_id": null
+  }
   ```
 
   - `horizon`: length of planning horizon
@@ -185,6 +192,7 @@ You will need to follow steps below to install required platform and also optimi
   - `run_chip_combinations`: generates a list of chip combinations to be tried one-by-one, instead of leaving to the solver
   - `num_transfers`: fixed number of transfers for this GW
   - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
+  - `weekly_hit_limit`: limit on hits solver can take in a single GW
   - `hit_cost`: cost of a hit, 4 points by default but can be overriden to reduce hits suggested
   - `ft_custom_value`: value of keeping your 2nd free transfer before a GW. For example  
     `"ft_custom_value": {"35": 2, "38": 0.5}`  
@@ -195,15 +203,20 @@ You will need to follow steps below to install required platform and also optimi
     In order to use `highs` solver, you need to download the binary from the following repository  
     https://github.com/JuliaBinaryWrappers/HiGHSstatic_jll.jl
   - `solver_path`: binary location of the solver
-  - `no_opposing_play`: `true` if you do not want to have players in your lineup playing against each other in a GW
+  - `no_opposing_play`: controls the level of cross-playing players in the lineup
+    - `true` if you do not want to have players in your lineup playing against each other in a GW
+    - `false` if you do not want to use this option
+    - `"penalty"` if you want to penalize each instance with a static value
   - `opposing_play_group`: `all` if you do not want any type of opposing players or `position` if you only don't want your offense playing against your defense
+  - `opposing_play_penalty`: if `"penalty"` is chosen in `no_opposing_play` option, this penalty is deducted from the objective for each cross-play
   - `pick_prices`: price points of players you want to force in a comma separated string
     For example, to force two 11.5M forwards, and one 8M midfielder, use
     `"pick_prices": {"G": "", "D": "", "M": "8", "F": "11.5,11.5"}`
   - `no_gk_rotation_after`: use same lineup GK after given GW, e.g. setting this value to `26` means all GWs after 26 will use same lineup GK
   - `max_defenders_per_team`: the maximum number of defenders and goalkeepers from one team in your squad, defaults to 3
+  - `double_defense_pick`: forces solver to use either 0 or more than 2 defender/goalkeeper from each team
   - `iteration`: number of different solutions to be generated, the criteria is controlled by `iteration_criteria`
-  - `iteration_criteria`: rule on separating what a different solution mean  
+  - `iteration_criteria`: rule on separating what a different solution mean
     - `this_gw_transfer_in` will force to replace players to buy current GW in each solution
     - `this_gw_transfer_out` will force to replace players to sell current GW in each solution
     - `this_gw_transfer_in_out` will force to replace players to buy or sell current GW in each solution
@@ -213,14 +226,16 @@ You will need to follow steps below to install required platform and also optimi
   - `iteration_difference`: number of players to be different (only available for `this_gw_lineup` criteria for now)
   - `iteration_target`: list of GWs where plans will be forced to replace in each iteration
   - `report_decay_base`: list of decay bases to be measured and reported at the end of the solve
-  - `datasource` : `review`, `kiwi`, `mikkel` or `avg` specifies the data to be used.  
+  - `datasource` : `review`, `kiwi`, `mikkel` or `avg` specifies the data to be used.
+
     - `review` requires `fplreview.csv` file
     - `review-odds` requires `fplreview-odds.csv` file
     - `kiwi` requires `kiwi.csv` file
     - `mikkel` requires `TransferAlgorithm.csv`, file
     - `mixed` requires an additional parameter `data_weights`, and any corresponding files mentioned above
-  
+
     under `data` folder to be present
+
   - `data_weights`: weight percentage for each data source, given as a dictionary, where keys should be one of valid data sources
   - `export_data`: option for exporting final data as a CSV file (when using `mixed` data)
   - `team_data`: option for using `team_id` value rather than the `team.json` file. Uses `team.json` by default, set value to `ID` to use `team_id`. Note that with this method, any transfers already made this gameweek won't be taken into account, so they must be added to `booked_transfers`
@@ -228,7 +243,7 @@ You will need to follow steps below to install required platform and also optimi
 
 - Run the multi-period optimization
 
-  ``` shell
+  ```shell
   python solve_regular.py
   ```
 
@@ -244,13 +259,13 @@ You will need to follow steps below to install required platform and also optimi
 
 A Dockerised version of the solver is included in this repo which
 includes all dependencies required to run the program and save
-results.  Docker must be installed on the host machine.
+results. Docker must be installed on the host machine.
 
 In order to run the solver via Docker, you'll firstly need to follow the instructions in the `Installation Steps` section to add the following files to the `/data` folder:
 
- - `team.json`
- - `regular_settings.json`
- - `fplreview.csv`
+- `team.json`
+- `regular_settings.json`
+- `fplreview.csv`
 
 Then, to pull the Docker image, build it, and then run the solver, simply run the following command:
 
@@ -266,9 +281,9 @@ If you want to run sensitivity analysis, instead of running `solve_regular.py`,
 
 0. Make sure that data/results directory is empty (doesn't include old files)
 
-1. Run 
-   
-   ``` shell
+1. Run
+
+   ```shell
    python simulations.py
    ```
 
@@ -277,37 +292,38 @@ If you want to run sensitivity analysis, instead of running `solve_regular.py`,
 
    You can also pass parameters from the command line as
 
-   ``` shell
+   ```shell
    python simulations.py --no 10 --parallel 4
    ```
 
 2. After runs are completed, run
 
-  ``` shell
-  python sensitivity.py
-  ```
+```shell
+python sensitivity.py
+```
 
-  to get a summary of results.
+to get a summary of results.
 
-  Similarly, you can give gameweek and wildcard parameters from the command line, such as
+Similarly, you can give gameweek and wildcard parameters from the command line, such as
 
-  ``` shell
-  python sensitivity.py --gw 1 --wildcard Y
-  ``` 
-
+```shell
+python sensitivity.py --gw 1 --wildcard Y
+```
 
 ## License
 
-This project is dual-licensed under the Apache License 2.0 and a Commercial License.
+This project is dual-licensed under the Apache License 2.0 for personal, educational, or non-commercial use, and a Commercial License for commercial entities.
 
-### Apache License 2.0
+### Apache License 2.0 (Non-commercial use)
 
-You may use this project under the terms of the Apache License 2.0. See [LICENSE](./LICENSE) file for details.
+You may use, view, and modify this project under the terms of the Apache License 2.0, provided that your use is non-commercial. See the [LICENSE](./LICENSE) file for details.
 
-### Commercial License
+### Commercial License (For Business/Commercial Use)
 
-For commercial use, please contact info@fploptimized.com to obtain a commercial license.
+Commercial entities must obtain a Commercial License before accessing, viewing, or using the code for any commercial purposes. Unauthorized access or use by commercial entities without a valid commercial license is strictly prohibited.
+
+To obtain a commercial license, please contact us at info@fploptimized.com.
 
 ## Contributor License Agreement
 
-By contributing to this project, you agree that your contributions can be licensed under both the Apache License 2.0 and the Commercial License.
+By contributing to this project, you agree that your contributions can be licensed under both the Apache License 2.0 for non-commercial use and the Commercial License for commercial use.

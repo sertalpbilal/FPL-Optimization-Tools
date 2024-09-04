@@ -240,9 +240,8 @@ def prep_data(my_data, options):
 
     merged_data.sort_values(by=["total_ev"], ascending=[False], inplace=True)
 
-    # locked_next_gw = [int(i[0]) for i in options.get("locked_next_gw", [])]
     locked_next_gw = [
-        i if isinstance(i, int) else int(i[0])
+        int(i[0]) if isinstance(i, list) else int(i)
         for i in options.get("locked_next_gw", [])
     ]
     safe_players_due_price = []
@@ -376,6 +375,10 @@ def solve_multi_period_fpl(data, options):
         User controlled values for the problem instance
     """
 
+    print(
+        "This solver is free for personal, educational, or non-commercial use under the Apache License 2.0. Commercial entities must obtain a Commercial License before accessing, viewing, or using the code for any commercial purposes. Unauthorized access or use by commercial entities without a valid commercial license is strictly prohibited. To obtain a commercial license, please contact us at info@fploptimized.com."
+    )
+
     # Arguments
     problem_id = get_random_id(5)
     horizon = options.get("horizon", 3)
@@ -418,6 +421,7 @@ def solve_multi_period_fpl(data, options):
     stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
     if itb_loss_per_transfer is None:
         itb_loss_per_transfer = 0
+    weekly_hit_limit = options.get("weekly_hit_limit", None)
 
     # Data
     problem_name = (
@@ -450,7 +454,7 @@ def solve_multi_period_fpl(data, options):
     all_gw = [next_gw - 1] + gameweeks
     order = [0, 1, 2, 3]
     price_modified_players = data["price_modified_players"]
-    ft_states = [1, 2, 3, 4, 5]
+    ft_states = [0, 1, 2, 3, 4, 5]
 
     # Model
     model = so.Model(name=problem_name)
@@ -551,6 +555,7 @@ def solve_multi_period_fpl(data, options):
     minutes_player_week = {
         (p, w): merged_data.loc[p, f"{w}_xMins"] for p in players for w in gameweeks
     }
+    player_team = {p: merged_data.loc[p, "name"] for p in players}
     squad_count = {w: so.expr_sum(squad[p, w] for p in players) for w in gameweeks}
     squad_fh_count = {
         w: so.expr_sum(squad_fh[p, w] for p in players) for w in gameweeks
@@ -564,6 +569,8 @@ def solve_multi_period_fpl(data, options):
         for w in gameweeks
     }
     use_tc_gw = {w: so.expr_sum(use_tc[p, w] for p in players) for w in gameweeks}
+    # if weekly_hit_limit is not None:
+    #     penalized_transfers.set_bounds(ub=weekly_hit_limit)
 
     # Chip combinations
     if run_chip_combinations is not None:
@@ -737,8 +744,7 @@ def solve_multi_period_fpl(data, options):
     )
     model.add_constraints(
         (
-            so.expr_sum(squad[p, w] for p in players if merged_data.loc[p, "name"] == t)
-            <= 3
+            so.expr_sum(squad[p, w] for p in players if player_team[p] == t) <= 3
             for t in teams
             for w in gameweeks
         ),
@@ -746,9 +752,7 @@ def solve_multi_period_fpl(data, options):
     )
     model.add_constraints(
         (
-            so.expr_sum(
-                squad_fh[p, w] for p in players if merged_data.loc[p, "name"] == t
-            )
+            so.expr_sum(squad_fh[p, w] for p in players if player_team[p] == t)
             <= 3 * use_fh[w]
             for t in teams
             for w in gameweeks
@@ -796,7 +800,7 @@ def solve_multi_period_fpl(data, options):
     ## Free transfer constraints
     # 2024-2025 variation: min 1 / max 5 / roll over WC & FH
     raw_gw_ft = {
-        w: free_transfers[w] - number_of_transfers[w] + 1 - use_wc[w] - use_fh[w]
+        w: free_transfers[w] - transfer_count[w] + 1 - use_wc[w] - use_fh[w]
         for w in gameweeks
     }
     model.add_constraints(
@@ -1091,8 +1095,15 @@ def solve_multi_period_fpl(data, options):
     if options.get("hit_limit", None) is not None:
         model.add_constraint(
             so.expr_sum(penalized_transfers[w] for w in gameweeks)
-            <= options["hit_limit"],
+            <= int(options["hit_limit"]),
             name="horizon_hit_limit",
+        )
+
+    if options.get("weekly_hit_limit") is not None:
+        weekly_hit_limit = int(options.get("weekly_hit_limit"))
+        model.add_constraints(
+            (penalized_transfers[w] <= weekly_hit_limit for w in gameweeks),
+            name="gw_hit_lim",
         )
 
     # if options.get("ft_custom_value", None) is not None:
@@ -1144,8 +1155,7 @@ def solve_multi_period_fpl(data, options):
                 so.expr_sum(
                     squad[p, w]
                     for p in players
-                    if merged_data.loc[p, "name"] == t
-                    and merged_data.loc[p, "Pos"] in {"G", "D"}
+                    if player_team[p] == t and merged_data.loc[p, "Pos"] in {"G", "D"}
                 )
                 <= max_defs_per_team
                 for t in teams
@@ -1158,8 +1168,7 @@ def solve_multi_period_fpl(data, options):
                 so.expr_sum(
                     squad_fh[p, w]
                     for p in players
-                    if merged_data.loc[p, "name"] == t
-                    and merged_data.loc[p, "Pos"] in {"G", "D"}
+                    if player_team[p] == t and merged_data.loc[p, "Pos"] in {"G", "D"}
                 )
                 <= max_defs_per_team * use_fh[w]
                 for t in teams
@@ -1188,7 +1197,13 @@ def solve_multi_period_fpl(data, options):
                 name=f"booked_transfer_out_{transfer_gw}_{player_out}",
             )
 
+    cp_penalty = {}
     if options.get("no_opposing_play") is True:
+        gw_opp_teams = {
+            w: [(f["home"], f["away"]) for f in fixtures if f["gw"] == w]
+            + [(f["away"], f["home"]) for f in fixtures if f["gw"] == w]
+            for w in gameweeks
+        }
         for gw in gameweeks:
             gw_games = [i for i in fixtures if i["gw"] == gw]
             if options.get("opposing_play_group", "all") == "all":
@@ -1196,9 +1211,8 @@ def solve_multi_period_fpl(data, options):
                     (p1, p2)
                     for f in gw_games
                     for p1 in players
-                    if merged_data.loc[p1, "name"] == f["home"]
                     for p2 in players
-                    if merged_data.loc[p2, "name"] == f["away"]
+                    if (player_team[p1], player_team[p2]) in gw_opp_teams
                 ]
                 model.add_constraints(
                     (
@@ -1222,9 +1236,8 @@ def solve_multi_period_fpl(data, options):
                     (p1, p2)
                     for f in gw_games
                     for p1 in players
-                    if merged_data.loc[p1, "name"] == f["home"]
                     for p2 in players
-                    if merged_data.loc[p2, "name"] == f["away"]
+                    if (player_team[p1], player_team[p2]) in gw_opp_teams
                     and (player_type[p1], player_type[p2]) in opposing_positions
                 ]
                 model.add_constraints(
@@ -1234,6 +1247,94 @@ def solve_multi_period_fpl(data, options):
                     ),
                     name=f"no_opp_{gw}",
                 )
+    elif options.get("no_opposing_play") == "penalty":
+        gw_opp_teams = {
+            w: [(f["home"], f["away"]) for f in fixtures if f["gw"] == w]
+            + [(f["away"], f["home"]) for f in fixtures if f["gw"] == w]
+            for w in gameweeks
+        }
+        if options.get("opposing_play_group") == "all":
+            cp_list = [
+                (p1, p2, w)
+                for p1 in players
+                for p2 in players
+                for w in gameweeks
+                if (player_team[p1], player_team[p2]) in gw_opp_teams[w]
+                and minutes_player_week[p1, w] > 0
+                and minutes_player_week[p2, w] > 0
+            ]
+        elif options.get("opposing_play_group", "position") == "position":
+            opposing_positions = [
+                (1, 3),
+                (1, 4),
+                (2, 3),
+                (2, 4),
+                (3, 1),
+                (4, 1),
+                (3, 2),
+                (4, 2),
+            ]
+            cp_list = [
+                (p1, p2, w)
+                for p1 in players
+                for p2 in players
+                for w in gameweeks
+                if (player_team[p1], player_team[p2]) in gw_opp_teams[w]
+                and minutes_player_week[p1, w] > 0
+                and minutes_player_week[p2, w] > 0
+                and (player_type[p1], player_type[p2]) in opposing_positions
+            ]
+        cp_pen_var = model.add_variables(cp_list, name="cp_v", vartype=so.binary)
+        opposing_play_penalty = options.get("opposing_play_penalty", 0.5)
+        cp_penalty = {
+            w: opposing_play_penalty
+            * so.expr_sum(cp_pen_var[p1, p2, w1] for (p1, p2, w1) in cp_list if w1 == w)
+            for w in gameweeks
+        }
+        model.add_constraints(
+            (
+                lineup[p1, w] + lineup[p2, w] <= 1 + cp_pen_var[p1, p2, w]
+                for (p1, p2, w) in cp_list
+            ),
+            name="cp1",
+        )
+        model.add_constraints(
+            (cp_pen_var[p1, p2, w] <= lineup[p1, w] for (p1, p2, w) in cp_list),
+            name="cp2",
+        )
+        model.add_constraints(
+            (cp_pen_var[p1, p2, w] <= lineup[p2, w] for (p1, p2, w) in cp_list),
+            name="cp3",
+        )
+
+    if options.get("double_defense_pick") is True:
+        team_players = {
+            t: [p for p in players if merged_data.loc[p, "name"] == t] for t in teams
+        }
+        gk_df_players = {
+            t: [
+                p for p in team_players[t] if player_type[p] == 1 or player_type[p] == 2
+            ]
+            for t in teams
+        }
+        weekly_sum = {
+            (t, w): so.expr_sum(lineup[p, w] for p in gk_df_players[t])
+            for t in teams
+            for w in gameweeks
+        }
+        def_aux = model.add_variables(teams, gameweeks, vartype=so.binary, name="daux")
+        model.add_constraints(
+            (weekly_sum[t, w] <= 3 * def_aux[t, w] for t in teams for w in gameweeks),
+            name="dauxc1",
+        )
+        model.add_constraints(
+            (
+                weekly_sum[t, w] >= 2 - 3 * (1 - def_aux[t, w])
+                for t in teams
+                for w in gameweeks
+            ),
+            name="dauxc2",
+        )
 
     if options.get("pick_prices") is not None:
         buffer = 0.2
@@ -1357,6 +1458,7 @@ def solve_multi_period_fpl(data, options):
         + gw_ft_gain[w]
         - ft_penalty[w]
         + itb_value * in_the_bank[w]
+        - cp_penalty.get(w, 0)
         for w in gameweeks
     }
 
@@ -1458,11 +1560,13 @@ def solve_multi_period_fpl(data, options):
             secs = options.get("secs", 20 * 60)
             presolve = options.get("presolve", "on")
             gap = options.get("gap", 0)
+            random_seed = options.get("random_seed", 0)
 
             with open(opt_file_name, "w") as f:
-                f.write(f"mip_rel_gap = {gap}")
+                f.write(f"""mip_rel_gap = {gap}""")
+                # mip_improving_solution_file="tmp/{problem_id}_incumbent.sol"
 
-            command = f"{highs_exec} --parallel on --options_file {opt_file_name} --presolve {presolve} --model_file {mps_file_name} --time_limit {secs} --solution_file {sol_file_name}"
+            command = f"{highs_exec} --parallel on --options_file {opt_file_name} --random_seed {random_seed} --presolve {presolve} --model_file {mps_file_name} --time_limit {secs} --solution_file {sol_file_name}"
             if use_cmd:
                 # highs occasionally freezes in Windows, if it happens, try use_cmd value as False
                 print(
