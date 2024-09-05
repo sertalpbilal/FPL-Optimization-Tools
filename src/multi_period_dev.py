@@ -279,7 +279,6 @@ def prep_data(my_data, options):
     # If wildcard is active, then you have: "status_for_entry": "active" under my_data['chips']
     for c in my_data['chips']:
         if c['name'] == 'wildcard' and c['status_for_entry'] == 'active':
-            ft = 1
             options['use_wc'] = gw
             if options['chip_limits']['wc'] == 0:
                 options['chip_limits']['wc'] = 1
