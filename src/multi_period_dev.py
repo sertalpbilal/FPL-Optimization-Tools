@@ -322,6 +322,14 @@ def solve_multi_period_fpl(data, options):
 
     print("This solver is free for personal, educational, or non-commercial use under the Apache License 2.0. Commercial entities must obtain a Commercial License before accessing, viewing, or using the code for any commercial purposes. Unauthorized access or use by commercial entities without a valid commercial license is strictly prohibited. To obtain a commercial license, please contact us at info@fploptimized.com.")
 
+    try:
+        commit_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD'], stderr=subprocess.DEVNULL).decode('utf-8').strip()
+        commit_count = subprocess.check_output(['git', 'rev-list', '--count', 'HEAD'], stderr=subprocess.DEVNULL).decode('utf-8').strip()
+        version = f"{commit_count} - {commit_hash}"
+        print(f"Version: {version}")
+    except:
+        pass
+
     # Arguments
     problem_id = get_random_id(5)
     horizon = options.get('horizon', 3)
