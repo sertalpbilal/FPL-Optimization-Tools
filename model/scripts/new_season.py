@@ -238,6 +238,22 @@ def main():
     # Calculate weighted stats
     calculate_weighted_stats(fpl_players_new_season, weight_new_data)
 
+    fpl_players_new_season.drop_duplicates(subset="fpl_id", keep="first", inplace=True)
+
+    players_not_found = fpl_players_new_season[fpl_players_new_season["Player"].isna()]
+
+    if not players_not_found.empty:
+        print("Top 20 players not found by tsb:")
+        print_df = players_not_found[["fpl_id", "web_name", "tsb"]]
+        print(print_df.sort_values(by="tsb", ascending=False).head(20))
+
+    players_not_found.to_csv(
+        "C:/Users/erknud3/fpl-optimization/model/data/New_Season_Data/players_not_found.csv",
+        index=False,
+    )
+
+    fpl_players_new_season = fpl_players_new_season.dropna(subset=["Player"])
+
     max_mp = new_season["MP"].max()
     filename = f"fpl_players_new_season_gw{max_mp}.csv"
 

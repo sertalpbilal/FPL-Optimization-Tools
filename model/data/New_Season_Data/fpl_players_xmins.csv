@@ -1,0 +1,353 @@
+Date,fbref,fpl_id,Player,Season,Comp,Round,Squad,Mins,Start,xMins,P(start),P(1_min),P(60_min),weighted_npxGI
+2024-08-31,1f44ac21,351,Erling Haaland,2024-2025,Premier League,Matchweek 3,Manchester City,90,1,89.63,1.0,1.0,1.0,0.93
+2024-09-01,4d77b365,316,Darwin Núñez,2024-2025,Premier League,Matchweek 3,Liverpool,15,0,11.84,0.0,0.69,0.0,0.93
+2024-09-01,e342ad68,328,Mohamed Salah,2024-2025,Premier League,Matchweek 3,Liverpool,90,1,87.0,1.0,1.0,1.0,0.8800000000000001
+2024-08-31,e46012d4,345,Kevin De Bruyne,2024-2025,Premier League,Matchweek 3,Manchester City,87,1,88.68,1.0,1.0,1.0,0.83
+2024-09-01,dc7f8a28,182,Cole Palmer,2024-2025,Premier League,Matchweek 3,Chelsea,90,1,87.0,1.0,1.0,1.0,0.78
+2024-09-01,178ae8f8,317,Diogo Jota,2024-2025,Premier League,Matchweek 3,Liverpool,75,1,74.43,1.0,1.0,1.0,0.76
+2024-08-31,8450467d,260,Ali Al Hamadi,2024-2025,Premier League,Matchweek 3,Ipswich Town,10,0,11.42,0.0,1.0,0.0,0.71
+2024-09-01,9c36ed83,180,Nicolas Jackson,2024-2025,Premier League,Matchweek 3,Chelsea,90,1,73.93,1.0,1.0,1.0,0.6900000000000001
+2024-08-17,b66315ae,2,Gabriel Jesus,2024-2025,Premier League,Matchweek 1,Arsenal,6,0,19.36,0.18,0.97,0.18,0.69
+2024-08-25,d3d774cc,178,Marc Guiu,2024-2025,Premier League,Matchweek 2,Chelsea,0,0,14.2,0.0,0.59,0.0,0.67
+2024-09-01,4a1a9578,327,Luis Díaz,2024-2025,Premier League,Matchweek 3,Liverpool,65,1,75.01,1.0,1.0,1.0,0.64
+2024-09-01,92e7e919,503,Son Heung-min,2024-2025,Premier League,Matchweek 3,Tottenham,90,1,89.69,1.0,1.0,1.0,0.63
+2024-09-01,8e92be30,401,Alexander Isak,2024-2025,Premier League,Matchweek 3,Newcastle Utd,90,1,90.0,1.0,1.0,1.0,0.63
+2024-08-31,9cfbad36,121,Julio Enciso,2024-2025,Premier League,Matchweek 3,Brighton,6,0,9.55,0.0,1.0,0.0,0.63
+2024-08-31,aed3a70f,58,Ollie Watkins,2024-2025,Premier League,Matchweek 3,Aston Villa,60,1,61.81,1.0,1.0,1.0,0.61
+2024-08-31,bc7dc64d,17,Bukayo Saka,2024-2025,Premier League,Matchweek 3,Arsenal,90,1,85.46,1.0,1.0,1.0,0.59
+2024-08-18,ed1e53f3,348,Phil Foden,2024-2025,Premier League,Matchweek 1,Manchester City,45,0,54.57,0.27,0.98,0.27,0.5800000000000001
+2024-09-01,507c7bdf,366,Bruno Fernandes,2024-2025,Premier League,Matchweek 3,Manchester Utd,90,1,85.5,1.0,1.0,1.0,0.58
+2024-08-31,48a5a5d6,9,Gabriel Martinelli,2024-2025,Premier League,Matchweek 3,Arsenal,17,0,57.28,0.68,1.0,0.68,0.5700000000000001
+2024-09-01,7c56da38,181,Christopher Nkunku,2024-2025,Premier League,Matchweek 3,Chelsea,5,0,22.27,0.31,1.0,0.0,0.57
+2024-09-01,1971591f,321,Cody Gakpo,2024-2025,Premier League,Matchweek 3,Liverpool,25,0,18.71,0.0,1.0,0.0,0.56
+2024-08-24,fa031b34,497,Richarlison,2024-2025,Premier League,Matchweek 2,Tottenham,25,0,10.8,0.0,1.0,0.0,0.56
+2024-08-31,3a233281,28,Leon Bailey,2024-2025,Premier League,Matchweek 3,Aston Villa,15,1,61.12,1.0,1.0,0.68,0.55
+2024-08-31,fed7cb61,4,Kai Havertz,2024-2025,Premier League,Matchweek 3,Arsenal,90,1,90.0,1.0,1.0,1.0,0.55
+2024-08-31,4e9a0555,447,Chris Wood,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,90,1,78.48,1.0,1.0,1.0,0.54
+2024-09-01,7aa8adfe,372,Alejandro Garnacho,2024-2025,Premier League,Matchweek 3,Manchester Utd,68,1,40.46,0.32,1.0,0.32,0.54
+2024-08-31,9744ff80,565,Pablo Sarabia,2024-2025,Premier League,Matchweek 3,Wolves,0,0,10.79,0.0,0.68,0.0,0.54
+2024-09-01,49fe9070,509,Timo Werner,2024-2025,Premier League,Matchweek 3,Tottenham,17,0,9.38,0.0,0.63,0.0,0.53
+2024-08-31,59e6e5bf,220,Dominic Calvert-Lewin,2024-2025,Premier League,Matchweek 3,Everton,87,1,77.28,1.0,1.0,1.0,0.53
+2024-08-31,c3cf087d,135,Yankuba Minteh,2024-2025,Premier League,Matchweek 3,Brighton,71,1,69.36,1.0,1.0,0.69,0.53
+2024-09-01,ee38d9c5,494,James Maddison,2024-2025,Premier League,Matchweek 3,Tottenham,81,1,78.94,1.0,1.0,1.0,0.53
+2024-08-31,6afaebf2,99,Bryan Mbeumo,2024-2025,Premier League,Matchweek 3,Brentford,90,1,89.69,1.0,1.0,1.0,0.52
+2024-08-31,ce5143da,148,Danny Welbeck,2024-2025,Premier League,Matchweek 3,Brighton,84,1,83.62,1.0,1.0,1.0,0.51
+2024-08-31,2500cef9,110,Yoane Wissa,2024-2025,Premier League,Matchweek 3,Brentford,90,1,81.08,1.0,1.0,1.0,0.51
+2024-08-31,414184f7,38,Jhon Durán,2024-2025,Premier League,Matchweek 3,Aston Villa,30,0,28.19,0.0,1.0,0.0,0.51
+2024-09-01,8aafd64f,621,João Félix,2024-2025,Premier League,Matchweek 3,Chelsea,33,0,27.08,0.0,1.0,0.0,0.51
+2024-08-31,74618572,136,Kaoru Mitoma,2024-2025,Premier League,Matchweek 3,Brighton,84,1,87.11,1.0,1.0,1.0,0.51
+2024-09-01,3ea50f67,392,Harvey Barnes,2024-2025,Premier League,Matchweek 3,Newcastle Utd,60,1,37.77,0.32,1.0,0.32,0.5
+2024-08-31,38ceb24a,23,Leandro Trossard,2024-2025,Premier League,Matchweek 3,Arsenal,58,1,31.41,0.32,1.0,0.0,0.5
+2024-08-31,e5478b87,424,Taiwo Awoniyi,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,1,0,11.83,0.0,1.0,0.0,0.5
+2024-08-31,a755db8c,251,Rodrigo Muniz,2024-2025,Premier League,Matchweek 3,Fulham,78,1,78.06,1.0,1.0,1.0,0.5
+2024-08-31,79c84d1c,514,Jarrod Bowen,2024-2025,Premier League,Matchweek 3,West Ham,85,1,82.83,1.0,1.0,1.0,0.49
+2024-08-31,b0b4fd3e,349,Jack Grealish,2024-2025,Premier League,Matchweek 3,Manchester City,71,1,29.84,0.32,0.69,0.32,0.49
+2024-09-01,50e6dc35,207,Jean-Philippe Mateta,2024-2025,Premier League,Matchweek 3,Crystal Palace,68,1,69.1,1.0,1.0,0.69,0.49
+2024-08-31,ed5c0319,218,Beto,2024-2025,Premier League,Matchweek 3,Everton,3,0,12.72,0.0,1.0,0.0,0.49
+2024-09-01,ae4fc6a4,199,Eberechi Eze,2024-2025,Premier League,Matchweek 3,Crystal Palace,90,1,90.0,1.0,1.0,1.0,0.48
+2024-09-01,de112b84,402,Jacob Murphy,2024-2025,Premier League,Matchweek 3,Newcastle Utd,30,0,39.81,0.68,1.0,0.0,0.47
+2024-09-01,2bd83368,398,Anthony Gordon,2024-2025,Premier League,Matchweek 3,Newcastle Utd,89,1,82.41,1.0,1.0,1.0,0.47
+2024-08-31,2fba6108,432,Anthony Elanga,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,89,1,78.19,1.0,1.0,0.69,0.47
+2024-08-19,e77dc3b2,82,Dominic Solanke,2024-2025,Premier League,Matchweek 1,Tottenham,90,1,76.35,0.85,0.85,0.85,0.47
+2024-08-24,c5bdb6e3,10,Reiss Nelson,2024-2025,Premier League,Matchweek 2,Arsenal,3,0,1.22,0.0,0.41,0.0,0.46
+2024-08-31,79300479,13,Martin Ødegaard,2024-2025,Premier League,Matchweek 3,Arsenal,73,1,84.65,1.0,1.0,1.0,0.45999999999999996
+2024-09-01,049a888d,179,Mykhailo Mudryk,2024-2025,Premier League,Matchweek 3,Chelsea,17,0,22.21,0.37,0.69,0.0,0.45999999999999996
+2024-08-31,dc62b55d,541,Matheus Cunha,2024-2025,Premier League,Matchweek 3,Wolves,90,1,63.99,0.69,1.0,0.69,0.45
+2024-09-01,a1d5bd30,385,Marcus Rashford,2024-2025,Premier League,Matchweek 3,Manchester Utd,90,1,80.26,1.0,1.0,1.0,0.45
+2024-09-01,0cd31129,491,Brennan Johnson,2024-2025,Premier League,Matchweek 3,Tottenham,45,0,71.8,0.68,1.0,0.68,0.45
+2024-08-31,17695062,19,Emile Smith Rowe,2024-2025,Premier League,Matchweek 3,Fulham,71,1,67.39,1.0,1.0,1.0,0.44999999999999996
+2024-08-24,07802f7f,523,Danny Ings,2024-2025,Premier League,Matchweek 2,West Ham,0,0,3.55,0.0,0.59,0.0,0.44999999999999996
+2024-08-31,8e16dd48,80,Luis Sinisterra,2024-2025,Premier League,Matchweek 3,Bournemouth,26,0,34.87,0.31,1.0,0.31,0.44000000000000006
+2024-09-01,cd1acf9d,311,Trent Alexander-Arnold,2024-2025,Premier League,Matchweek 3,Liverpool,75,1,73.81,1.0,1.0,1.0,0.42000000000000004
+2024-08-31,fffea3e5,346,Jeremy Doku,2024-2025,Premier League,Matchweek 3,Manchester City,67,1,75.27,1.0,1.0,1.0,0.42000000000000004
+2024-08-31,45963054,306,Jamie Vardy,2024-2025,Premier League,Matchweek 3,Leicester City,90,1,78.78,1.0,1.0,1.0,0.42
+2024-09-01,99127249,365,Antony,2024-2025,Premier League,Matchweek 3,Manchester Utd,0,0,0.37,0.0,0.37,0.0,0.41000000000000003
+2024-09-01,7ba2eaa9,560,Pedro Neto,2024-2025,Premier League,Matchweek 3,Chelsea,57,1,45.05,0.32,1.0,0.0,0.41000000000000003
+2024-08-31,ac05f970,512,Michail Antonio,2024-2025,Premier League,Matchweek 3,West Ham,70,1,67.25,1.0,1.0,1.0,0.41000000000000003
+2024-09-01,bf34eebd,177,Noni Madueke,2024-2025,Premier League,Matchweek 3,Chelsea,85,1,60.48,0.69,0.69,0.69,0.41000000000000003
+2024-08-31,819b3158,625,İlkay Gündoğan,2024-2025,Premier League,Matchweek 3,Manchester City,23,0,21.22,0.0,1.0,0.0,0.4
+2024-09-01,934e1968,336,Dominik Szoboszlai,2024-2025,Premier League,Matchweek 3,Liverpool,90,1,90.0,1.0,1.0,1.0,0.4
+2024-08-31,9a28eba4,239,Adama Traoré,2024-2025,Premier League,Matchweek 3,Fulham,90,1,77.72,1.0,1.0,1.0,0.4
+2024-08-31,b561db50,252,Raúl Jiménez,2024-2025,Premier League,Matchweek 3,Fulham,12,0,11.94,0.0,1.0,0.0,0.39
+2024-08-31,32f60ed8,433,Morgan Gibbs-White,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,90,1,89.63,1.0,1.0,1.0,0.39
+2024-08-31,6639e500,240,Andreas Pereira,2024-2025,Premier League,Matchweek 3,Fulham,86,1,86.56,1.0,1.0,1.0,0.39
+2024-08-31,2f9e4435,74,Dango Ouattara,2024-2025,Premier League,Matchweek 3,Bournemouth,25,0,36.11,0.31,1.0,0.31,0.38
+2024-08-31,e8832875,129,João Pedro,2024-2025,Premier League,Matchweek 3,Brighton,90,1,87.21,1.0,1.0,1.0,0.37
+2024-08-24,0562b7f1,198,Odsonne Édouard,2024-2025,Premier League,Matchweek 2,Crystal Palace,70,1,55.21,0.41,1.0,0.41,0.37
+2024-09-01,df3cda47,492,Dejan Kulusevski,2024-2025,Premier League,Matchweek 3,Tottenham,90,1,56.78,0.69,1.0,0.69,0.37
+2024-08-25,a3b03921,420,Joe Willock,2024-2025,Premier League,Matchweek 2,Newcastle Utd,21,0,8.57,0.0,0.41,0.0,0.37
+2024-08-31,05e8ca6d,27,Cameron Archer,2024-2025,Premier League,Matchweek 3,Southampton,45,0,27.49,0.0,1.0,0.0,0.37
+2024-08-31,3eb22ec9,342,Bernardo Silva,2024-2025,Premier League,Matchweek 3,Manchester City,90,1,90.0,1.0,1.0,1.0,0.36
+2024-08-31,4c3a6744,71,Justin Kluivert,2024-2025,Premier League,Matchweek 3,Bournemouth,90,1,63.32,0.69,1.0,0.69,0.36
+2024-08-31,169fd162,550,Hwang Hee-chan,2024-2025,Premier League,Matchweek 3,Wolves,31,0,59.44,0.68,1.0,0.31,0.36
+2024-08-31,37dc1a48,577,Jesper Lindstrøm,2024-2025,Premier League,Matchweek 3,Everton,0,0,12.74,0.0,0.37,0.0,0.36
+2024-08-31,52afb588,106,Kevin Schade,2024-2025,Premier League,Matchweek 3,Brentford,74,1,52.7,0.63,1.0,0.63,0.36
+2024-09-01,03edb878,69,Daniel Jebbison,2024-2025,Championship,Matchweek 4,Watford,22,0,13.9,0.0,0.85,0.0,0.36
+2024-08-31,b62878a5,525,Mohammed Kudus,2024-2025,Premier League,Matchweek 3,West Ham,90,1,88.88,1.0,1.0,1.0,0.35
+2024-09-01,980522ec,370,Christian Eriksen,2024-2025,Premier League,Matchweek 3,Manchester Utd,5,0,1.58,0.0,0.32,0.0,0.35
+2024-08-31,4dcec659,113,Simon Adingra,2024-2025,Premier League,Matchweek 3,Brighton,6,0,16.55,0.0,1.0,0.0,0.35
+2024-08-31,fc15fb84,230,Dwight McNeil,2024-2025,Premier League,Matchweek 3,Everton,90,1,90.0,1.0,1.0,1.0,0.35
+2024-08-24,fe6e7156,571,Sávio,2024-2025,Premier League,Matchweek 2,Manchester City,70,1,55.21,1.0,1.0,0.41,0.35
+2024-08-31,efd2ec23,78,Antoine Semenyo,2024-2025,Premier League,Matchweek 3,Bournemouth,90,1,90.0,1.0,1.0,1.0,0.35
+2024-09-01,27d0a506,495,Pedro Porro,2024-2025,Premier League,Matchweek 3,Tottenham,90,1,89.69,1.0,1.0,1.0,0.35
+2024-08-31,f553b2b3,566,Jørgen Strand Larsen,2024-2025,Premier League,Matchweek 3,Wolves,85,1,86.26,1.0,1.0,1.0,0.35
+2024-08-31,41f08ac8,98,Keane Lewis-Potter,2024-2025,Premier League,Matchweek 3,Brentford,16,0,34.67,0.37,1.0,0.37,0.35
+2024-09-01,028e70b9,389,Joshua Zirkzee,2024-2025,Premier League,Matchweek 3,Manchester Utd,85,1,52.93,0.32,1.0,0.32,0.35
+2024-08-24,9674002f,382,Mason Mount,2024-2025,Premier League,Matchweek 2,Manchester Utd,45,1,53.88,1.0,1.0,0.59,0.34
+2024-08-31,5c0da4a4,83,Marcus Tavernier,2024-2025,Premier League,Matchweek 3,Bournemouth,90,1,87.75,1.0,1.0,1.0,0.34
+2024-09-01,862a1c15,391,Miguel Almirón,2024-2025,Premier League,Matchweek 3,Newcastle Utd,1,0,1.06,0.0,0.69,0.0,0.34
+2024-08-25,7fcc71d8,562,Daniel Podence,2024-2025,Premier League,Matchweek 2,Wolves,32,0,22.53,0.0,1.0,0.0,0.33999999999999997
+2024-08-31,c6dc9ecd,259,Harry Wilson,2024-2025,Premier League,Matchweek 3,Fulham,4,0,13.54,0.0,1.0,0.0,0.33999999999999997
+2024-09-01,c17bfb65,403,Joelinton,2024-2025,Premier League,Matchweek 3,Newcastle Utd,90,1,90.0,1.0,1.0,1.0,0.32999999999999996
+2024-08-31,68c720b5,453,Adam Armstrong,2024-2025,Premier League,Matchweek 3,Southampton,45,1,68.34,1.0,1.0,0.68,0.32
+2024-08-31,1544f145,53,Jacob Ramsey,2024-2025,Premier League,Matchweek 3,Aston Villa,63,0,38.57,0.0,1.0,0.32,0.32
+2024-08-31,aa849a12,224,Jack Harrison,2024-2025,Premier League,Matchweek 3,Everton,90,1,75.4,1.0,1.0,0.63,0.32
+2024-08-31,c64c01fc,618,Georginio Rutter,2024-2025,Premier League,Matchweek 3,Brighton,19,0,34.3,0.31,1.0,0.31,0.32
+2024-08-31,3a24769f,29,Ross Barkley,2024-2025,Premier League,Matchweek 3,Aston Villa,29,0,14.74,0.0,0.69,0.0,0.32
+2024-08-31,02b29014,217,Abdoulaye Doucouré,2024-2025,Premier League,Matchweek 3,Everton,8,0,42.76,0.68,1.0,0.31,0.32
+2024-08-31,de31038e,423,Elliot Anderson,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,89,1,61.33,0.69,1.0,0.69,0.32
+2024-08-31,6ca5ec4b,247,Alex Iwobi,2024-2025,Premier League,Matchweek 3,Fulham,86,1,88.74,1.0,1.0,1.0,0.31000000000000005
+2024-08-31,468a7a91,117,Facundo Buonanotte,2024-2025,Premier League,Matchweek 3,Leicester City,23,0,57.7,0.68,1.0,0.68,0.31000000000000005
+2024-09-01,2e4f5f03,335,Andrew Robertson,2024-2025,Premier League,Matchweek 3,Liverpool,82,1,83.76,1.0,1.0,1.0,0.31
+2024-08-31,8dcf77c0,563,Rodrigo Gomes,2024-2025,Premier League,Matchweek 3,Wolves,0,0,31.6,0.31,0.68,0.31,0.31
+2024-09-01,21512407,418,Kieran Trippier,2024-2025,Premier League,Matchweek 3,Newcastle Utd,0,0,12.37,0.0,0.37,0.0,0.31
+2024-08-31,df04eb4b,587,Crysencio Summerville,2024-2025,Premier League,Matchweek 3,West Ham,5,0,7.17,0.0,0.63,0.0,0.31
+2024-08-24,3515d404,531,James Ward-Prowse,2024-2025,Premier League,Matchweek 2,West Ham,0,0,10.06,0.0,0.59,0.0,0.30000000000000004
+2024-09-01,5ff4ab71,168,Enzo Fernández,2024-2025,Premier League,Matchweek 3,Chelsea,90,1,90.0,1.0,1.0,1.0,0.30000000000000004
+2024-08-31,57827369,584,Ben Brereton,2024-2025,Premier League,Matchweek 3,Southampton,90,1,83.79,1.0,1.0,1.0,0.30000000000000004
+2024-08-31,2e5915f1,54,Morgan Rogers,2024-2025,Premier League,Matchweek 3,Aston Villa,90,1,90.0,1.0,1.0,1.0,0.29000000000000004
+2024-08-31,9b6f7fd5,527,Lucas Paquetá,2024-2025,Premier League,Matchweek 3,West Ham,90,1,84.72,1.0,1.0,1.0,0.29000000000000004
+2024-08-31,215f3907,89,Mikkel Damsgaard,2024-2025,Premier League,Matchweek 3,Brentford,81,1,40.14,0.32,1.0,0.32,0.29000000000000004
+2024-09-01,bbd67769,313,Conor Bradley,2024-2025,Premier League,Matchweek 3,Liverpool,15,0,16.19,0.0,1.0,0.0,0.29000000000000004
+2024-09-01,82518f62,394,Bruno Guimarães,2024-2025,Premier League,Matchweek 3,Newcastle Utd,90,1,90.0,1.0,1.0,1.0,0.28
+2024-08-31,0f7533cd,290,Bobby Reid,2024-2025,Premier League,Matchweek 3,Leicester City,2,0,50.26,0.68,1.0,0.68,0.28
+2024-09-01,83d074ff,329,Alexis Mac Allister,2024-2025,Premier League,Matchweek 3,Liverpool,90,1,90.0,1.0,1.0,1.0,0.28
+2024-08-31,15f3ec41,434,Callum Hudson-Odoi,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,79,1,80.58,1.0,1.0,1.0,0.28
+2024-08-17,d328a254,76,Philip Billing,2024-2025,Premier League,Matchweek 1,Bournemouth,7,0,17.8,0.12,0.96,0.12,0.28
+2024-08-31,788c0277,632,Chiedozie Ogbene,2024-2025,Premier League,Matchweek 3,Ipswich Town,87,1,69.85,0.85,0.85,0.85,0.27
+2024-08-17,dc6c2f02,537,Chiquinho,2024-2025,Premier League,Matchweek 1,Wolves,7,0,13.92,0.11,0.85,0.11,0.27
+2024-08-31,bceda5ff,570,Abdul Fatawu Issahaku,2024-2025,Premier League,Matchweek 3,Leicester City,67,1,82.76,1.0,1.0,1.0,0.27
+2024-09-01,bfdb33aa,585,Ismaila Sarr,2024-2025,Premier League,Matchweek 3,Crystal Palace,22,0,16.59,0.0,1.0,0.0,0.27
+2024-08-31,da052c14,192,Jordan Ayew,2024-2025,Premier League,Matchweek 3,Leicester City,66,1,37.79,0.32,1.0,0.32,0.27
+2024-09-01,9dc96f10,364,Amad Diallo,2024-2025,Premier League,Matchweek 3,Manchester Utd,22,0,58.91,0.68,1.0,0.68,0.26
+2024-08-31,96593e89,357,James Mcatee,2024-2025,Premier League,Matchweek 3,Manchester City,0,0,0.37,0.0,0.37,0.0,0.26
+2024-09-01,5c74c0f5,166,Kiernan Dewsbury-Hall,2024-2025,Premier League,Matchweek 3,Chelsea,0,0,13.07,0.0,0.68,0.0,0.26
+2024-08-31,5ed97752,232,Iliman Ndiaye,2024-2025,Premier League,Matchweek 3,Everton,82,1,47.24,0.32,1.0,0.32,0.26
+2024-09-01,15b287da,205,Daichi Kamada,2024-2025,Premier League,Matchweek 3,Crystal Palace,87,1,59.3,0.63,1.0,0.63,0.26
+2024-08-31,e6bc67d7,548,Gonçalo Guedes,2024-2025,Premier League,Matchweek 3,Wolves,16,0,5.03,0.0,0.32,0.0,0.26
+2024-08-31,b2c66859,299,Kasey McAteer,2024-2025,Premier League,Matchweek 3,Leicester City,1,0,4.11,0.0,1.0,0.0,0.25
+2024-08-31,6613c819,530,Tomáš Souček,2024-2025,Premier League,Matchweek 3,West Ham,14,0,61.21,0.68,1.0,0.68,0.25
+2024-09-01,a2b105e0,410,Sean Longstaff,2024-2025,Premier League,Matchweek 3,Newcastle Utd,67,1,74.89,1.0,1.0,1.0,0.25
+2024-08-31,d38fdf53,122,Pervis Estupiñán,2024-2025,Premier League,Matchweek 3,Brighton,19,0,32.74,0.22,0.98,0.19,0.25
+2024-08-31,e98211e7,126,Jack Hinshelwood,2024-2025,Premier League,Matchweek 3,Brighton,90,1,90.0,1.0,1.0,1.0,0.24000000000000002
+2024-08-31,30144daa,298,Stephy Mavididi,2024-2025,Premier League,Matchweek 3,Leicester City,24,0,18.77,0.0,1.0,0.0,0.24000000000000002
+2024-08-31,f173303a,600,Yasin Ayari,2024-2025,Premier League,Matchweek 3,Brighton,74,0,24.28,0.0,1.0,0.32,0.24000000000000002
+2024-08-25,2944f86f,102,Frank Onyeka,2024-2025,Premier League,Matchweek 2,Brentford,18,0,11.49,0.0,1.0,0.0,0.24000000000000002
+2024-08-31,4ec55b87,265,Conor Chaplin,2024-2025,Premier League,Matchweek 3,Ipswich Town,3,0,21.57,0.31,1.0,0.31,0.24
+2024-08-31,26ce2263,63,Ryan Christie,2024-2025,Premier League,Matchweek 3,Bournemouth,65,1,52.76,0.69,1.0,0.69,0.24
+2024-08-31,90f91999,48,John McGinn,2024-2025,Premier League,Matchweek 3,Aston Villa,90,1,71.25,1.0,1.0,1.0,0.24
+2024-08-31,0f134faf,95,Mathias Jensen,2024-2025,Premier League,Matchweek 3,Brentford,90,1,78.46,1.0,1.0,1.0,0.23
+2024-08-31,56f7a928,57,Youri Tielemans,2024-2025,Premier League,Matchweek 3,Aston Villa,90,1,90.0,1.0,1.0,1.0,0.23
+2024-08-24,d93c2511,381,Scott McTominay,2024-2025,Premier League,Matchweek 2,Manchester Utd,12,0,9.04,0.0,1.0,0.0,0.23
+2024-09-01,4d224fe8,368,Casemiro,2024-2025,Premier League,Matchweek 3,Manchester Utd,45,1,75.84,1.0,1.0,0.68,0.23
+2024-09-01,35516eac,612,Wilson Odobert,2024-2025,Premier League,Matchweek 3,Tottenham,73,1,74.97,1.0,1.0,1.0,0.22999999999999998
+2024-08-31,2f90f6b8,134,James Milner,2024-2025,Premier League,Matchweek 3,Brighton,16,1,57.17,1.0,1.0,0.68,0.22000000000000003
+2024-08-17,b3fe23c6,264,Wes Burns,2024-2025,Premier League,Matchweek 1,Ipswich Town,56,1,59.56,0.96,1.0,0.24,0.22000000000000003
+2024-08-31,9eedf0e0,451,Samuel Amo-Ameyaw,2024-2025,Premier League,Matchweek 3,Southampton,0,0,3.1,0.0,0.31,0.0,0.22000000000000003
+2024-08-31,828657ff,233,Amadou Onana,2024-2025,Premier League,Matchweek 3,Aston Villa,61,1,75.26,1.0,1.0,1.0,0.22
+2024-08-31,966e28d0,314,Fabio Carvalho,2024-2025,Premier League,Matchweek 3,Brentford,9,0,14.38,0.0,1.0,0.0,0.22
+2024-08-31,10f0fdd3,535,Jean-Ricner Bellegarde,2024-2025,Premier League,Matchweek 3,Wolves,74,1,65.78,1.0,1.0,0.69,0.22
+2024-08-31,99813635,463,Adam Lallana,2024-2025,Premier League,Matchweek 3,Southampton,9,0,10.02,0.06,0.81,0.01,0.22
+2024-08-31,df0a4c90,101,Christian Nørgaard,2024-2025,Premier League,Matchweek 3,Brentford,90,1,90.0,1.0,1.0,1.0,0.21000000000000002
+2024-08-31,a8748947,243,Tom Cairney,2024-2025,Premier League,Matchweek 3,Fulham,4,0,17.89,0.0,1.0,0.0,0.21000000000000002
+2024-08-31,9b398aea,533,Rayan Aït-Nouri,2024-2025,Premier League,Matchweek 3,Wolves,59,1,69.07,1.0,1.0,0.68,0.21000000000000002
+2024-09-01,778ef829,211,Daniel Muñoz,2024-2025,Premier League,Matchweek 3,Crystal Palace,90,1,90.0,1.0,1.0,1.0,0.21000000000000002
+2024-09-01,0db169ae,417,Sandro Tonali,2024-2025,Premier League,Matchweek 3,Newcastle Utd,23,0,31.7,0.19,0.96,0.15,0.21000000000000002
+2024-08-31,b57e066e,355,Rico Lewis,2024-2025,Premier League,Matchweek 3,Manchester City,90,1,90.0,1.0,1.0,1.0,0.21
+2024-09-01,feb5d972,499,Pape Matar Sarr,2024-2025,Premier League,Matchweek 3,Tottenham,45,1,47.07,0.63,1.0,0.31,0.21
+2024-09-01,3312f911,214,Jeffrey Schlupp,2024-2025,Premier League,Matchweek 3,Crystal Palace,3,0,4.32,0.0,0.69,0.0,0.21
+2024-09-01,f315ca93,337,Kostas Tsimikas,2024-2025,Premier League,Matchweek 3,Liverpool,8,0,6.24,0.0,0.63,0.0,0.21
+2024-08-31,e6af02e0,356,Matheus Nunes,2024-2025,Premier League,Matchweek 3,Manchester City,19,0,6.35,0.0,0.69,0.0,0.2
+2024-08-31,bd9553e6,274,Omari Hutchinson,2024-2025,Premier League,Matchweek 3,Ipswich Town,90,1,89.25,1.0,1.0,1.0,0.2
+2024-09-01,d56b9520,171,Malo Gusto,2024-2025,Premier League,Matchweek 3,Chelsea,73,1,84.65,1.0,1.0,1.0,0.2
+2024-08-31,d557d734,543,Matt Doherty,2024-2025,Premier League,Matchweek 3,Wolves,16,0,66.71,0.68,1.0,0.68,0.2
+2024-09-01,3b8674e6,480,Rodrigo Bentancur,2024-2025,Premier League,Matchweek 3,Tottenham,9,0,49.23,0.59,1.0,0.59,0.2
+2024-08-31,dd897ee7,268,Liam Delap,2024-2025,Premier League,Matchweek 3,Ipswich Town,80,1,78.58,1.0,1.0,1.0,0.2
+2024-09-01,da011f18,399,Lewis Hall,2024-2025,Premier League,Matchweek 3,Newcastle Utd,23,0,36.91,0.31,1.0,0.31,0.19
+2024-08-24,b2626673,256,Jay Stansfield,2024-2025,Premier League,Matchweek 2,Fulham,0,0,0.59,0.0,0.59,0.0,0.19
+2024-08-31,79c0821a,354,Mateo Kovačić,2024-2025,Premier League,Matchweek 3,Manchester City,90,1,74.63,1.0,1.0,0.63,0.19
+2024-08-24,2389cdc2,32,Matty Cash,2024-2025,Premier League,Matchweek 2,Aston Villa,15,1,54.05,1.0,1.0,0.59,0.19
+2024-09-01,b8e740fb,323,Ryan Gravenberch,2024-2025,Premier League,Matchweek 3,Liverpool,90,1,89.63,1.0,1.0,1.0,0.19
+2024-08-17,4abac767,450,Carlos Alcaraz,2024-2025,Premier League,Matchweek 1,Southampton,10,0,12.35,0.06,0.82,0.05,0.19
+2024-08-31,e16932d8,631,Jack Clarke,2024-2025,Premier League,Matchweek 3,Ipswich Town,10,0,51.09,0.54,0.85,0.54,0.18
+2024-08-17,a816dbfb,429,Danilo,2024-2025,Premier League,Matchweek 1,Nott'ham Forest,14,1,26.93,0.89,0.98,0.18,0.18
+2024-08-24,007414dd,459,Samuel Edozie,2024-2025,Premier League,Matchweek 2,Southampton,20,0,34.79,0.0,1.0,0.0,0.18
+2024-09-01,7cd520e8,505,Destiny Udogie,2024-2025,Premier League,Matchweek 3,Tottenham,90,1,83.25,1.0,1.0,1.0,0.18
+2024-08-24,19f4d211,569,Jaden Philogene Bidace,2024-2025,Premier League,Matchweek 2,Aston Villa,0,0,10.06,0.0,0.59,0.0,0.18
+2024-08-31,8449d35e,94,Vitaly Janelt,2024-2025,Premier League,Matchweek 3,Brentford,74,1,72.94,1.0,1.0,1.0,0.18
+2024-08-31,1b84dbe1,36,Lucas Digne,2024-2025,Premier League,Matchweek 3,Aston Villa,90,1,79.1,1.0,1.0,1.0,0.17
+2024-08-31,328f7d51,452,Joe Aribo,2024-2025,Premier League,Matchweek 3,Southampton,81,1,75.02,1.0,1.0,1.0,0.16999999999999998
+2024-08-31,1c7012b8,16,Declan Rice,2024-2025,Premier League,Matchweek 3,Arsenal,48,1,74.92,1.0,1.0,0.68,0.16999999999999998
+2024-08-24,90e9ca3d,271,Marcus Harness,2024-2025,Premier League,Matchweek 2,Ipswich Town,19,0,23.14,0.0,1.0,0.0,0.16999999999999998
+2024-08-24,9b5ce51a,206,Jefferson Lerma,2024-2025,Premier League,Matchweek 2,Crystal Palace,62,1,35.38,0.41,1.0,0.41,0.16
+2024-08-31,ac0d576d,141,Jeremy Sarmiento,2024-2025,Championship,Matchweek 4,Burnley,20,0,12.14,0.0,0.85,0.0,0.16
+2024-09-01,c149016b,320,Wataru Endo,2024-2025,Premier League,Matchweek 3,Liverpool,0,0,0.37,0.0,0.37,0.0,0.16
+2024-08-24,a105d46a,444,Harry Toffolo,2024-2025,Premier League,Matchweek 2,Nott'ham Forest,0,0,21.89,0.0,0.59,0.0,0.15000000000000002
+2024-08-31,c6e8cf1f,249,Saša Lukić,2024-2025,Premier League,Matchweek 3,Fulham,86,1,88.43,1.0,1.0,1.0,0.15000000000000002
+2024-08-31,8574c61f,267,Leif Davis,2024-2025,Premier League,Matchweek 3,Ipswich Town,90,1,90.0,1.0,1.0,1.0,0.15
+2024-08-31,c1fe2a48,449,Ryan Yates,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,33,0,43.35,0.0,1.0,0.31,0.15
+2024-08-31,51cf8561,25,Oleksandr Zinchenko,2024-2025,Premier League,Matchweek 3,Arsenal,11,0,24.58,0.31,0.63,0.31,0.15
+2024-08-31,580bcd18,474,Yukinari Sugawara,2024-2025,Premier League,Matchweek 3,Southampton,90,1,68.91,1.0,1.0,0.69,0.15
+2024-08-31,eaeca114,341,Nathan Aké,2024-2025,Premier League,Matchweek 3,Manchester City,3,0,0.94,0.0,0.32,0.0,0.14
+2024-09-01,d9565625,369,Diogo Dalot,2024-2025,Premier League,Matchweek 3,Manchester Utd,90,1,90.0,1.0,1.0,1.0,0.14
+2024-08-31,2b471f99,557,Mario Lemina,2024-2025,Premier League,Matchweek 3,Wolves,90,1,89.63,1.0,1.0,1.0,0.14
+2024-08-17,c8aa95da,415,Fabian Schär,2024-2025,Premier League,Matchweek 1,Newcastle Utd,27,1,44.31,0.99,1.0,0.27,0.14
+2024-08-31,c5b7c315,228,Michael Keane,2024-2025,Premier League,Matchweek 3,Everton,90,1,90.0,1.0,1.0,1.0,0.14
+2024-08-17,4876c9ab,149,Mats Wieffer,2024-2025,Premier League,Matchweek 1,Brighton,90,1,76.39,0.85,0.85,0.85,0.14
+2024-08-31,dd323728,437,Neco Williams,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,90,1,90.0,1.0,1.0,1.0,0.14
+2024-08-31,20b3a502,431,Nicolás Domínguez,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,0,0,17.48,0.0,0.68,0.0,0.14
+2024-08-31,5e105217,471,William Smallbone,2024-2025,Premier League,Matchweek 3,Southampton,45,1,73.21,1.0,1.0,0.68,0.14
+2024-08-31,5ad50391,350,Joško Gvardiol,2024-2025,Premier League,Matchweek 3,Manchester City,87,1,89.06,1.0,1.0,1.0,0.14
+2024-08-31,a8c0acb7,86,Kristoffer Ajer,2024-2025,Premier League,Matchweek 3,Brentford,38,1,73.63,1.0,1.0,0.68,0.14
+2024-08-31,8df7a2fb,100,Ben Mee,2024-2025,Premier League,Matchweek 3,Brentford,0,0,0.31,0.0,0.31,0.0,0.14
+2024-08-31,d0b6129f,622,Sander Berge,2024-2025,Premier League,Matchweek 3,Fulham,19,0,25.45,0.14,0.85,0.13,0.14
+2024-08-24,4f974391,517,Aaron Cresswell,2024-2025,Premier League,Matchweek 2,West Ham,2,0,0.82,0.0,0.41,0.0,0.13999999999999999
+2024-08-31,67ac5bb8,3,Gabriel Magalhães,2024-2025,Premier League,Matchweek 3,Arsenal,90,1,90.0,1.0,1.0,1.0,0.13999999999999999
+2024-08-31,803ae100,254,Harrison Reed,2024-2025,Premier League,Matchweek 3,Fulham,4,0,3.44,0.0,1.0,0.0,0.13
+2024-08-31,2afc7272,64,Lewis Cook,2024-2025,Premier League,Matchweek 3,Bournemouth,90,1,87.82,1.0,1.0,1.0,0.13
+2024-08-24,df10e27c,124,Billy Gilmour,2024-2025,Premier League,Matchweek 2,Brighton,89,1,41.67,0.41,1.0,0.41,0.13
+2024-09-01,d8931174,377,Harry Maguire,2024-2025,Premier League,Matchweek 3,Manchester Utd,22,0,61.0,0.68,1.0,0.68,0.13
+2024-08-31,529f49ab,20,Thomas Partey,2024-2025,Premier League,Matchweek 3,Arsenal,90,1,90.0,1.0,1.0,1.0,0.13
+2024-09-01,4b542852,216,Adam Wharton,2024-2025,Premier League,Matchweek 3,Crystal Palace,90,1,84.72,1.0,1.0,1.0,0.13
+2024-08-31,15ea812b,236,James Tarkowski,2024-2025,Premier League,Matchweek 3,Everton,90,1,90.0,1.0,1.0,1.0,0.13
+2024-09-01,700783e7,162,Levi Colwill,2024-2025,Premier League,Matchweek 3,Chelsea,90,1,90.0,1.0,1.0,1.0,0.12000000000000001
+2024-08-31,5526deb1,544,Tommy Doyle,2024-2025,Premier League,Matchweek 3,Wolves,31,0,10.13,0.0,0.69,0.0,0.12000000000000001
+2024-08-31,cab9634e,45,Ian Maatsen,2024-2025,Premier League,Matchweek 3,Aston Villa,12,0,14.68,0.0,1.0,0.0,0.12000000000000001
+2024-08-31,6b47c5db,300,Wilfred Ndidi,2024-2025,Premier League,Matchweek 3,Leicester City,88,1,89.37,1.0,1.0,1.0,0.12000000000000001
+2024-08-31,35141f4c,79,Marcos Senesi,2024-2025,Premier League,Matchweek 3,Bournemouth,76,1,84.28,1.0,1.0,1.0,0.12000000000000001
+2024-08-31,a4ac4b8f,425,Willy Boly,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,0,0,28.32,0.31,0.68,0.31,0.12
+2024-09-01,b2d31e83,395,Dan Burn,2024-2025,Premier League,Matchweek 3,Newcastle Utd,90,1,90.0,1.0,1.0,1.0,0.12
+2024-08-31,e541326e,104,Ethan Pinnock,2024-2025,Premier League,Matchweek 3,Brentford,90,1,90.0,1.0,1.0,1.0,0.12
+2024-08-31,104d0bb8,77,Alex Scott,2024-2025,Premier League,Matchweek 3,Bournemouth,25,0,37.24,0.31,1.0,0.31,0.12
+2024-09-01,e06683ca,339,Virgil van Dijk,2024-2025,Premier League,Matchweek 3,Liverpool,90,1,90.0,1.0,1.0,1.0,0.12
+2024-08-31,35e413f1,24,Ben White,2024-2025,Premier League,Matchweek 3,Arsenal,90,1,90.0,1.0,1.0,1.0,0.12
+2024-08-31,e0bc6fdc,520,Emerson Palmieri,2024-2025,Premier League,Matchweek 3,West Ham,70,1,82.96,1.0,1.0,1.0,0.11000000000000001
+2024-08-31,5eecec3d,362,John Stones,2024-2025,Premier League,Matchweek 3,Manchester City,0,0,15.37,0.0,0.37,0.0,0.11000000000000001
+2024-08-31,bced0375,442,Ibrahim Sangaré,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,57,1,70.25,1.0,1.0,0.68,0.11000000000000001
+2024-08-31,0420d84f,221,Séamus Coleman,2024-2025,Premier League,Matchweek 3,Everton,90,1,73.15,0.8,0.9,0.79,0.11000000000000001
+2024-09-01,afed6722,409,Valentino Livramento,2024-2025,Premier League,Matchweek 3,Newcastle Utd,90,1,77.63,1.0,1.0,0.63,0.11000000000000001
+2024-08-31,3e9e06cb,542,Craig Dawson,2024-2025,Premier League,Matchweek 3,Wolves,90,1,39.49,0.32,1.0,0.32,0.11000000000000001
+2024-09-01,ce4f40c7,193,Cheick Doucouré,2024-2025,Premier League,Matchweek 3,Crystal Palace,41,0,15.08,0.0,0.63,0.0,0.11000000000000001
+2024-08-31,282f75f3,120,Lewis Dunk,2024-2025,Premier League,Matchweek 3,Brighton,90,1,85.34,1.0,1.0,1.0,0.11000000000000001
+2024-08-31,a8c19eb8,88,Nathan Collins,2024-2025,Premier League,Matchweek 3,Brentford,90,1,90.0,1.0,1.0,1.0,0.11
+2024-09-01,a3d94a58,498,Cristian Romero,2024-2025,Premier League,Matchweek 3,Tottenham,90,1,90.0,1.0,1.0,1.0,0.11
+2024-08-31,77d7c96f,257,Kenny Tete,2024-2025,Premier League,Matchweek 3,Fulham,90,1,90.0,1.0,1.0,1.0,0.11
+2024-09-01,16264a81,157,Moisés Caicedo,2024-2025,Premier League,Matchweek 3,Chelsea,90,1,84.38,1.0,1.0,1.0,0.11
+2024-08-31,00963611,528,Konstantinos Mavropanos,2024-2025,Premier League,Matchweek 3,West Ham,90,1,90.0,1.0,1.0,1.0,0.11
+2024-08-31,fdf3cb77,516,Vladimír Coufal,2024-2025,Premier League,Matchweek 3,West Ham,20,0,55.62,0.68,1.0,0.68,0.11
+2024-08-24,d0042ab9,225,Mason Holgate,2024-2025,Premier League,Matchweek 2,Everton,0,0,3.55,0.0,0.59,0.0,0.11
+2024-08-31,57c94db2,105,Mads Roerslev,2024-2025,Premier League,Matchweek 3,Brentford,52,0,78.04,0.68,1.0,0.68,0.11
+2024-08-31,8b57ad2c,553,João Gomes,2024-2025,Premier League,Matchweek 3,Wolves,59,1,78.07,1.0,1.0,0.68,0.1
+2024-08-31,8b3ab7ad,511,Edson Álvarez,2024-2025,Premier League,Matchweek 3,West Ham,76,1,38.72,0.41,1.0,0.41,0.1
+2024-08-31,72c812f3,222,Idrissa Gana Gueye,2024-2025,Premier League,Matchweek 3,Everton,90,1,89.63,1.0,1.0,1.0,0.1
+2024-08-31,e34fc66d,191,Joachim Andersen,2024-2025,Premier League,Matchweek 3,Fulham,0,0,39.75,0.44,0.44,0.44,0.1
+2024-09-01,77cf6852,405,Emil Krafth,2024-2025,Premier League,Matchweek 3,Newcastle Utd,90,1,80.99,0.69,1.0,1.0,0.1
+2024-08-31,9e525177,388,Aaron Wan-Bissaka,2024-2025,Premier League,Matchweek 3,West Ham,90,1,39.19,0.32,0.69,0.32,0.1
+2024-08-31,246d153b,422,Ola Aina,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,90,1,78.51,1.0,1.0,0.69,0.1
+2024-08-31,1e159d70,558,Yerson Mosquera,2024-2025,Premier League,Matchweek 3,Wolves,90,1,90.0,1.0,1.0,1.0,0.09999999999999999
+2024-08-31,a1390d2f,115,Carlos Baleba,2024-2025,Premier League,Matchweek 3,Brighton,90,1,35.07,0.32,0.69,0.32,0.09000000000000001
+2024-08-31,f0caab96,567,Toti Gomes,2024-2025,Premier League,Matchweek 3,Wolves,90,1,90.0,1.0,1.0,1.0,0.09
+2024-08-31,984a5a64,476,Kyle Walker-Peters,2024-2025,Premier League,Matchweek 3,Southampton,90,1,86.9,1.0,1.0,1.0,0.09
+2024-09-01,5cbd1eb0,210,Tyrick Mitchell,2024-2025,Premier League,Matchweek 3,Crystal Palace,90,1,90.0,1.0,1.0,1.0,0.09
+2024-08-31,1704b0b8,436,Murillo,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,90,1,90.0,1.0,1.0,1.0,0.09
+2024-08-31,0ad53bdc,70,Milos Kerkez,2024-2025,Premier League,Matchweek 3,Bournemouth,65,1,82.13,1.0,1.0,1.0,0.09
+2024-08-24,48eed8d5,281,Jack Taylor,2024-2025,Premier League,Matchweek 2,Ipswich Town,19,0,23.14,0.0,1.0,0.0,0.09
+2024-09-01,4125cb98,333,Jarell Quansah,2024-2025,Premier League,Matchweek 3,Liverpool,0,0,13.97,0.31,0.31,0.0,0.09
+2024-09-01,1daec722,163,Marc Cucurella,2024-2025,Premier League,Matchweek 3,Chelsea,90,1,83.59,1.0,1.0,1.0,0.09
+2024-08-31,6250083a,501,Oliver Skipp,2024-2025,Premier League,Matchweek 3,Leicester City,67,1,39.19,0.41,1.0,0.41,0.09
+2024-08-31,31c69ef1,361,Rúben Dias,2024-2025,Premier League,Matchweek 3,Manchester City,90,1,90.0,1.0,1.0,1.0,0.09
+2024-08-31,289601e6,255,Antonee Robinson,2024-2025,Premier League,Matchweek 3,Fulham,90,1,90.0,1.0,1.0,1.0,0.09
+2024-08-31,41034650,6,Jurriën Timber,2024-2025,Premier League,Matchweek 3,Arsenal,79,1,60.93,0.69,1.0,0.69,0.08
+2024-08-18,ecad9aa5,174,Roméo Lavia,2024-2025,Premier League,Matchweek 1,Chelsea,66,1,46.2,0.7,0.7,0.7,0.08
+2024-08-31,89ac64a6,340,Manuel Akanji,2024-2025,Premier League,Matchweek 3,Manchester City,90,1,90.0,1.0,1.0,1.0,0.08
+2024-08-31,30d4a2e5,231,Vitaliy Mykolenko,2024-2025,Premier League,Matchweek 3,Everton,90,1,90.0,1.0,1.0,1.0,0.08
+2024-08-31,d0f72bf1,524,Max Kilman,2024-2025,Premier League,Matchweek 3,West Ham,90,1,90.0,1.0,1.0,1.0,0.08
+2024-09-01,6c203af0,482,Yves Bissouma,2024-2025,Premier League,Matchweek 3,Tottenham,81,1,75.68,1.0,1.0,1.0,0.08
+2024-09-01,a0666d3e,203,Will Hughes,2024-2025,Premier League,Matchweek 3,Crystal Palace,49,1,69.12,1.0,1.0,0.59,0.08
+2024-08-31,4f565d77,359,Kalvin Phillips,2024-2025,Premier League,Matchweek 3,Ipswich Town,70,1,28.58,0.41,0.41,0.41,0.08
+2024-08-31,505486d6,296,Victor Bernth Kristiansen,2024-2025,Premier League,Matchweek 3,Leicester City,90,1,87.75,1.0,1.0,1.0,0.08
+2024-08-31,d04b94db,559,Nélson Semedo,2024-2025,Premier League,Matchweek 3,Wolves,74,1,78.0,1.0,1.0,1.0,0.07
+2024-09-01,c6220452,378,Kobbie Mainoo,2024-2025,Premier League,Matchweek 3,Manchester Utd,90,1,87.82,1.0,1.0,1.0,0.07
+2024-08-31,bee704fc,573,Nikola Milenković,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,90,1,90.0,1.0,1.0,1.0,0.07
+2024-08-31,be927d03,238,Ashley Young,2024-2025,Premier League,Matchweek 3,Everton,0,0,38.46,0.59,0.59,0.59,0.07
+2024-08-31,532e1e4f,52,Pau Torres,2024-2025,Premier League,Matchweek 3,Aston Villa,90,1,90.0,1.0,1.0,1.0,0.07
+2024-09-01,132a82f1,189,Wesley Fofana,2024-2025,Premier League,Matchweek 3,Chelsea,90,1,90.0,1.0,1.0,1.0,0.07
+2024-08-31,dad4b285,145,Joël Veltman,2024-2025,Premier League,Matchweek 3,Brighton,71,1,84.02,1.0,1.0,1.0,0.07
+2024-08-31,4fd08daa,144,Jan Paul van Hecke,2024-2025,Premier League,Matchweek 3,Brighton,90,1,90.0,1.0,1.0,1.0,0.07
+2024-08-31,0313a347,44,Ezri Konsa,2024-2025,Premier League,Matchweek 3,Aston Villa,90,1,90.0,1.0,1.0,1.0,0.07
+2024-09-01,0a3d6d2b,194,Chris Richards,2024-2025,Premier League,Matchweek 3,Crystal Palace,90,1,84.45,1.0,1.0,1.0,0.07
+2024-08-31,c40b6180,147,Adam Webster,2024-2025,Premier League,Matchweek 3,Brighton,0,0,4.66,0.0,0.31,0.0,0.06999999999999999
+2024-08-31,86dd77d1,363,Kyle Walker,2024-2025,Premier League,Matchweek 3,Manchester City,3,0,0.94,0.0,0.32,0.0,0.06999999999999999
+2024-08-31,cc2d7ad5,475,Charlie Taylor,2024-2025,Premier League,Matchweek 3,Southampton,0,0,5.62,0.0,0.37,0.0,0.06999999999999999
+2024-09-01,f8fcd2a5,371,Jonny Evans,2024-2025,Premier League,Matchweek 3,Manchester Utd,0,0,3.1,0.0,0.31,0.0,0.060000000000000005
+2024-08-31,20b104bc,81,Adam Smith,2024-2025,Premier League,Matchweek 3,Bournemouth,14,0,25.53,0.31,1.0,0.31,0.060000000000000005
+2024-08-31,84c5ceea,226,Tim Iroegbunam,2024-2025,Premier League,Matchweek 3,Everton,90,1,90.0,1.0,1.0,1.0,0.060000000000000005
+2024-09-01,5ed9b537,326,Ibrahima Konaté,2024-2025,Premier League,Matchweek 3,Liverpool,90,1,76.03,0.69,1.0,0.69,0.060000000000000005
+2024-08-31,2f7acede,309,Harry Winks,2024-2025,Premier League,Matchweek 3,Leicester City,90,1,90.0,1.0,1.0,1.0,0.06
+2024-08-31,967ac6e1,277,Massimo Luongo,2024-2025,Premier League,Matchweek 3,Ipswich Town,0,0,46.49,0.68,0.68,0.68,0.06
+2024-08-31,a23c0949,278,Sam Morsy,2024-2025,Premier League,Matchweek 3,Ipswich Town,90,1,90.0,1.0,1.0,1.0,0.06
+2024-09-01,9bc9a519,504,Djed Spence,2024-2025,Premier League,Matchweek 3,Tottenham,0,0,7.06,0.0,0.68,0.0,0.06
+2024-08-31,69fdb896,518,Flynn Downes,2024-2025,Premier League,Matchweek 3,Southampton,90,1,90.0,1.0,1.0,1.0,0.06
+2024-08-31,972aeb2a,18,William Saliba,2024-2025,Premier League,Matchweek 3,Arsenal,90,1,90.0,1.0,1.0,1.0,0.06
+2024-09-01,d0706b27,200,Marc Guéhi,2024-2025,Premier League,Matchweek 3,Crystal Palace,90,1,90.0,1.0,1.0,1.0,0.06
+2024-08-31,4115ce4e,455,Jan Bednarek,2024-2025,Premier League,Matchweek 3,Southampton,90,1,86.9,1.0,1.0,1.0,0.05
+2024-08-24,46ff3923,269,George Edmundson,2024-2025,Premier League,Matchweek 2,Ipswich Town,2,0,17.07,0.18,0.88,0.18,0.05
+2024-08-31,47327321,461,Taylor Harwood-Bellis,2024-2025,Premier League,Matchweek 3,Southampton,55,1,73.37,1.0,1.0,0.68,0.05
+2024-08-24,8fe2a392,506,Micky van de Ven,2024-2025,Premier League,Matchweek 2,Tottenham,90,1,90.0,1.0,1.0,1.0,0.05
+2024-09-01,620922ed,486,Radu Drăgușin,2024-2025,Premier League,Matchweek 3,Tottenham,90,1,28.32,0.32,0.32,0.32,0.05
+2024-08-31,7bf9400b,338,Sepp van den Berg,2024-2025,Premier League,Matchweek 3,Brentford,16,0,6.53,0.0,0.41,0.0,0.05
+2024-09-01,bac46a10,380,Lisandro Martínez,2024-2025,Premier League,Matchweek 3,Manchester Utd,90,1,90.0,1.0,1.0,1.0,0.05
+2024-09-01,f31def1e,404,Lloyd Kelly,2024-2025,Premier League,Matchweek 3,Newcastle Utd,67,1,53.09,0.69,1.0,0.69,0.05
+2024-08-31,6adbc307,472,Jack Stephens,2024-2025,Premier League,Matchweek 3,Southampton,90,1,90.0,1.0,1.0,1.0,0.05
+2024-08-31,1f169636,270,Jacob Greaves,2024-2025,Premier League,Matchweek 3,Ipswich Town,90,1,90.0,1.0,1.0,1.0,0.05
+2024-08-31,fb614c44,295,James Justin,2024-2025,Premier League,Matchweek 3,Leicester City,90,1,90.0,1.0,1.0,1.0,0.05
+2024-08-31,34e393f2,588,Guido Rodríguez,2024-2025,Premier League,Matchweek 3,West Ham,90,1,88.13,1.0,1.0,1.0,0.05
+2024-08-31,9319781b,275,Ben Johnson,2024-2025,Premier League,Matchweek 3,Ipswich Town,0,0,44.29,0.37,0.68,0.37,0.05
+2024-08-31,9c221d14,291,Wout Faes,2024-2025,Premier League,Matchweek 3,Leicester City,90,1,90.0,1.0,1.0,1.0,0.04
+2024-08-31,1900032e,307,Jannik Vestergaard,2024-2025,Premier League,Matchweek 3,Leicester City,0,0,61.68,0.68,0.68,0.68,0.04
+2024-08-31,88968486,85,Illia Zabarnyi,2024-2025,Premier League,Matchweek 3,Bournemouth,90,1,90.0,1.0,1.0,1.0,0.04
+2024-09-01,fc8fcbd1,184,Renato Veiga,2024-2025,Premier League,Matchweek 3,Chelsea,0,0,6.41,0.0,0.68,0.0,0.04
+2024-08-31,a36524bf,241,Calvin Bassey,2024-2025,Premier League,Matchweek 3,Fulham,90,1,90.0,1.0,1.0,1.0,0.03
+2024-08-31,ae59b359,285,Boubakary Soumaré,2024-2025,Premier League,Matchweek 3,Leicester City,0,0,3.72,0.0,0.31,0.0,0.03
+2024-08-24,b3b9b8b8,195,Chadi Riad,2024-2025,Premier League,Matchweek 2,Crystal Palace,90,1,36.75,0.41,0.41,0.41,0.03
+2024-09-01,0442183b,196,Nathaniel Clyne,2024-2025,Premier League,Matchweek 3,Crystal Palace,90,1,28.32,0.32,0.32,0.32,0.03
+2024-08-31,8ec109e6,301,Caleb Okoli,2024-2025,Premier League,Matchweek 3,Leicester City,89,1,28.01,0.32,0.32,0.32,0.03
+2024-08-31,a712ca2b,245,Issa Diop,2024-2025,Premier League,Matchweek 3,Fulham,90,1,90.0,1.0,1.0,1.0,0.02
+2024-09-01,f58515f5,489,Archie Gray,2024-2025,Premier League,Matchweek 3,Tottenham,0,0,10.78,0.0,0.68,0.0,0.02
+2024-08-31,2baec6ce,282,Axel Tuanzebe,2024-2025,Premier League,Matchweek 3,Ipswich Town,90,1,83.97,1.0,1.0,1.0,0.02
+2024-08-31,a92ab7be,91,Mark Flekken,2024-2025,Premier League,Matchweek 3,Brentford,90,1,90.0,1.0,1.0,1.0,0.01
+2024-09-01,7a2e46a8,310,Alisson,2024-2025,Premier League,Matchweek 3,Liverpool,90,1,90.0,1.0,1.0,1.0,0.01
+2024-08-31,834b5c4c,443,Matz Sels,2024-2025,Premier League,Matchweek 3,Nott'ham Forest,90,1,90.0,1.0,1.0,1.0,0.01
+2024-08-31,e28e9bec,284,Luke Woolfenden,2024-2025,Premier League,Matchweek 3,Ipswich Town,90,1,90.0,1.0,1.0,1.0,0.01
+2024-08-31,99aa1a84,568,Arijanet Muric,2024-2025,Premier League,Matchweek 3,Ipswich Town,90,1,90.0,1.0,1.0,1.0,0.01
+2024-08-31,9328b835,521,Łukasz Fabiański,2024-2025,Premier League,Matchweek 3,West Ham,45,0,14.16,0.0,0.32,0.0,0.0
+2024-08-25,903b6e8b,554,José Sá,2024-2025,Premier League,Matchweek 2,Wolves,90,1,90.0,1.0,1.0,1.0,0.0
+2024-08-31,36c2ca73,469,Alex McCarthy,2024-2025,Premier League,Matchweek 3,Southampton,0,0,61.68,0.68,0.68,0.68,0.0
+2024-09-01,6a713852,185,Robert Sánchez,2024-2025,Premier League,Matchweek 3,Chelsea,90,1,90.0,1.0,1.0,1.0,0.0
+2024-08-31,98ea5115,15,David Raya,2024-2025,Premier League,Matchweek 3,Arsenal,90,1,90.0,1.0,1.0,1.0,0.0
+2024-08-31,28300a16,142,Jason Steele,2024-2025,Premier League,Matchweek 3,Brighton,0,0,61.68,0.68,0.68,0.68,0.0
+2024-08-31,cf134113,146,Bart Verbruggen,2024-2025,Premier League,Matchweek 3,Brighton,90,1,78.32,0.87,0.87,0.87,0.0
+2024-08-31,c924b17d,293,Mads Hermansen,2024-2025,Premier League,Matchweek 3,Leicester City,90,1,90.0,1.0,1.0,1.0,0.0
+2024-08-31,466fb2c5,14,Aaron Ramsdale,2024-2025,Premier League,Matchweek 3,Southampton,90,1,28.32,0.32,0.32,0.32,0.0
+2024-08-31,2f965a72,513,Alphonse Areola,2024-2025,Premier League,Matchweek 3,West Ham,45,1,75.84,1.0,1.0,0.68,0.0
+2024-09-01,4b40d9ca,413,Nick Pope,2024-2025,Premier League,Matchweek 3,Newcastle Utd,90,1,90.0,1.0,1.0,1.0,0.0
+2024-08-31,28d596a0,152,Kepa Arrizabalaga,2024-2025,Premier League,Matchweek 3,Bournemouth,90,1,68.16,0.76,0.76,0.76,0.0
+2024-08-25,a9dc785c,73,Neto,2024-2025,Premier League,Matchweek 2,Bournemouth,90,1,90.0,1.0,1.0,1.0,0.0
+2024-08-31,7956236f,47,Emiliano Martínez,2024-2025,Premier League,Matchweek 3,Aston Villa,90,1,90.0,1.0,1.0,1.0,0.0
+2024-08-31,2628fd2b,248,Bernd Leno,2024-2025,Premier League,Matchweek 3,Fulham,90,1,90.0,1.0,1.0,1.0,0.0
+2024-08-31,3bb7b8b4,347,Ederson,2024-2025,Premier League,Matchweek 3,Manchester City,90,1,90.0,1.0,1.0,1.0,0.0
+2024-09-01,e5a76dfe,201,Dean Henderson,2024-2025,Premier League,Matchweek 3,Crystal Palace,90,1,90.0,1.0,1.0,1.0,0.0
+2024-08-31,9e5708be,204,Sam Johnstone,2024-2025,Premier League,Matchweek 3,Wolves,90,1,28.32,0.32,0.32,0.32,0.0
+2024-09-01,e9c0c1b2,383,André Onana,2024-2025,Premier League,Matchweek 3,Manchester Utd,90,1,90.0,1.0,1.0,1.0,0.0
+2024-09-01,77d6fd4d,508,Guglielmo Vicario,2024-2025,Premier League,Matchweek 3,Tottenham,90,1,90.0,1.0,1.0,1.0,0.0
+2024-08-31,4806ec67,235,Jordan Pickford,2024-2025,Premier League,Matchweek 3,Everton,90,1,90.0,1.0,1.0,1.0,0.0

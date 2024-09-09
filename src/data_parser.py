@@ -29,6 +29,8 @@ def read_data(options, source, weights=None):
         data = pd.read_csv("../data/mikkel.csv")
         data["ID"] = data["review_id"]
         return data
+    elif source == "garz":
+        data = pd.read_csv("../data/garz.csv")
     elif source == "mixed":
         # Get each source separately and mix with given weights
         all_data = []
