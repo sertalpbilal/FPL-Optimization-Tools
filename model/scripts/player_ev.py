@@ -4,12 +4,12 @@ import requests
 import numpy as np
 
 
-def calculate_player_ev(newest_gw):
+def calculate_player_ev():
     try:
         # Load the necessary CSV files
-        fpl_players_path = f"C:/Users/erknud3/fpl-optimization/model/data/New_Season_Data/fpl_players_new_season_gw{newest_gw}.csv"
-        teams_pred_npxG_path = f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/teams_pred_npxG_gw{newest_gw}.csv"
-        gc_probs_path = f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/GC_probabilities.csv"
+        fpl_players_path = f"C:/Users/erknud3/fpl-optimization/model/data/New_Season_Data/fpl_players_new_season.csv"
+        teams_pred_npxG_path = f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/teams_pred_npxG.csv"
+        gc_probs_path = f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/gc_probabilities.csv"
         pen_share_path = f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/pen_share.csv"
         xmins_path = f"C:/Users/erknud3/fpl-optimization/model/data/New_Season_Data/fpl_players_xmins.csv"
 
@@ -19,9 +19,7 @@ def calculate_player_ev(newest_gw):
             and os.path.exists(teams_pred_npxG_path)
             and os.path.exists(gc_probs_path)
         ):
-            raise FileNotFoundError(
-                f"One or more necessary files do not exist for gameweek {newest_gw}."
-            )
+            raise FileNotFoundError(f"One or more necessary files do not exist")
 
         fpl_players_new_season = pd.read_csv(fpl_players_path)
         teams_pred_npxG = pd.read_csv(teams_pred_npxG_path)
@@ -87,11 +85,11 @@ def calculate_player_ev(newest_gw):
         # player_xp_goals.drop(["weighted_npxG"], axis=1, inplace=True)
 
         player_xp_goals.to_csv(
-            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_xp_goals_gw{newest_gw}.csv",
+            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_xp_goals.csv",
             index=False,
         )
 
-        print(f"Generated player_xp_goals_gw{newest_gw}.csv")
+        print(f"Generated player_xp_goals.csv")
 
         # Generate player_xp_pens
         player_xp_pens = fpl_players_new_season[columns_to_keep].copy()
@@ -128,11 +126,11 @@ def calculate_player_ev(newest_gw):
         # player_xp_pens.drop(["weighted_npxG"], axis=1, inplace=True)
 
         player_xp_pens.to_csv(
-            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_xp_pens_gw{newest_gw}.csv",
+            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_xp_pens.csv",
             index=False,
         )
 
-        print(f"Generated player_xp_pens_gw{newest_gw}.csv")
+        print(f"Generated player_xp_pens.csv")
 
         player_xp_assists = fpl_players_new_season[columns_to_keep].copy()
 
@@ -154,11 +152,11 @@ def calculate_player_ev(newest_gw):
         # player_xp_assists.drop(columns=["weighted_xAG"], inplace=True)
 
         player_xp_assists.to_csv(
-            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_xp_assists_gw{newest_gw}.csv",
+            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_xp_assists.csv",
             index=False,
         )
 
-        print(f"Generated player_xp_assists_gw{newest_gw}.csv")
+        print(f"Generated player_xp_assists.csv")
 
         player_xp_cs = fpl_players_new_season[columns_to_keep].copy()
 
@@ -215,11 +213,11 @@ def calculate_player_ev(newest_gw):
         player_xp_cs = player_xp_cs.round(2)
 
         player_xp_cs.to_csv(
-            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_xp_cs_gw{newest_gw}.csv",
+            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_xp_cs.csv",
             index=False,
         )
 
-        print(f"Generated player_xp_cs_gw{newest_gw}.csv")
+        print(f"Generated player_xp_cs.csv")
 
         player_xp_app = fpl_players_new_season[columns_to_keep].copy()
 
@@ -244,11 +242,11 @@ def calculate_player_ev(newest_gw):
         player_xp_app = player_xp_app.round(2)
 
         player_xp_app.to_csv(
-            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_xp_app_gw{newest_gw}.csv",
+            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_xp_app.csv",
             index=False,
         )
 
-        print(f"Generated player_xp_app_gw{newest_gw}.csv")
+        print(f"Generated player_xp_app.csv")
 
         # Step 1: Define common columns to retain without prefixes
         common_columns = [
@@ -354,13 +352,11 @@ def calculate_player_ev(newest_gw):
 
         # Step 7: Save the merged dataframe to a CSV file
         merged_df.to_csv(
-            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_ev_gw{newest_gw}.csv",
+            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_ev_breakdown.csv",
             index=False,
         )
 
-        print(
-            f"Player expected values for all metrics merged and saved successfully for gameweek {newest_gw}."
-        )
+        print(f"Player expected values for all metrics merged and saved successfully.")
 
         totals_columns = [f"total_{gw}" for gw in range(1, num_gameweeks + 1)]
 
@@ -374,13 +370,11 @@ def calculate_player_ev(newest_gw):
         ]
 
         merged_df_totals.to_csv(
-            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_ev_totals_gw{newest_gw}.csv",
+            f"C:/Users/erknud3/fpl-optimization/model/data/Prediction_Data/player_ev_totals.csv",
             index=False,
         )
 
-        print(
-            f"Player expected values for totals saved successfully for gameweek {newest_gw}."
-        )
+        print(f"Player expected values for totals saved successfully.")
 
         static_url = "https://fantasy.premierleague.com/api/bootstrap-static/"
         r = requests.get(static_url).json()
@@ -482,5 +476,5 @@ def calculate_player_ev(newest_gw):
 
 
 if __name__ == "__main__":
-    newest_gw = input("Enter the newest gameweek number: ")
-    calculate_player_ev(newest_gw)
+    # newest_gw = input("Enter the newest gameweek number: ")
+    calculate_player_ev()

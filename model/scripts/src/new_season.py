@@ -160,7 +160,7 @@ def calculate_weighted_stats(fpl_players_df, weight_new_data=1.0):
 
 
 def main():
-    weight_new_data = float(input("Enter the weight factor for new data: "))
+    weight_new_data = 1.5
 
     # Load data
     master_filtered = load_master_data(
@@ -245,6 +245,7 @@ def main():
     if not players_not_found.empty:
         print("Top 20 players not found by tsb:")
         print_df = players_not_found[["fpl_id", "web_name", "tsb"]]
+        print_df["tsb"] = print_df["tsb"].astype(float)
         print(print_df.sort_values(by="tsb", ascending=False).head(20))
 
     players_not_found.to_csv(
@@ -254,8 +255,8 @@ def main():
 
     fpl_players_new_season = fpl_players_new_season.dropna(subset=["Player"])
 
-    max_mp = new_season["MP"].max()
-    filename = f"fpl_players_new_season_gw{max_mp}.csv"
+    # max_mp = new_season["MP"].max()
+    filename = "fpl_players_new_season.csv"
 
     # Save the final dataframe to a CSV or other format if needed
     fpl_players_new_season.to_csv(

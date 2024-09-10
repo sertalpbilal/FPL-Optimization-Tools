@@ -86,14 +86,14 @@ def calculate_weighted_stats(df, is_for=True, weight_new_data=1.0):
 
 
 def main():
-    weight_new_data = float(input("Enter the weight factor for new data: "))
+    weight_new_data = 1.5
 
     url = "https://fbref.com/en/comps/9/stats/Premier-League-Stats"
     teams_previous_seasons_for = pd.read_csv(
-        "C:/Users/erknud3/fpl-optimization/model/data/team_stats_for.csv"
+        "C:/Users/erknud3/fpl-optimization/model/data/Historic_Data/team_stats_for.csv"
     )
     teams_previous_seasons_against = pd.read_csv(
-        "C:/Users/erknud3/fpl-optimization/model/data/team_stats_against.csv"
+        "C:/Users/erknud3/fpl-optimization/model/data/Historic_Data/team_stats_against.csv"
     )
 
     df_for, df_against = get_team_stats_new_season(url)
@@ -137,23 +137,21 @@ def main():
         new_season_against, is_for=False, weight_new_data=weight_new_data
     )
 
-    max_mp = new_season_for["90s_new"].max().astype(int)
+    # max_mp = new_season_for["90s_new"].max().astype(int)
 
     csv_file_path = "C:/Users/erknud3/fpl-optimization/model/data/New_Season_Data"
 
     if not new_season_for.empty:
-        new_season_for.to_csv(
-            f"{csv_file_path}/teams_new_season_for_gw{max_mp}.csv", index=False
-        )
-        print(f"'For' data successfully saved to teams_new_season_for_gw.csv")
+        new_season_for.to_csv(f"{csv_file_path}/teams_new_season_for.csv", index=False)
+        print(f"'For' data successfully saved to teams_new_season_for.csv")
     else:
         print("No 'for' data to save.")
 
     if not new_season_against.empty:
         new_season_against.to_csv(
-            f"{csv_file_path}/teams_new_season_against_gw{max_mp}.csv", index=False
+            f"{csv_file_path}/teams_new_season_against.csv", index=False
         )
-        print(f"'Against' data successfully saved to teams_new_season_against_gw.csv")
+        print(f"'Against' data successfully saved to teams_new_season_against.csv")
     else:
         print("No 'against' data to save.")
 
