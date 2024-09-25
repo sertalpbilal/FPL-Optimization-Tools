@@ -695,11 +695,11 @@ def solve_multi_period_fpl(data, options):
         for gw in gameweeks:
             gw_games = [i for i in fixtures if i['gw'] == gw]
             if options.get('opposing_play_group', 'all') == 'all':            
-                opposing_players = [(p1,p2) for p1 in players for p2 in players if (player_team[p1], player_team[p2]) in gw_opp_teams]
+                opposing_players = [(p1,p2) for p1 in players for p2 in players if (player_team[p1], player_team[p2]) in gw_opp_teams[gw]]
                 model.add_constraints((lineup[p1,gw] + lineup[p2,gw] <= 1 for (p1,p2) in opposing_players), name=f'no_opp_{gw}')
             elif options.get('opposing_play_group') == 'position':
                 opposing_positions = [(1,3),(1,4),(2,3),(2,4),(3,1),(4,1),(3,2),(4,2)] # gk vs mid, gk vs fwd, def vs mid, def vs fwd
-                opposing_players = [(p1,p2) for p1 in players for p2 in players if (player_team[p1], player_team[p2]) in gw_opp_teams and (player_type[p1], player_type[p2]) in opposing_positions]
+                opposing_players = [(p1,p2) for p1 in players for p2 in players if (player_team[p1], player_team[p2]) in gw_opp_teams[gw] and (player_type[p1], player_type[p2]) in opposing_positions]
                 model.add_constraints((lineup[p1,gw] + lineup[p2,gw] <= 1 for (p1,p2) in opposing_players), name=f'no_opp_{gw}')
     elif options.get('no_opposing_play') == 'penalty':
         print("OC - Penalty Opposing Play")
