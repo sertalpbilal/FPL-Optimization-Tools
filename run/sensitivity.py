@@ -26,6 +26,7 @@ def read_sensitivity(options=None):
 
         for filename in Path(directory).glob("*.csv"):
             plan = pd.read_csv(filename)
+            plan = plan.sort_values(by=["week", "iter", "pos", "id"])
             try:
                 iter = plan.iloc[0]['iter']
             except:
