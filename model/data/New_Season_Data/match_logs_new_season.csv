@@ -1,0 +1,248 @@
+Date,fbref,Season,Day,Comp,Round,Venue,Result,Squad,Opponent,Start,Pos,Min,fpl_id,Player,weighted_npxGI
+2024-08-18,1f44ac21,2024-2025,Sun,Premier League,Matchweek 1,Away,W 2–0,Manchester City,Chelsea,Y,FW,90,351,Erling Haaland,0.93
+2024-08-24,1f44ac21,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–1,Manchester City,Ipswich Town,Y,FW,89,351,Erling Haaland,0.93
+2024-08-31,1f44ac21,2024-2025,Sat,Premier League,Matchweek 3,Away,W 3–1,Manchester City,West Ham,Y,FW,90,351,Erling Haaland,0.93
+2024-08-17,4d77b365,2024-2025,Sat,Premier League,Matchweek 1,Away,W 2–0,Liverpool,Ipswich Town,N,Benched,0,316,Darwin Núñez,0.93
+2024-08-25,4d77b365,2024-2025,Sun,Premier League,Matchweek 2,Home,W 2–0,Liverpool,Brentford,N,FW,19,316,Darwin Núñez,0.93
+2024-09-01,4d77b365,2024-2025,Sun,Premier League,Matchweek 3,Away,W 3–0,Liverpool,Manchester Utd,N,FW,15,316,Darwin Núñez,0.93
+2024-08-17,e342ad68,2024-2025,Sat,Premier League,Matchweek 1,Away,W 2–0,Liverpool,Ipswich Town,Y,RW,90,328,Mohamed Salah,0.8800000000000001
+2024-08-25,e342ad68,2024-2025,Sun,Premier League,Matchweek 2,Home,W 2–0,Liverpool,Brentford,Y,RW,82,328,Mohamed Salah,0.8800000000000001
+2024-09-01,e342ad68,2024-2025,Sun,Premier League,Matchweek 3,Away,W 3–0,Liverpool,Manchester Utd,Y,RW,90,328,Mohamed Salah,0.8800000000000001
+2024-08-18,e46012d4,2024-2025,Sun,Premier League,Matchweek 1,Away,W 2–0,Manchester City,Chelsea,Y*,CM,90,345,Kevin De Bruyne,0.83
+2024-08-24,e46012d4,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–1,Manchester City,Ipswich Town,Y*,"CM,AM",89,345,Kevin De Bruyne,0.83
+2024-08-31,e46012d4,2024-2025,Sat,Premier League,Matchweek 3,Away,W 3–1,Manchester City,West Ham,Y*,CM,87,345,Kevin De Bruyne,0.83
+2024-08-18,dc7f8a28,2024-2025,Sun,Premier League,Matchweek 1,Home,L 0–2,Chelsea,Manchester City,Y,RW,90,182,Cole Palmer,0.78
+2024-08-25,dc7f8a28,2024-2025,Sun,Premier League,Matchweek 2,Away,W 6–2,Chelsea,Wolves,Y,AM,82,182,Cole Palmer,0.78
+2024-09-01,dc7f8a28,2024-2025,Sun,Premier League,Matchweek 3,Home,D 1–1,Chelsea,Crystal Palace,Y,"AM,RM",90,182,Cole Palmer,0.78
+2024-08-17,178ae8f8,2024-2025,Sat,Premier League,Matchweek 1,Away,W 2–0,Liverpool,Ipswich Town,Y,FW,78,317,Diogo Jota,0.76
+2024-08-25,178ae8f8,2024-2025,Sun,Premier League,Matchweek 2,Home,W 2–0,Liverpool,Brentford,Y,FW,71,317,Diogo Jota,0.76
+2024-09-01,178ae8f8,2024-2025,Sun,Premier League,Matchweek 3,Away,W 3–0,Liverpool,Manchester Utd,Y,FW,75,317,Diogo Jota,0.76
+2024-08-17,8450467d,2024-2025,Sat,Premier League,Matchweek 1,Home,L 0–2,Ipswich Town,Liverpool,N,FW,17,260,Ali Al Hamadi,0.71
+2024-08-24,8450467d,2024-2025,Sat,Premier League,Matchweek 2,Away,L 1–4,Ipswich Town,Manchester City,N,FW,8,260,Ali Al Hamadi,0.71
+2024-08-31,8450467d,2024-2025,Sat,Premier League,Matchweek 3,Home,D 1–1,Ipswich Town,Fulham,N,FW,10,260,Ali Al Hamadi,0.71
+2024-08-18,9c36ed83,2024-2025,Sun,Premier League,Matchweek 1,Home,L 0–2,Chelsea,Manchester City,Y,FW,66,180,Nicolas Jackson,0.7000000000000001
+2024-08-25,9c36ed83,2024-2025,Sun,Premier League,Matchweek 2,Away,W 6–2,Chelsea,Wolves,Y,FW,67,180,Nicolas Jackson,0.7000000000000001
+2024-09-01,9c36ed83,2024-2025,Sun,Premier League,Matchweek 3,Home,D 1–1,Chelsea,Crystal Palace,Y,FW,90,180,Nicolas Jackson,0.7000000000000001
+2024-08-17,b66315ae,2024-2025,Sat,Premier League,Matchweek 1,Home,W 2–0,Arsenal,Wolves,N,FW,6,2,Gabriel Jesus,0.69
+2024-08-18,d3d774cc,2024-2025,Sun,Premier League,Matchweek 1,Home,L 0–2,Chelsea,Manchester City,N,FW,24,178,Marc Guiu,0.67
+2024-08-25,d3d774cc,2024-2025,Sun,Premier League,Matchweek 2,Away,W 6–2,Chelsea,Wolves,N,Benched,0,178,Marc Guiu,0.67
+2024-08-17,4a1a9578,2024-2025,Sat,Premier League,Matchweek 1,Away,W 2–0,Liverpool,Ipswich Town,Y,LW,90,327,Luis Díaz,0.64
+2024-08-25,4a1a9578,2024-2025,Sun,Premier League,Matchweek 2,Home,W 2–0,Liverpool,Brentford,Y,LW,71,327,Luis Díaz,0.64
+2024-09-01,4a1a9578,2024-2025,Sun,Premier League,Matchweek 3,Away,W 3–0,Liverpool,Manchester Utd,Y,LW,65,327,Luis Díaz,0.64
+2024-08-24,9cfbad36,2024-2025,Sat,Premier League,Matchweek 2,Home,W 2–1,Brighton,Manchester Utd,N,AM,12,121,Julio Enciso,0.63
+2024-08-31,9cfbad36,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Brighton,Arsenal,N,AM,6,121,Julio Enciso,0.63
+2024-08-17,8e92be30,2024-2025,Sat,Premier League,Matchweek 1,Home,W 1–0,Newcastle Utd,Southampton,Y,FW,90,401,Alexander Isak,0.63
+2024-08-25,8e92be30,2024-2025,Sun,Premier League,Matchweek 2,Away,D 1–1,Newcastle Utd,Bournemouth,Y,FW,90,401,Alexander Isak,0.63
+2024-09-01,8e92be30,2024-2025,Sun,Premier League,Matchweek 3,Home,W 2–1,Newcastle Utd,Tottenham,Y,FW,90,401,Alexander Isak,0.63
+2024-08-19,92e7e919,2024-2025,Mon,Premier League,Matchweek 1,Away,D 1–1,Tottenham,Leicester City,Y*,"LW,LM",89,503,Son Heung-min,0.63
+2024-08-24,92e7e919,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–0,Tottenham,Everton,Y*,"FW,LW",90,503,Son Heung-min,0.63
+2024-09-01,92e7e919,2024-2025,Sun,Premier League,Matchweek 3,Away,L 1–2,Tottenham,Newcastle Utd,Y*,"FW,LW",90,503,Son Heung-min,0.63
+2024-08-17,aed3a70f,2024-2025,Sat,Premier League,Matchweek 1,Away,W 2–1,Aston Villa,West Ham,Y,FW,61,58,Ollie Watkins,0.61
+2024-08-24,aed3a70f,2024-2025,Sat,Premier League,Matchweek 2,Home,L 0–2,Aston Villa,Arsenal,Y,FW,64,58,Ollie Watkins,0.61
+2024-08-31,aed3a70f,2024-2025,Sat,Premier League,Matchweek 3,Away,W 2–1,Aston Villa,Leicester City,Y,FW,60,58,Ollie Watkins,0.61
+2024-08-17,bc7dc64d,2024-2025,Sat,Premier League,Matchweek 1,Home,W 2–0,Arsenal,Wolves,Y,RW,79,17,Bukayo Saka,0.59
+2024-08-24,bc7dc64d,2024-2025,Sat,Premier League,Matchweek 2,Away,W 2–0,Arsenal,Aston Villa,Y,RW,87,17,Bukayo Saka,0.59
+2024-08-31,bc7dc64d,2024-2025,Sat,Premier League,Matchweek 3,Home,D 1–1,Arsenal,Brighton,Y,"RW,CM,RM",90,17,Bukayo Saka,0.59
+2024-08-18,ed1e53f3,2024-2025,Sun,Premier League,Matchweek 1,Away,W 2–0,Manchester City,Chelsea,N,RW,45,348,Phil Foden,0.5800000000000001
+2024-08-16,507c7bdf,2024-2025,Fri,Premier League,Matchweek 1,Home,W 1–0,Manchester Utd,Fulham,Y*,"FW,AM",90,366,Bruno Fernandes,0.58
+2024-08-24,507c7bdf,2024-2025,Sat,Premier League,Matchweek 2,Away,L 1–2,Manchester Utd,Brighton,Y*,"FW,AM",78,366,Bruno Fernandes,0.58
+2024-09-01,507c7bdf,2024-2025,Sun,Premier League,Matchweek 3,Home,L 0–3,Manchester Utd,Liverpool,Y*,"AM,FW",90,366,Bruno Fernandes,0.58
+2024-08-17,48a5a5d6,2024-2025,Sat,Premier League,Matchweek 1,Home,W 2–0,Arsenal,Wolves,Y,"LW,RW",90,9,Gabriel Martinelli,0.5700000000000001
+2024-08-24,48a5a5d6,2024-2025,Sat,Premier League,Matchweek 2,Away,W 2–0,Arsenal,Aston Villa,Y,LW,64,9,Gabriel Martinelli,0.5700000000000001
+2024-08-31,48a5a5d6,2024-2025,Sat,Premier League,Matchweek 3,Home,D 1–1,Arsenal,Brighton,N,CM,17,9,Gabriel Martinelli,0.5700000000000001
+2024-08-18,7c56da38,2024-2025,Sun,Premier League,Matchweek 1,Home,L 0–2,Chelsea,Manchester City,Y,LW,57,181,Christopher Nkunku,0.57
+2024-08-25,7c56da38,2024-2025,Sun,Premier League,Matchweek 2,Away,W 6–2,Chelsea,Wolves,N,"FW,AM",8,181,Christopher Nkunku,0.57
+2024-09-01,7c56da38,2024-2025,Sun,Premier League,Matchweek 3,Home,D 1–1,Chelsea,Crystal Palace,N,RW,5,181,Christopher Nkunku,0.57
+2024-08-19,fa031b34,2024-2025,Mon,Premier League,Matchweek 1,Away,D 1–1,Tottenham,Leicester City,N,LM,1,497,Richarlison,0.56
+2024-08-24,fa031b34,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–0,Tottenham,Everton,N,FW,25,497,Richarlison,0.56
+2024-08-17,1971591f,2024-2025,Sat,Premier League,Matchweek 1,Away,W 2–0,Liverpool,Ipswich Town,N,FW,12,321,Cody Gakpo,0.56
+2024-08-25,1971591f,2024-2025,Sun,Premier League,Matchweek 2,Home,W 2–0,Liverpool,Brentford,N,LW,19,321,Cody Gakpo,0.56
+2024-09-01,1971591f,2024-2025,Sun,Premier League,Matchweek 3,Away,W 3–0,Liverpool,Manchester Utd,N,LW,25,321,Cody Gakpo,0.56
+2024-08-17,3a233281,2024-2025,Sat,Premier League,Matchweek 1,Away,W 2–1,Aston Villa,West Ham,Y,RW,73,28,Leon Bailey,0.55
+2024-08-24,3a233281,2024-2025,Sat,Premier League,Matchweek 2,Home,L 0–2,Aston Villa,Arsenal,Y,RM,90,28,Leon Bailey,0.55
+2024-08-31,3a233281,2024-2025,Sat,Premier League,Matchweek 3,Away,W 2–1,Aston Villa,Leicester City,Y,RM,15,28,Leon Bailey,0.55
+2024-08-17,fed7cb61,2024-2025,Sat,Premier League,Matchweek 1,Home,W 2–0,Arsenal,Wolves,Y,"FW,LM",90,4,Kai Havertz,0.55
+2024-08-24,fed7cb61,2024-2025,Sat,Premier League,Matchweek 2,Away,W 2–0,Arsenal,Aston Villa,Y,FW,90,4,Kai Havertz,0.55
+2024-08-31,fed7cb61,2024-2025,Sat,Premier League,Matchweek 3,Home,D 1–1,Arsenal,Brighton,Y,FW,90,4,Kai Havertz,0.55
+2024-08-17,4e9a0555,2024-2025,Sat,Premier League,Matchweek 1,Home,D 1–1,Nott'ham Forest,Bournemouth,Y,FW,71,447,Chris Wood,0.54
+2024-08-24,4e9a0555,2024-2025,Sat,Premier League,Matchweek 2,Away,W 1–0,Nott'ham Forest,Southampton,Y,FW,75,447,Chris Wood,0.54
+2024-08-31,4e9a0555,2024-2025,Sat,Premier League,Matchweek 3,Home,D 1–1,Nott'ham Forest,Wolves,Y,FW,90,447,Chris Wood,0.54
+2024-08-17,9744ff80,2024-2025,Sat,Premier League,Matchweek 1,Away,L 0–2,Wolves,Arsenal,N,CM,7,565,Pablo Sarabia,0.54
+2024-08-25,9744ff80,2024-2025,Sun,Premier League,Matchweek 2,Home,L 2–6,Wolves,Chelsea,N,RW,23,565,Pablo Sarabia,0.54
+2024-08-31,9744ff80,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Wolves,Nott'ham Forest,N,Benched,0,565,Pablo Sarabia,0.54
+2024-08-16,7aa8adfe,2024-2025,Fri,Premier League,Matchweek 1,Home,W 1–0,Manchester Utd,Fulham,N,RW,30,372,Alejandro Garnacho,0.54
+2024-08-24,7aa8adfe,2024-2025,Sat,Premier League,Matchweek 2,Away,L 1–2,Manchester Utd,Brighton,N,LW,26,372,Alejandro Garnacho,0.54
+2024-09-01,7aa8adfe,2024-2025,Sun,Premier League,Matchweek 3,Home,L 0–3,Manchester Utd,Liverpool,Y,RW,68,372,Alejandro Garnacho,0.54
+2024-08-19,49fe9070,2024-2025,Mon,Premier League,Matchweek 1,Away,D 1–1,Tottenham,Leicester City,N,RM,13,509,Timo Werner,0.53
+2024-08-24,49fe9070,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–0,Tottenham,Everton,N,Benched,0,509,Timo Werner,0.53
+2024-09-01,49fe9070,2024-2025,Sun,Premier League,Matchweek 3,Away,L 1–2,Tottenham,Newcastle Utd,N,LW,17,509,Timo Werner,0.53
+2024-08-17,c3cf087d,2024-2025,Sat,Premier League,Matchweek 1,Away,W 3–0,Brighton,Everton,Y,RW,44,135,Yankuba Minteh,0.53
+2024-08-24,c3cf087d,2024-2025,Sat,Premier League,Matchweek 2,Home,W 2–1,Brighton,Manchester Utd,Y,RW,89,135,Yankuba Minteh,0.53
+2024-08-31,c3cf087d,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Brighton,Arsenal,Y,RW,71,135,Yankuba Minteh,0.53
+2024-08-19,ee38d9c5,2024-2025,Mon,Premier League,Matchweek 1,Away,D 1–1,Tottenham,Leicester City,Y,LM,78,494,James Maddison,0.53
+2024-08-24,ee38d9c5,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–0,Tottenham,Everton,Y,LM,78,494,James Maddison,0.53
+2024-09-01,ee38d9c5,2024-2025,Sun,Premier League,Matchweek 3,Away,L 1–2,Tottenham,Newcastle Utd,Y,"AM,LM",81,494,James Maddison,0.53
+2024-08-17,59e6e5bf,2024-2025,Sat,Premier League,Matchweek 1,Home,L 0–3,Everton,Brighton,Y,FW,75,220,Dominic Calvert-Lewin,0.53
+2024-08-24,59e6e5bf,2024-2025,Sat,Premier League,Matchweek 2,Away,L 0–4,Everton,Tottenham,Y,FW,71,220,Dominic Calvert-Lewin,0.53
+2024-08-31,59e6e5bf,2024-2025,Sat,Premier League,Matchweek 3,Home,L 2–3,Everton,Bournemouth,Y,FW,87,220,Dominic Calvert-Lewin,0.53
+2024-08-18,6afaebf2,2024-2025,Sun,Premier League,Matchweek 1,Home,W 2–1,Brentford,Crystal Palace,Y,"RW,FW",89,99,Bryan Mbeumo,0.52
+2024-08-25,6afaebf2,2024-2025,Sun,Premier League,Matchweek 2,Away,L 0–2,Brentford,Liverpool,Y,FW,90,99,Bryan Mbeumo,0.52
+2024-08-31,6afaebf2,2024-2025,Sat,Premier League,Matchweek 3,Home,W 3–1,Brentford,Southampton,Y,"RW,LW",90,99,Bryan Mbeumo,0.52
+2024-08-17,74618572,2024-2025,Sat,Premier League,Matchweek 1,Away,W 3–0,Brighton,Everton,Y,LW,88,136,Kaoru Mitoma,0.51
+2024-08-24,74618572,2024-2025,Sat,Premier League,Matchweek 2,Home,W 2–1,Brighton,Manchester Utd,Y,LW,89,136,Kaoru Mitoma,0.51
+2024-08-31,74618572,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Brighton,Arsenal,Y,LW,84,136,Kaoru Mitoma,0.51
+2024-08-25,8aafd64f,2024-2025,Sun,Premier League,Matchweek 2,Away,W 6–2,Chelsea,Wolves,N,"RM,FW",23,621,João Félix,0.51
+2024-09-01,8aafd64f,2024-2025,Sun,Premier League,Matchweek 3,Home,D 1–1,Chelsea,Crystal Palace,N,"LM,LW",33,621,João Félix,0.51
+2024-08-17,414184f7,2024-2025,Sat,Premier League,Matchweek 1,Away,W 2–1,Aston Villa,West Ham,N,FW,29,38,Jhon Durán,0.51
+2024-08-24,414184f7,2024-2025,Sat,Premier League,Matchweek 2,Home,L 0–2,Aston Villa,Arsenal,N,FW,26,38,Jhon Durán,0.51
+2024-08-31,414184f7,2024-2025,Sat,Premier League,Matchweek 3,Away,W 2–1,Aston Villa,Leicester City,N,FW,30,38,Jhon Durán,0.51
+2024-08-17,3ea50f67,2024-2025,Sat,Premier League,Matchweek 1,Home,W 1–0,Newcastle Utd,Southampton,N,LW,21,392,Harvey Barnes,0.51
+2024-08-25,3ea50f67,2024-2025,Sun,Premier League,Matchweek 2,Away,D 1–1,Newcastle Utd,Bournemouth,N,LW,33,392,Harvey Barnes,0.51
+2024-09-01,3ea50f67,2024-2025,Sun,Premier League,Matchweek 3,Home,W 2–1,Newcastle Utd,Tottenham,Y,LW,60,392,Harvey Barnes,0.51
+2024-08-17,ce5143da,2024-2025,Sat,Premier League,Matchweek 1,Away,W 3–0,Brighton,Everton,Y,FW,90,148,Danny Welbeck,0.51
+2024-08-24,ce5143da,2024-2025,Sat,Premier League,Matchweek 2,Home,W 2–1,Brighton,Manchester Utd,Y,FW,78,148,Danny Welbeck,0.51
+2024-08-31,ce5143da,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Brighton,Arsenal,Y,FW,84,148,Danny Welbeck,0.51
+2024-08-18,2500cef9,2024-2025,Sun,Premier League,Matchweek 1,Home,W 2–1,Brentford,Crystal Palace,Y,FW,83,110,Yoane Wissa,0.51
+2024-08-25,2500cef9,2024-2025,Sun,Premier League,Matchweek 2,Away,L 0–2,Brentford,Liverpool,Y,FW,72,110,Yoane Wissa,0.51
+2024-08-31,2500cef9,2024-2025,Sat,Premier League,Matchweek 3,Home,W 3–1,Brentford,Southampton,Y,FW,90,110,Yoane Wissa,0.51
+2024-08-17,38ceb24a,2024-2025,Sat,Premier League,Matchweek 1,Home,W 2–0,Arsenal,Wolves,N,LW,11,23,Leandro Trossard,0.5
+2024-08-24,38ceb24a,2024-2025,Sat,Premier League,Matchweek 2,Away,W 2–0,Arsenal,Aston Villa,N,LW,26,23,Leandro Trossard,0.5
+2024-08-31,38ceb24a,2024-2025,Sat,Premier League,Matchweek 3,Home,D 1–1,Arsenal,Brighton,Y,"LW,LM",58,23,Leandro Trossard,0.5
+2024-08-17,e5478b87,2024-2025,Sat,Premier League,Matchweek 1,Home,D 1–1,Nott'ham Forest,Bournemouth,N,FW,19,424,Taiwo Awoniyi,0.5
+2024-08-24,e5478b87,2024-2025,Sat,Premier League,Matchweek 2,Away,W 1–0,Nott'ham Forest,Southampton,N,FW,15,424,Taiwo Awoniyi,0.5
+2024-08-31,e5478b87,2024-2025,Sat,Premier League,Matchweek 3,Home,D 1–1,Nott'ham Forest,Wolves,N,DM,1,424,Taiwo Awoniyi,0.5
+2024-08-16,a755db8c,2024-2025,Fri,Premier League,Matchweek 1,Away,L 0–1,Fulham,Manchester Utd,Y,FW,77,251,Rodrigo Muniz,0.5
+2024-08-24,a755db8c,2024-2025,Sat,Premier League,Matchweek 2,Home,W 2–1,Fulham,Leicester City,Y,FW,79,251,Rodrigo Muniz,0.5
+2024-08-31,a755db8c,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Fulham,Ipswich Town,Y,FW,78,251,Rodrigo Muniz,0.5
+2024-08-18,50e6dc35,2024-2025,Sun,Premier League,Matchweek 1,Away,L 1–2,Crystal Palace,Brentford,Y,FW,45,207,Jean-Philippe Mateta,0.49
+2024-08-24,50e6dc35,2024-2025,Sat,Premier League,Matchweek 2,Home,L 0–2,Crystal Palace,West Ham,Y,FW,90,207,Jean-Philippe Mateta,0.49
+2024-09-01,50e6dc35,2024-2025,Sun,Premier League,Matchweek 3,Away,D 1–1,Crystal Palace,Chelsea,Y,FW,68,207,Jean-Philippe Mateta,0.49
+2024-08-18,b0b4fd3e,2024-2025,Sun,Premier League,Matchweek 1,Away,W 2–0,Manchester City,Chelsea,N,Benched,0,349,Jack Grealish,0.49
+2024-08-24,b0b4fd3e,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–1,Manchester City,Ipswich Town,N,LW,20,349,Jack Grealish,0.49
+2024-08-31,b0b4fd3e,2024-2025,Sat,Premier League,Matchweek 3,Away,W 3–1,Manchester City,West Ham,Y,LW,71,349,Jack Grealish,0.49
+2024-08-17,79c84d1c,2024-2025,Sat,Premier League,Matchweek 1,Home,L 1–2,West Ham,Aston Villa,Y*,RM,72,514,Jarrod Bowen,0.49
+2024-08-24,79c84d1c,2024-2025,Sat,Premier League,Matchweek 2,Away,W 2–0,West Ham,Crystal Palace,Y*,RM,90,514,Jarrod Bowen,0.49
+2024-08-31,79c84d1c,2024-2025,Sat,Premier League,Matchweek 3,Home,L 1–3,West Ham,Manchester City,Y*,RW,85,514,Jarrod Bowen,0.49
+2024-08-17,ed5c0319,2024-2025,Sat,Premier League,Matchweek 1,Home,L 0–3,Everton,Brighton,N,FW,15,218,Beto,0.49
+2024-08-24,ed5c0319,2024-2025,Sat,Premier League,Matchweek 2,Away,L 0–4,Everton,Tottenham,N,FW,19,218,Beto,0.49
+2024-08-31,ed5c0319,2024-2025,Sat,Premier League,Matchweek 3,Home,L 2–3,Everton,Bournemouth,N,FW,3,218,Beto,0.49
+2024-08-18,ae4fc6a4,2024-2025,Sun,Premier League,Matchweek 1,Away,L 1–2,Crystal Palace,Brentford,Y,"AM,LM",90,199,Eberechi Eze,0.48
+2024-08-24,ae4fc6a4,2024-2025,Sat,Premier League,Matchweek 2,Home,L 0–2,Crystal Palace,West Ham,Y,AM,90,199,Eberechi Eze,0.48
+2024-09-01,ae4fc6a4,2024-2025,Sun,Premier League,Matchweek 3,Away,D 1–1,Crystal Palace,Chelsea,Y,AM,90,199,Eberechi Eze,0.48
+2024-08-17,2fba6108,2024-2025,Sat,Premier League,Matchweek 1,Home,D 1–1,Nott'ham Forest,Bournemouth,Y,RW,53,432,Anthony Elanga,0.47
+2024-08-24,2fba6108,2024-2025,Sat,Premier League,Matchweek 2,Away,W 1–0,Nott'ham Forest,Southampton,Y,"RW,LM",90,432,Anthony Elanga,0.47
+2024-08-31,2fba6108,2024-2025,Sat,Premier League,Matchweek 3,Home,D 1–1,Nott'ham Forest,Wolves,Y,RW,89,432,Anthony Elanga,0.47
+2024-08-17,de112b84,2024-2025,Sat,Premier League,Matchweek 1,Home,W 1–0,Newcastle Utd,Southampton,Y,RW,29,402,Jacob Murphy,0.47
+2024-08-25,de112b84,2024-2025,Sun,Premier League,Matchweek 2,Away,D 1–1,Newcastle Utd,Bournemouth,Y,RW,57,402,Jacob Murphy,0.47
+2024-09-01,de112b84,2024-2025,Sun,Premier League,Matchweek 3,Home,W 2–1,Newcastle Utd,Tottenham,N,RW,30,402,Jacob Murphy,0.47
+2024-08-18,049a888d,2024-2025,Sun,Premier League,Matchweek 1,Home,L 0–2,Chelsea,Manchester City,N,Benched,0,179,Mykhailo Mudryk,0.47
+2024-08-25,049a888d,2024-2025,Sun,Premier League,Matchweek 2,Away,W 6–2,Chelsea,Wolves,Y,LW,45,179,Mykhailo Mudryk,0.47
+2024-09-01,049a888d,2024-2025,Sun,Premier League,Matchweek 3,Home,D 1–1,Chelsea,Crystal Palace,N,LW,17,179,Mykhailo Mudryk,0.47
+2024-08-19,e77dc3b2,2024-2025,Mon,Premier League,Matchweek 1,Away,D 1–1,Tottenham,Leicester City,Y,FW,90,82,Dominic Solanke,0.47
+2024-08-17,2bd83368,2024-2025,Sat,Premier League,Matchweek 1,Home,W 1–0,Newcastle Utd,Southampton,Y,LW,69,398,Anthony Gordon,0.47
+2024-08-25,2bd83368,2024-2025,Sun,Premier League,Matchweek 2,Away,D 1–1,Newcastle Utd,Bournemouth,Y,"LW,RW",88,398,Anthony Gordon,0.47
+2024-09-01,2bd83368,2024-2025,Sun,Premier League,Matchweek 3,Home,W 2–1,Newcastle Utd,Tottenham,Y,"RW,LW",89,398,Anthony Gordon,0.47
+2024-08-17,c5bdb6e3,2024-2025,Sat,Premier League,Matchweek 1,Home,W 2–0,Arsenal,Wolves,N,Benched,0,10,Reiss Nelson,0.46
+2024-08-24,c5bdb6e3,2024-2025,Sat,Premier League,Matchweek 2,Away,W 2–0,Arsenal,Aston Villa,N,RW,3,10,Reiss Nelson,0.46
+2024-08-17,79300479,2024-2025,Sat,Premier League,Matchweek 1,Home,W 2–0,Arsenal,Wolves,Y*,RM,90,13,Martin Ødegaard,0.45999999999999996
+2024-08-24,79300479,2024-2025,Sat,Premier League,Matchweek 2,Away,W 2–0,Arsenal,Aston Villa,Y*,RM,90,13,Martin Ødegaard,0.45999999999999996
+2024-08-31,79300479,2024-2025,Sat,Premier League,Matchweek 3,Home,D 1–1,Arsenal,Brighton,Y*,"RM,CM",73,13,Martin Ødegaard,0.45999999999999996
+2024-08-19,0cd31129,2024-2025,Mon,Premier League,Matchweek 1,Away,D 1–1,Tottenham,Leicester City,Y,RW,77,491,Brennan Johnson,0.45
+2024-08-24,0cd31129,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–0,Tottenham,Everton,Y,RW,90,491,Brennan Johnson,0.45
+2024-09-01,0cd31129,2024-2025,Sun,Premier League,Matchweek 3,Away,L 1–2,Tottenham,Newcastle Utd,N,RW,45,491,Brennan Johnson,0.45
+2024-08-17,dc62b55d,2024-2025,Sat,Premier League,Matchweek 1,Away,L 0–2,Wolves,Arsenal,N,FW,34,541,Matheus Cunha,0.45
+2024-08-25,dc62b55d,2024-2025,Sun,Premier League,Matchweek 2,Home,L 2–6,Wolves,Chelsea,Y,AM,67,541,Matheus Cunha,0.45
+2024-08-31,dc62b55d,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Wolves,Nott'ham Forest,Y,FW,90,541,Matheus Cunha,0.45
+2024-08-16,a1d5bd30,2024-2025,Fri,Premier League,Matchweek 1,Home,W 1–0,Manchester Utd,Fulham,Y,LW,90,385,Marcus Rashford,0.45
+2024-08-24,a1d5bd30,2024-2025,Sat,Premier League,Matchweek 2,Away,L 1–2,Manchester Utd,Brighton,Y,"LW,FW",64,385,Marcus Rashford,0.45
+2024-09-01,a1d5bd30,2024-2025,Sun,Premier League,Matchweek 3,Home,L 0–3,Manchester Utd,Liverpool,Y,LW,90,385,Marcus Rashford,0.45
+2024-08-16,17695062,2024-2025,Fri,Premier League,Matchweek 1,Away,L 0–1,Fulham,Manchester Utd,Y,AM,63,19,Emile Smith Rowe,0.44999999999999996
+2024-08-24,17695062,2024-2025,Sat,Premier League,Matchweek 2,Home,W 2–1,Fulham,Leicester City,Y,AM,68,19,Emile Smith Rowe,0.44999999999999996
+2024-08-31,17695062,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Fulham,Ipswich Town,Y,LM,71,19,Emile Smith Rowe,0.44999999999999996
+2024-08-17,07802f7f,2024-2025,Sat,Premier League,Matchweek 1,Home,L 1–2,West Ham,Aston Villa,N,FW,6,523,Danny Ings,0.44999999999999996
+2024-08-24,07802f7f,2024-2025,Sat,Premier League,Matchweek 2,Away,W 2–0,West Ham,Crystal Palace,N,Benched,0,523,Danny Ings,0.44999999999999996
+2024-08-17,8e16dd48,2024-2025,Sat,Premier League,Matchweek 1,Away,D 1–1,Bournemouth,Nott'ham Forest,Y,"FW,LW",63,80,Luis Sinisterra,0.44000000000000006
+2024-08-25,8e16dd48,2024-2025,Sun,Premier League,Matchweek 2,Home,D 1–1,Bournemouth,Newcastle Utd,N,"FW,AM",19,80,Luis Sinisterra,0.44000000000000006
+2024-08-31,8e16dd48,2024-2025,Sat,Premier League,Matchweek 3,Away,W 3–2,Bournemouth,Everton,N,LW,26,80,Luis Sinisterra,0.44000000000000006
+2024-08-17,cd1acf9d,2024-2025,Sat,Premier League,Matchweek 1,Away,W 2–0,Liverpool,Ipswich Town,Y,RB,76,311,Trent Alexander-Arnold,0.42000000000000004
+2024-08-25,cd1acf9d,2024-2025,Sun,Premier League,Matchweek 2,Home,W 2–0,Liverpool,Brentford,Y,RB,71,311,Trent Alexander-Arnold,0.42000000000000004
+2024-09-01,cd1acf9d,2024-2025,Sun,Premier League,Matchweek 3,Away,W 3–0,Liverpool,Manchester Utd,Y,RB,75,311,Trent Alexander-Arnold,0.42000000000000004
+2024-08-18,fffea3e5,2024-2025,Sun,Premier League,Matchweek 1,Away,W 2–0,Manchester City,Chelsea,Y,"LW,RW",90,346,Jeremy Doku,0.42000000000000004
+2024-08-24,fffea3e5,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–1,Manchester City,Ipswich Town,Y,LW,70,346,Jeremy Doku,0.42000000000000004
+2024-08-31,fffea3e5,2024-2025,Sat,Premier League,Matchweek 3,Away,W 3–1,Manchester City,West Ham,Y,RW,67,346,Jeremy Doku,0.42000000000000004
+2024-08-19,45963054,2024-2025,Mon,Premier League,Matchweek 1,Home,D 1–1,Leicester City,Tottenham,Y*,FW,78,306,Jamie Vardy,0.42
+2024-08-24,45963054,2024-2025,Sat,Premier League,Matchweek 2,Away,L 1–2,Leicester City,Fulham,Y*,FW,70,306,Jamie Vardy,0.42
+2024-08-31,45963054,2024-2025,Sat,Premier League,Matchweek 3,Home,L 1–2,Leicester City,Aston Villa,Y*,FW,90,306,Jamie Vardy,0.42
+2024-08-17,ac05f970,2024-2025,Sat,Premier League,Matchweek 1,Home,L 1–2,West Ham,Aston Villa,Y,FW,72,512,Michail Antonio,0.41000000000000003
+2024-08-24,ac05f970,2024-2025,Sat,Premier League,Matchweek 2,Away,W 2–0,West Ham,Crystal Palace,Y,FW,61,512,Michail Antonio,0.41000000000000003
+2024-08-31,ac05f970,2024-2025,Sat,Premier League,Matchweek 3,Home,L 1–3,West Ham,Manchester City,Y,FW,70,512,Michail Antonio,0.41000000000000003
+2024-08-18,7ba2eaa9,2024-2025,Sun,Premier League,Matchweek 1,Home,L 0–2,Chelsea,Manchester City,N,LW,33,560,Pedro Neto,0.41000000000000003
+2024-08-25,7ba2eaa9,2024-2025,Sun,Premier League,Matchweek 2,Away,W 6–2,Chelsea,Wolves,N,LW,45,560,Pedro Neto,0.41000000000000003
+2024-09-01,7ba2eaa9,2024-2025,Sun,Premier League,Matchweek 3,Home,D 1–1,Chelsea,Crystal Palace,Y,LW,57,560,Pedro Neto,0.41000000000000003
+2024-08-18,bf34eebd,2024-2025,Sun,Premier League,Matchweek 1,Home,L 0–2,Chelsea,Manchester City,N,Benched,0,177,Noni Madueke,0.41000000000000003
+2024-08-25,bf34eebd,2024-2025,Sun,Premier League,Matchweek 2,Away,W 6–2,Chelsea,Wolves,Y,RW,90,177,Noni Madueke,0.41000000000000003
+2024-09-01,bf34eebd,2024-2025,Sun,Premier League,Matchweek 3,Home,D 1–1,Chelsea,Crystal Palace,Y,RW,85,177,Noni Madueke,0.41000000000000003
+2024-08-16,99127249,2024-2025,Fri,Premier League,Matchweek 1,Home,W 1–0,Manchester Utd,Fulham,N,Benched,0,365,Antony,0.41000000000000003
+2024-08-24,99127249,2024-2025,Sat,Premier League,Matchweek 2,Away,L 1–2,Manchester Utd,Brighton,N,RW,1,365,Antony,0.41000000000000003
+2024-09-01,99127249,2024-2025,Sun,Premier League,Matchweek 3,Home,L 0–3,Manchester Utd,Liverpool,N,Benched,0,365,Antony,0.41000000000000003
+2024-08-17,934e1968,2024-2025,Sat,Premier League,Matchweek 1,Away,W 2–0,Liverpool,Ipswich Town,Y,AM,90,336,Dominik Szoboszlai,0.4
+2024-08-25,934e1968,2024-2025,Sun,Premier League,Matchweek 2,Home,W 2–0,Liverpool,Brentford,Y,AM,90,336,Dominik Szoboszlai,0.4
+2024-09-01,934e1968,2024-2025,Sun,Premier League,Matchweek 3,Away,W 3–0,Liverpool,Manchester Utd,Y,AM,90,336,Dominik Szoboszlai,0.4
+2024-08-16,9a28eba4,2024-2025,Fri,Premier League,Matchweek 1,Away,L 0–1,Fulham,Manchester Utd,Y,RW,77,239,Adama Traoré,0.4
+2024-08-24,9a28eba4,2024-2025,Sat,Premier League,Matchweek 2,Home,W 2–1,Fulham,Leicester City,Y,RW,68,239,Adama Traoré,0.4
+2024-08-31,9a28eba4,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Fulham,Ipswich Town,Y,"RW,LW",90,239,Adama Traoré,0.4
+2024-08-24,819b3158,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–1,Manchester City,Ipswich Town,N,DM,20,625,İlkay Gündoğan,0.4
+2024-08-31,819b3158,2024-2025,Sat,Premier League,Matchweek 3,Away,W 3–1,Manchester City,West Ham,N,"CM,AM",23,625,İlkay Gündoğan,0.4
+2024-08-16,6639e500,2024-2025,Fri,Premier League,Matchweek 1,Away,L 0–1,Fulham,Manchester Utd,Y,"DM,AM",89,240,Andreas Pereira,0.39
+2024-08-24,6639e500,2024-2025,Sat,Premier League,Matchweek 2,Home,W 2–1,Fulham,Leicester City,Y,DM,85,240,Andreas Pereira,0.39
+2024-08-31,6639e500,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Fulham,Ipswich Town,Y,"RM,AM",86,240,Andreas Pereira,0.39
+2024-08-17,32f60ed8,2024-2025,Sat,Premier League,Matchweek 1,Home,D 1–1,Nott'ham Forest,Bournemouth,Y*,AM,90,433,Morgan Gibbs-White,0.39
+2024-08-24,32f60ed8,2024-2025,Sat,Premier League,Matchweek 2,Away,W 1–0,Nott'ham Forest,Southampton,Y*,AM,89,433,Morgan Gibbs-White,0.39
+2024-08-31,32f60ed8,2024-2025,Sat,Premier League,Matchweek 3,Home,D 1–1,Nott'ham Forest,Wolves,Y*,AM,90,433,Morgan Gibbs-White,0.39
+2024-08-16,b561db50,2024-2025,Fri,Premier League,Matchweek 1,Away,L 0–1,Fulham,Manchester Utd,N,FW,13,252,Raúl Jiménez,0.39
+2024-08-24,b561db50,2024-2025,Sat,Premier League,Matchweek 2,Home,W 2–1,Fulham,Leicester City,N,FW,11,252,Raúl Jiménez,0.39
+2024-08-31,b561db50,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Fulham,Ipswich Town,N,FW,12,252,Raúl Jiménez,0.39
+2024-08-17,2f9e4435,2024-2025,Sat,Premier League,Matchweek 1,Away,D 1–1,Bournemouth,Nott'ham Forest,Y,RW,68,74,Dango Ouattara,0.38
+2024-08-25,2f9e4435,2024-2025,Sun,Premier League,Matchweek 2,Home,D 1–1,Bournemouth,Newcastle Utd,N,LW,19,74,Dango Ouattara,0.38
+2024-08-31,2f9e4435,2024-2025,Sat,Premier League,Matchweek 3,Away,W 3–2,Bournemouth,Everton,N,LB,25,74,Dango Ouattara,0.38
+2024-08-19,df3cda47,2024-2025,Mon,Premier League,Matchweek 1,Away,D 1–1,Tottenham,Leicester City,N,CM,12,492,Dejan Kulusevski,0.37
+2024-08-24,df3cda47,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–0,Tottenham,Everton,Y,RM,66,492,Dejan Kulusevski,0.37
+2024-09-01,df3cda47,2024-2025,Sun,Premier League,Matchweek 3,Away,L 1–2,Tottenham,Newcastle Utd,Y,"RM,FW",90,492,Dejan Kulusevski,0.37
+2024-08-17,e8832875,2024-2025,Sat,Premier League,Matchweek 1,Away,W 3–0,Brighton,Everton,Y,AM,81,129,João Pedro,0.37
+2024-08-24,e8832875,2024-2025,Sat,Premier League,Matchweek 2,Home,W 2–1,Brighton,Manchester Utd,Y,"AM,FW",90,129,João Pedro,0.37
+2024-08-31,e8832875,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Brighton,Arsenal,Y,"AM,FW",90,129,João Pedro,0.37
+2024-08-18,0562b7f1,2024-2025,Sun,Premier League,Matchweek 1,Away,L 1–2,Crystal Palace,Brentford,N,"FW,AM",45,198,Odsonne Édouard,0.37
+2024-08-24,0562b7f1,2024-2025,Sat,Premier League,Matchweek 2,Home,L 0–2,Crystal Palace,West Ham,Y,AM,70,198,Odsonne Édouard,0.37
+2024-08-17,05e8ca6d,2024-2025,Sat,Premier League,Matchweek 1,Away,L 0–1,Southampton,Newcastle Utd,N,FW,20,27,Cameron Archer,0.37
+2024-08-24,05e8ca6d,2024-2025,Sat,Premier League,Matchweek 2,Home,L 0–1,Southampton,Nott'ham Forest,N,FW,19,27,Cameron Archer,0.37
+2024-08-31,05e8ca6d,2024-2025,Sat,Premier League,Matchweek 3,Away,L 1–3,Southampton,Brentford,N,FW,45,27,Cameron Archer,0.37
+2024-08-17,a3b03921,2024-2025,Sat,Premier League,Matchweek 1,Home,W 1–0,Newcastle Utd,Southampton,N,Benched,0,420,Joe Willock,0.37
+2024-08-25,a3b03921,2024-2025,Sun,Premier League,Matchweek 2,Away,D 1–1,Newcastle Utd,Bournemouth,N,RM,21,420,Joe Willock,0.37
+2024-08-17,169fd162,2024-2025,Sat,Premier League,Matchweek 1,Away,L 0–2,Wolves,Arsenal,Y,"RW,RM,FW,LM",90,550,Hwang Hee-chan,0.36
+2024-08-25,169fd162,2024-2025,Sun,Premier League,Matchweek 2,Home,L 2–6,Wolves,Chelsea,Y,RW,58,550,Hwang Hee-chan,0.36
+2024-08-31,169fd162,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Wolves,Nott'ham Forest,N,LM,31,550,Hwang Hee-chan,0.36
+2024-08-17,37dc1a48,2024-2025,Sat,Premier League,Matchweek 1,Home,L 0–3,Everton,Brighton,N,Benched,0,577,Jesper Lindstrøm,0.36
+2024-08-24,37dc1a48,2024-2025,Sat,Premier League,Matchweek 2,Away,L 0–4,Everton,Tottenham,N,RW,34,577,Jesper Lindstrøm,0.36
+2024-08-31,37dc1a48,2024-2025,Sat,Premier League,Matchweek 3,Home,L 2–3,Everton,Bournemouth,N,Benched,0,577,Jesper Lindstrøm,0.36
+2024-08-18,3eb22ec9,2024-2025,Sun,Premier League,Matchweek 1,Away,W 2–0,Manchester City,Chelsea,Y,CM,90,342,Bernardo Silva,0.36
+2024-08-24,3eb22ec9,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–1,Manchester City,Ipswich Town,Y,"CM,RW",90,342,Bernardo Silva,0.36
+2024-08-31,3eb22ec9,2024-2025,Sat,Premier League,Matchweek 3,Away,W 3–1,Manchester City,West Ham,Y,"CM,RW",90,342,Bernardo Silva,0.36
+2024-08-18,52afb588,2024-2025,Sun,Premier League,Matchweek 1,Home,W 2–1,Brentford,Crystal Palace,Y,LW,73,106,Kevin Schade,0.36
+2024-08-25,52afb588,2024-2025,Sun,Premier League,Matchweek 2,Away,L 0–2,Brentford,Liverpool,N,FW,18,106,Kevin Schade,0.36
+2024-08-31,52afb588,2024-2025,Sat,Premier League,Matchweek 3,Home,W 3–1,Brentford,Southampton,Y,LW,74,106,Kevin Schade,0.36
+2024-08-17,4c3a6744,2024-2025,Sat,Premier League,Matchweek 1,Away,D 1–1,Bournemouth,Nott'ham Forest,N,"LW,FW",27,71,Justin Kluivert,0.36
+2024-08-25,4c3a6744,2024-2025,Sun,Premier League,Matchweek 2,Home,D 1–1,Bournemouth,Newcastle Utd,Y,AM,71,71,Justin Kluivert,0.36
+2024-08-31,4c3a6744,2024-2025,Sat,Premier League,Matchweek 3,Away,W 3–2,Bournemouth,Everton,Y,"AM,FW",90,71,Justin Kluivert,0.36
+2024-08-17,03edb878,2024-2025,Sat,Premier League,Matchweek 1,Away,D 1–1,Bournemouth,Nott'ham Forest,N,FW,22,69,Daniel Jebbison,0.36
+2024-08-25,03edb878,2024-2025,Sun,Premier League,Matchweek 2,Home,D 1–1,Bournemouth,Newcastle Utd,N,FW,6,69,Daniel Jebbison,0.36
+2024-09-01,03edb878,2024-2025,Sun,Championship,Matchweek 4,Away,L 0–1,Watford,Sheffield Utd,N,FW,22,69,Daniel Jebbison,0.36
+2024-08-17,fc15fb84,2024-2025,Sat,Premier League,Matchweek 1,Home,L 0–3,Everton,Brighton,Y,"LW,RB,RW",90,230,Dwight McNeil,0.35
+2024-08-24,fc15fb84,2024-2025,Sat,Premier League,Matchweek 2,Away,L 0–4,Everton,Tottenham,Y,"LW,AM",90,230,Dwight McNeil,0.35
+2024-08-31,fc15fb84,2024-2025,Sat,Premier League,Matchweek 3,Home,L 2–3,Everton,Bournemouth,Y,"AM,LW",90,230,Dwight McNeil,0.35
+2024-08-18,fe6e7156,2024-2025,Sun,Premier League,Matchweek 1,Away,W 2–0,Manchester City,Chelsea,Y,"RW,LW",45,571,Sávio,0.35
+2024-08-24,fe6e7156,2024-2025,Sat,Premier League,Matchweek 2,Home,W 4–1,Manchester City,Ipswich Town,Y,RW,70,571,Sávio,0.35
+2024-08-17,4dcec659,2024-2025,Sat,Premier League,Matchweek 1,Away,W 3–0,Brighton,Everton,N,RW,46,113,Simon Adingra,0.35
+2024-08-24,4dcec659,2024-2025,Sat,Premier League,Matchweek 2,Home,W 2–1,Brighton,Manchester Utd,N,LW,1,113,Simon Adingra,0.35
+2024-08-31,4dcec659,2024-2025,Sat,Premier League,Matchweek 3,Away,D 1–1,Brighton,Arsenal,N,LW,6,113,Simon Adingra,0.35
+2024-08-17,7fcc71d8,2024-2025,Sat,Premier League,Matchweek 1,Away,L 0–2,Wolves,Arsenal,N,RM,16,562,Daniel Podence,0.33999999999999997
+2024-08-25,7fcc71d8,2024-2025,Sun,Premier League,Matchweek 2,Home,L 2–6,Wolves,Chelsea,N,"AM,RW",32,562,Daniel Podence,0.33999999999999997

@@ -14,7 +14,7 @@ fpl_id,Player,team_id,team_name,npxG,pen_share
 503,Son Heung-min,18,Spurs,0.34,0.9
 17,Bukayo Saka,1,Arsenal,0.29,0.9
 366,Bruno Fernandes,14,Man Utd,0.2,0.8
-433,Morgan Gibbs-White,16,Nott'm Forest,0.16,0.8
+433,Morgan Gibbs-White,16,Nott'm Forest,0.16,0.3
 240,Andreas Pereira,9,Fulham,0.18,0.75
 527,Lucas Paquetá,19,West Ham,0.15,0.7
 57,Youri Tielemans,2,Aston Villa,0.06,0.7
@@ -26,14 +26,13 @@ fpl_id,Player,team_id,team_name,npxG,pen_share
 58,Ollie Watkins,2,Aston Villa,0.44,0.3
 298,Stephy Mavididi,11,Leicester,0.14,0.3
 385,Marcus Rashford,14,Man Utd,0.33,0.25
-447,Chris Wood,16,Nott'm Forest,0.43,0.25
+447,Chris Wood,16,Nott'm Forest,0.43,0.85
 207,Jean-Philippe Mateta,7,Crystal Palace,0.38,0.2
 123,Evan Ferguson,5,Brighton,0.37,0.2
 148,Danny Welbeck,5,Brighton,0.36,0.2
 27,Cameron Archer,17,Southampton,0.24,0.2
 584,Ben Brereton,17,Southampton,0.23,0.2
 13,Martin Ødegaard,1,Arsenal,0.21,0.15
-192,Jordan Ayew,11,Leicester,0.13,0.13
 192,Jordan Ayew,11,Leicester,0.13,0.13
 110,Yoane Wissa,4,Brentford,0.35,0.1
 251,Rodrigo Muniz,9,Fulham,0.4,0.1
@@ -238,7 +237,7 @@ fpl_id,Player,team_id,team_name,npxG,pen_share
 456,Armel Bella Kotchap,17,Southampton,0.05,0
 449,Ryan Yates,16,Nott'm Forest,0.11,0
 455,Jan Bednarek,17,Southampton,0.04,0
-531,James Ward-Prowse,16,Nott'm Forest,0.1,0
+531,James Ward-Prowse,16,Nott'm Forest,0.1,0.1
 211,Daniel Muñoz,7,Crystal Palace,0.08,0
 22,Takehiro Tomiyasu,1,Arsenal,0.08,0
 16,Declan Rice,1,Arsenal,0.06,0
@@ -430,7 +429,6 @@ fpl_id,Player,team_id,team_name,npxG,pen_share
 422,Ola Aina,16,Nott'm Forest,0.02,0
 36,Lucas Digne,2,Aston Villa,0.03,0
 552,Ki-Jana Hoever,20,Wolves,0.04,0
-589,,19,West Ham,,0
 601,Andrew Moran,5,Brighton,0.09,0
 203,Will Hughes,7,Crystal Palace,0.02,0
 105,Mads Roerslev,4,Brentford,0.03,0
@@ -443,19 +441,15 @@ fpl_id,Player,team_id,team_name,npxG,pen_share
 158,Cesare Casadei,6,Chelsea,0.1,0
 387,Luke Shaw,14,Man Utd,0.02,0
 150,Andrey Santos,6,Chelsea,0.09,0
-588,,19,West Ham,,0
 340,Manuel Akanji,13,Man City,0.06,0
 295,James Justin,11,Leicester,0.02,0
 40,Kortney Hause,2,Aston Villa,0.03,0
 414,John Ruddy,15,Newcastle,0,0
 301,Caleb Okoli,11,Leicester,0.02,0
 287,Hamza Choudhury,11,Leicester,0.01,0
-576,,19,West Ham,,0
 30,Enzo Barrenechea,2,Aston Villa,0.02,0
-611,,10,Ipswich,,0
 15,David Raya,1,Arsenal,0,0
 42,Boubacar Kamara,2,Aston Villa,0.01,0
-279,,10,Ipswich,,0
 138,Mark O'Mahony,5,Brighton,0.08,0
 475,Charlie Taylor,17,Southampton,0.01,0
 5,Karl Jakob Hein,1,Arsenal,0,0
@@ -488,12 +482,10 @@ fpl_id,Player,team_id,team_name,npxG,pen_share
 358,Stefan Ortega,13,Man City,0,0
 451,Samuel Amo-Ameyaw,17,Southampton,0.01,0
 347,Ederson,13,Man City,0,0
-344,,13,Man City,,0
 60,Tyler Adams,3,Bournemouth,0,0
 162,Levi Colwill,6,Chelsea,0.07,0
 221,Séamus Coleman,8,Everton,0.02,0
 294,Daniel Iversen,11,Leicester,0,0
-55,,2,Aston Villa,,0
 153,Benoît Badiashile,6,Chelsea,0.05,0
 485,Alfie Devine,18,Spurs,0.05,0
 189,Wesley Fofana,6,Chelsea,0.05,0
@@ -509,33 +501,22 @@ fpl_id,Player,team_id,team_name,npxG,pen_share
 114,Benicio Boaitey,5,Brighton,0.05,0
 235,Jordan Pickford,8,Everton,0,0
 504,Djed Spence,18,Spurs,0.02,0
-586,,9,Fulham,,0
 469,Alex McCarthy,17,Southampton,0,0
 564,Santiago Bueno,20,Wolves,0.02,0
 383,André Onana,14,Man Utd,0,0
-591,,19,West Ham,,0
 227,João Virgínia,8,Everton,0,0
 506,Micky van de Ven,18,Spurs,0.02,0
-46,,2,Aston Villa,,0
 310,Alisson,12,Liverpool,0,0
-577,,8,Everton,,0
 116,Valentín Barco,5,Brighton,0.05,0
 325,Caoimhín Kelleher,12,Liverpool,0,0
 318,Ben Doak,12,Liverpool,0,0
-374,,14,Man Utd,,0
 488,Fraser Forster,18,Spurs,0,0
-593,,14,Man Utd,,0
 91,Mark Flekken,4,Brentford,0,0
 84,Mark Travers,3,Bournemouth,0,0
-614,,8,Everton,,0
 508,Guglielmo Vicario,18,Spurs,0,0
-319,,12,Liverpool,,0
 201,Dean Henderson,7,Crystal Palace,0,0
 466,Joe Lumley,17,Southampton,0,0
 549,Hugo Bueno,20,Wolves,0.02,0
-594,,14,Man Utd,,0
-578,,1,Arsenal,,0
-597,,1,Arsenal,,0
 171,Malo Gusto,6,Chelsea,0.03,0
 489,Archie Gray,18,Spurs,0,0
 465,Mateusz Lis,17,Southampton,0,0
@@ -545,85 +526,36 @@ fpl_id,Player,team_id,team_name,npxG,pen_share
 443,Matz Sels,16,Nott'm Forest,0,0
 103,Myles Peart-Harris,4,Brentford,0,0
 454,Gavin Bazunu,17,Southampton,0,0
-592,,3,Bournemouth,,0
-280,,10,Ipswich,,0
 460,Ronnie Edwards,17,Southampton,0,0
 464,Juan Larios,17,Southampton,0,0
 157,Moisés Caicedo,6,Chelsea,0.03,0
-87,,4,Brentford,,0
-107,,4,Brentford,,0
 151,Ângelo Borges,6,Chelsea,0.03,0
 134,James Milner,5,Brighton,0.04,0
-607,,13,Man City,,0
 204,Sam Johnstone,20,Wolves,0,0
 554,José Sá,20,Wolves,0,0
-427,,16,Nott'm Forest,,0
-627,,8,Everton,,0
-620,,16,Nott'm Forest,,0
-109,,4,Brentford,,0
 145,Joël Veltman,5,Brighton,0.04,0
 131,Tariq Lamptey,5,Brighton,0.04,0
 174,Roméo Lavia,6,Chelsea,0.02,0
-39,,2,Aston Villa,,0
 184,Renato Veiga,6,Chelsea,0.02,0
-246,,9,Fulham,,0
 608,Tyler Dibling,17,Southampton,,0
-598,,2,Aston Villa,,0
 445,Matt Turner,7,Crystal Palace,0,0
-367,,14,Man Utd,,0
 176,Malang Sarr,6,Chelsea,0,0
-619,,10,Ipswich,,0
 185,Robert Sánchez,6,Chelsea,0,0
 133,Adrian Mazilu,5,Brighton,0.03,0
 183,Đorđe Petrović,6,Chelsea,0,0
-617,,3,Bournemouth,,0
-261,,10,Ipswich,,0
-556,,20,Wolves,,0
 304,Jakub Stolarczyk,11,Leicester,0,0
 212,David Ozoh,7,Crystal Palace,0,0
 128,Igor,5,Brighton,0.02,0
 293,Mads Hermansen,11,Leicester,0,0
-155,,6,Chelsea,,0
-599,,3,Bournemouth,,0
 142,Jason Steele,5,Brighton,0,0
 139,Odeluga Offiah,5,Brighton,0,0
 330,James McConnell,12,Liverpool,,0
 209,Remi Matthews,7,Crystal Palace,,0
 478,Ashley Phillips,18,Spurs,0,0
-606,,11,Leicester,,0
 413,Nick Pope,15,Newcastle,0,0
 146,Bart Verbruggen,5,Brighton,0,0
-75,,3,Bournemouth,,0
 412,Odisseas Vlachodimos,15,Newcastle,0,0
-510,,18,Spurs,,0
 419,Joe White,15,Newcastle,0,0
-479,,18,Spurs,,0
-154,,6,Chelsea,,0
-292,,11,Leicester,,0
-615,,5,Brighton,,0
 610,Mikey Moore,18,Spurs,,0
-613,,14,Man Utd,,0
-623,,17,Southampton,,0
-575,,6,Chelsea,,0
-609,,18,Spurs,,0
-580,,3,Bournemouth,,0
 390,Alex Murphy,15,Newcastle,0,0
-596,,16,Nott'm Forest,,0
-96,,4,Brentford,,0
-481,,18,Spurs,,0
-605,,9,Fulham,,0
-595,,5,Brighton,,0
-428,,16,Nott'm Forest,,0
-526,,19,West Ham,,0
-604,,9,Fulham,,0
-574,,15,Newcastle,,0
-50,,2,Aston Villa,,0
-563,,20,Wolves,,0
-602,,4,Brentford,,0
-118,,5,Brighton,,0
 547,Enso Gonzalez,20,Wolves,,0
-603,,8,Everton,,0
-127,,5,Brighton,,0
-581,,6,Chelsea,,0
-97,,4,Brentford,,0
-561,,20,Wolves,,0

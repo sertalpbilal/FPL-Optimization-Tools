@@ -312,6 +312,16 @@ def prep_data(my_data, options):
     sell_price = {i["element"]: i["selling_price"] / 10 for i in my_data["picks"]}
     price_modified_players = []
 
+    # print("Keys in buy price: ")
+    # print(sorted(buy_price.keys()))
+    # unique_key_types = set(type(key) for key in buy_price.keys())
+    # print(unique_key_types)
+
+    # print("Keys in sell price: ")
+    # print(sorted(sell_price.keys()))
+    # unique_key_types = set(type(key) for key in sell_price.keys())
+    # print(unique_key_types)
+
     preseason = options.get("preseason", False)
     if not preseason:
         for i in my_data["picks"]:

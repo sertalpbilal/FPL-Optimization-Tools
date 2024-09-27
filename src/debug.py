@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from data_parser import read_data
 import requests
+import sasoptpy as so
 
 
 datasource = "garz"
@@ -15,131 +16,127 @@ options = {
     "xmin_lb": 0,
 }
 
-data = read_data(options, datasource, weights=None)
-
 r = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
-players = r.json()["elements"]
-existing_ids = data["review_id"].tolist()
-element_type_dict = {1: "G", 2: "D", 3: "M", 4: "F"}
-teams = r.json()["teams"]
-team_code_dict = {i["code"]: i for i in teams}
-missing_players = []
-for p in players:
-    if p["id"] in existing_ids:
-        continue
-    missing_players.append(
-        {
-            "fpl_id": p["id"],
-            "review_id": p["id"],
-            "ID": p["id"],
-            "real_id": p["id"],
-            "team": "",
-            "Name": p["web_name"],
-            "Pos": element_type_dict[p["element_type"]],
-            "Value": p["now_cost"] / 10,
-            "Team": team_code_dict[p["team_code"]]["name"],
-            "Missing": 1,
-        }
-    )
-garz_data = pd.concat([data, pd.DataFrame(missing_players)]).fillna(0)
+fpl_data = r.json()
 
+gw = 0
+for e in fpl_data["events"]:
+    if e["is_next"]:
+        gw = e["id"]
+        break
 
-def calculate_fts(transfers, next_gw, fh, wc_gws):
-    n_transfers = {gw: 0 for gw in range(2, next_gw)}
-    for t in transfers:
-        n_transfers[t["event"]] += 1
-    fts = {gw: 0 for gw in range(2, next_gw + 1)}
-    fts[2] = 1
-    for i in range(3, next_gw + 1):
-        if (i - 1) == fh:
-            fts[i] = fts[i - 1]
-            continue
-        if i - 1 in wc_gws:
-            fts[i] = fts[i - 1]
-            continue
-        fts[i] = fts[i - 1]
-        fts[i] -= n_transfers[i - 1]
-        fts[i] = max(fts[i], 0)
-        fts[i] += 1
-        fts[i] = min(fts[i], 5)
-    return fts[next_gw]
+horizon = options.get("horizon", 3)
 
+element_data = pd.DataFrame(fpl_data["elements"])
+element_data = element_data[
+    ["id", "element_type", "now_cost", "team", "team_code", "web_name"]
+]
+team_data = pd.DataFrame(fpl_data["teams"])
+team_data = team_data[["id", "name", "code"]]
+elements_team = pd.merge(element_data, team_data, left_on="team", right_on="id")
 
-team_id = 487
+data = read_data(options, datasource, data_weights)
 
-BASE_URL = "https://fantasy.premierleague.com/api"
-with requests.Session() as session:
-    static_url = f"{BASE_URL}/bootstrap-static/"
-    static = session.get(static_url).json()
-    next_gw = [x for x in static["events"] if x["is_next"]][0]["id"]
+data = data.fillna(0)
+if "ID" in data:
+    data["review_id"] = data["ID"]
+    print("Using ID")
+else:
+    data["review_id"] = data.index + 1
+    print("Using index")
 
-    start_prices = {
-        x["id"]: x["now_cost"] - x["cost_change_start"] for x in static["elements"]
+if options.get("export_data", "") != "" and datasource == "mixed":
+    data.to_csv(f"../data/{options['export_data']}")
+
+merged_data = pd.merge(elements_team, data, left_on="id_x", right_on="review_id")
+merged_data = merged_data[
+    [
+        "id_x",
+        "web_name",
+        "element_type",
+        "now_cost",
+        "id_y",
+        "review_id",
+        "Team",
+        "4_Pts",
+    ]
+]
+merged_data.set_index(["id_x"], inplace=True)
+
+# Check if data exists
+for week in range(gw, min(39, gw + horizon)):
+    if f"{week}_Pts" not in data.keys():
+        raise ValueError(
+            f"{week}_Pts is not inside prediction data, change your horizon parameter or update your prediction data"
+        )
+
+original_keys = merged_data.columns.to_list()
+keys = [k for k in original_keys if "_Pts" in k]
+min_keys = [k for k in original_keys if "_xMins" in k]
+merged_data["total_ev"] = merged_data[keys].sum(axis=1)
+merged_data["total_min"] = merged_data[min_keys].sum(axis=1)
+
+merged_data.sort_values(by=["total_ev"], ascending=[False], inplace=True)
+
+players = merged_data.index.to_list()
+type_data = pd.DataFrame(fpl_data["element_types"]).set_index(["id"])
+element_types = type_data.index.to_list()
+
+# Fixture info
+team_code_dict = team_data.set_index("id")["name"].to_dict()
+fixture_data = requests.get("https://fantasy.premierleague.com/api/fixtures/").json()
+fixtures = [
+    {
+        "gw": f["event"],
+        "home": team_code_dict[f["team_h"]],
+        "away": team_code_dict[f["team_a"]],
     }
-    gw1_url = f"{BASE_URL}/entry/{team_id}/event/1/picks/"
-    gw1 = session.get(gw1_url).json()
+    for f in fixture_data
+]
 
-    transfers_url = f"{BASE_URL}/entry/{team_id}/transfers/"
-    transfers = session.get(transfers_url).json()[::-1]
+next_gw = 4
+teams = team_data["name"].to_list()
+last_gw = next_gw + horizon - 1
+if last_gw > 38:
+    last_gw = 38
+    horizon = 39 - next_gw
+gameweeks = list(range(next_gw, last_gw + 1))
+all_gw = [next_gw - 1] + gameweeks
+order = [0, 1, 2, 3]
+ft_states = [0, 1, 2, 3, 4, 5]
 
-    chips_url = f"{BASE_URL}/entry/{team_id}/history/"
-    chips = session.get(chips_url).json()["chips"]
-    fh = [x for x in chips if x["name"] == "freehit"]
-    if fh:
-        fh = fh[0]["event"]
-    wc_gws = [x["event"] for x in chips if x["name"] == "wildcard"]
+objective = "regular"
+problem_name = (
+    f"mp_h{horizon}_regular"
+    if objective == "regular"
+    else f"mp_h{horizon}_o{objective[0]}_d{decay_base}"
+)
 
-# squad will remain an ID:puchase_price map throughout iteration over transfers
-# once they have been iterated through, can then add on the current selling price
-squad = {x["element"]: start_prices[x["element"]] for x in gw1["picks"]}
+model = so.Model(name=problem_name)
 
-itb = 1000 - sum(squad.values())
-for t in transfers:
-    if t["event"] == fh:
-        continue
-    itb += t["element_out_cost"]
-    itb -= t["element_in_cost"]
-    del squad[t["element_out"]]
-    squad[t["element_in"]] = t["element_in_cost"]
+squad = model.add_variables(players, all_gw, name="squad", vartype=so.binary)
+squad_fh = model.add_variables(players, gameweeks, name="squad_fh", vartype=so.binary)
+lineup = model.add_variables(players, gameweeks, name="lineup", vartype=so.binary)
+captain = model.add_variables(players, gameweeks, name="captain", vartype=so.binary)
+vicecap = model.add_variables(players, gameweeks, name="vicecap", vartype=so.binary)
+bench = model.add_variables(players, gameweeks, order, name="bench", vartype=so.binary)
 
-fts = calculate_fts(transfers, next_gw, fh, wc_gws)
-my_data = {
-    "chips": [],
-    "picks": [],
-    "team_id": team_id,
-    "transfers": {
-        "bank": itb,
-        "limit": fts,
-        "made": 0,
-    },
-}
-for player_id, purchase_price in squad.items():
-    now_cost = [x for x in static["elements"] if x["id"] == player_id][0]["now_cost"]
-
-    diff = now_cost - purchase_price
-    if diff > 0:
-        selling_price = purchase_price + diff // 2
-    else:
-        selling_price = now_cost
-
-    my_data["picks"].append(
-        {
-            "element": player_id,
-            "purchase_price": purchase_price,
-            "selling_price": selling_price,
-        }
+lineup_type_count = {
+    (t, w): so.expr_sum(
+        lineup[p, w] for p in players if merged_data.loc[p, "element_type"] == t
     )
+    for t in element_types
+    for w in gameweeks
+}
 
-buy_price = (data["Value"] / 10).to_dict()
-sell_price = {i["element"]: i["selling_price"] / 10 for i in my_data["picks"]}
+squad_type_count = {
+    (t, w): so.expr_sum(
+        squad[p, w] for p in players if merged_data.loc[p, "element_type"] == t
+    )
+    for t in element_types
+    for w in gameweeks
+}
 
-price_modified_players = []
-
-preseason = options.get("preseason", False)
-if not preseason:
-    for i in my_data["picks"]:
-        if purchase_price[i["element"]] != selling_price[i["element"]]:
-            price_modified_players.append(i["element"])
-            print(
-                f"Added player {i['element']} to list, buy price {purchase_price[i['element']]} sell price {selling_price[i['element']]}"
-            )
+points_player_week = {
+    (p, w): merged_data.loc[p, f"{w}_Pts"] for p in players for w in gameweeks
+}

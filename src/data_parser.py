@@ -30,34 +30,9 @@ def read_data(options, source, weights=None):
         data["ID"] = data["review_id"]
         return data
     elif source == "garz":
-        garz_data = pd.read_csv("C:/Users/erknud3/fpl-optimization/data/garz.csv")
-        print("Data read from 'garz.csv':")
-        r = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
-        players = r.json()["elements"]
-        existing_ids = garz_data["review_id"].tolist()
-        element_type_dict = {1: "G", 2: "D", 3: "M", 4: "F"}
-        teams = r.json()["teams"]
-        team_code_dict = {i["code"]: i for i in teams}
-        missing_players = []
-        for p in players:
-            if p["id"] in existing_ids:
-                continue
-            missing_players.append(
-                {
-                    "fpl_id": p["id"],
-                    "review_id": p["id"],
-                    "ID": p["id"],
-                    "real_id": p["id"],
-                    "team": "",
-                    "Name": p["web_name"],
-                    "Pos": element_type_dict[p["element_type"]],
-                    "Value": p["now_cost"] / 10,
-                    "Team": team_code_dict[p["team_code"]]["name"],
-                    "Missing": 1,
-                }
-            )
-        garz_data = pd.concat([garz_data, pd.DataFrame(missing_players)]).fillna(0)
-        return garz_data
+        data = pd.read_csv("C:/Users/erknud3/fpl-optimization/data/garz.csv")
+        data["review_id"] = data["ID"]
+        return data
     elif source == "mixed":
         # Get each source separately and mix with given weights
         all_data = []
