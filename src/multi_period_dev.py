@@ -332,12 +332,17 @@ def prep_data(my_data, options):
                 )
 
     itb = my_data["transfers"]["bank"] / 10
+    ft_base = None
     if my_data["transfers"]["limit"] is None:
         ft = 1
+        ft_base = 1
     else:
         ft = my_data["transfers"]["limit"] - my_data["transfers"]["made"]
+        ft_base = my_data["transfers"]["limit"]
+
     if ft < 0:
         ft = 0
+
     # If wildcard is active, then you have: "status_for_entry": "active" under my_data['chips']
     for c in my_data["chips"]:
         if c["name"] == "wildcard" and c["status_for_entry"] == "active":
@@ -372,6 +377,7 @@ def prep_data(my_data, options):
         "price_modified_players": price_modified_players,
         "itb": itb,
         "ft": ft,
+        "ft_base": ft_base,
         "fixtures": fixtures,
     }
 
@@ -426,6 +432,7 @@ def solve_multi_period_fpl(data, options):
     ft_use_penalty = options.get("ft_use_penalty", None)
     itb_value = options.get("itb_value", 0.08)
     ft = data.get("ft", 1)
+    ft_base = data.get("ft_base", 1)
     if ft <= 0:
         ft = 0
     chip_limits = options.get("chip_limits", dict())
@@ -651,7 +658,11 @@ def solve_multi_period_fpl(data, options):
         name="initial_squad_others",
     )
     model.add_constraint(in_the_bank[next_gw - 1] == itb, name="initial_itb")
-    model.add_constraint(free_transfers[next_gw] == ft, name="initial_ft")
+    model.add_constraint(
+        free_transfers[next_gw]
+        == ft * (1 - use_wc[next_gw]) + ft_base * use_wc[next_gw],
+        name="initial_ft",
+    )
     model.add_constraints(
         (free_transfers[w] >= 1 for w in gameweeks if w > next_gw),
         name="future_ft_limit",
@@ -1257,7 +1268,7 @@ def solve_multi_period_fpl(data, options):
                     (p1, p2)
                     for p1 in players
                     for p2 in players
-                    if (player_team[p1], player_team[p2]) in gw_opp_teams
+                    if (player_team[p1], player_team[p2]) in gw_opp_teams[gw]
                 ]
                 model.add_constraints(
                     (
@@ -1281,7 +1292,7 @@ def solve_multi_period_fpl(data, options):
                     (p1, p2)
                     for p1 in players
                     for p2 in players
-                    if (player_team[p1], player_team[p2]) in gw_opp_teams
+                    if (player_team[p1], player_team[p2]) in gw_opp_teams[gw]
                     and (player_type[p1], player_type[p2]) in opposing_positions
                 ]
                 model.add_constraints(
