@@ -228,6 +228,21 @@ def read_sensitivity(options=None):
                 lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1
             )
             move_pivot.sort_values(by="Score", ascending=False, inplace=True)
+            
+            # Ask once for filtering choice at the beginning
+            show_top_n = input("Show top N results (y/n)? ").strip().lower()
+
+            if show_top_n == "y":
+                # Ask for N once
+                top_n = int(input("What do you want to use as N? "))
+                print()
+
+            # Apply the top N filter if requested
+            if show_top_n == "y":
+                buy_pivot = buy_pivot.head(top_n)
+                sell_pivot = sell_pivot.head(top_n)
+                move_pivot = move_pivot.head(top_n)
+            
             print("Buy:")
             print(buy_pivot)
             print()
