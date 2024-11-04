@@ -14,6 +14,7 @@
     "randomized": false,
     "xmin_lb": 2,
     "ev_per_price_cutoff": 20,
+    "keep_top_ev_percent": 10,
     "banned": [],
     "banned_next_gw": [],
     "locked": [],

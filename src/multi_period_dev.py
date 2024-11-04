@@ -228,8 +228,13 @@ def prep_data(my_data, options):
         pp = merged_data[(merged_data['Pos'] == pos) & ((merged_data['now_cost']/10).isin(price_vals))]['review_id'].to_list()
         safe_players_due_price += pp
     
+    # Filter players by total EV
+    cutoff = merged_data['total_ev'].quantile((100 - options.get("keep_top_ev_percent", 10)) / 100)
+    safe_players_due_ev = merged_data[(merged_data["total_ev"] > cutoff)]["review_id"].tolist()
+
     initial_squad = [int(i['element']) for i in my_data['picks']]
-    safe_players = initial_squad + options.get('locked', []) + options.get('keep', []) + locked_next_gw + safe_players_due_price
+    safe_players = initial_squad + options.get('locked', []) + options.get('keep', []) + \
+                    locked_next_gw + safe_players_due_price + safe_players_due_ev
 
     # Filter players by xMin
     xmin_lb = options.get('xmin_lb', 1)
