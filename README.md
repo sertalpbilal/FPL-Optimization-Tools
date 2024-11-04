@@ -95,6 +95,7 @@ You will need to follow steps below to install required platform and also optimi
     "randomized": false,
     "xmin_lb": 2,
     "ev_per_price_cutoff": 20,
+    "keep_top_ev_percent": 10,
     "bench_weights": { "0": 0.03, "1": 0.21, "2": 0.06, "3": 0.002 },
     "banned": [],
     "banned_next_gw": [],
@@ -165,6 +166,7 @@ You will need to follow steps below to install required platform and also optimi
   - `randomized`: `true` or `false` whether you would like to add random noise to EV
   - `xmin_lb`: cut-off for dropping players below this many minutes expectation
   - `ev_per_price_cutoff`: cut-off percentile for dropping players based on total EV per price (e.g. `20` means drop players below 20% percentile)
+  - `keep_top_ev_percent`: keeps the top n% of players by total EV in the CSV file. (e.g. `20` means it will keep the 20% highest projected points scorers)
   - `bench_weights`: percentage weights in objective for bench players (gk and 3 outfield)
   - `banned`: list of player IDs to be banned over the entire horizon
   - `banned_next_gw`: list of player IDs to be banned for the next gameweek. Alternatively, you can supply an `[ID, gameweek]` list as an element of the list to ban a player just for one specific gameweek. E.g. `[100, [200, 32]]` bans player with ID 100 for the next gameweek, and bans player with ID 200 for gameweek 32
@@ -226,7 +228,7 @@ You will need to follow steps below to install required platform and also optimi
   - `iteration_difference`: number of players to be different (only available for `this_gw_lineup` criteria for now)
   - `iteration_target`: list of GWs where plans will be forced to replace in each iteration
   - `report_decay_base`: list of decay bases to be measured and reported at the end of the solve
-  - `datasource` : `review`, `kiwi`, `mikkel` or `avg` specifies the data to be used.
+  - `datasource` : `review`, `kiwi`, `mikkel` or `mixed` specifies the data to be used.
 
     - `review` requires `fplreview.csv` file
     - `review-odds` requires `fplreview-odds.csv` file
