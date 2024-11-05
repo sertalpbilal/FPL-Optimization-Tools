@@ -228,8 +228,13 @@ def prep_data(my_data, options):
         pp = merged_data[(merged_data['Pos'] == pos) & ((merged_data['now_cost']/10).isin(price_vals))]['review_id'].to_list()
         safe_players_due_price += pp
     
+    # Filter players by total EV
+    cutoff = merged_data['total_ev'].quantile((100 - options.get("keep_top_ev_percent", 10)) / 100)
+    safe_players_due_ev = merged_data[(merged_data["total_ev"] > cutoff)]["review_id"].tolist()
+
     initial_squad = [int(i['element']) for i in my_data['picks']]
-    safe_players = initial_squad + options.get('locked', []) + options.get('keep', []) + locked_next_gw + safe_players_due_price
+    safe_players = initial_squad + options.get('locked', []) + options.get('keep', []) + \
+                    locked_next_gw + safe_players_due_price + safe_players_due_ev
 
     # Filter players by xMin
     xmin_lb = options.get('xmin_lb', 1)
@@ -612,13 +617,13 @@ def solve_multi_period_fpl(data, options):
     if options.get('banned', None):
         print("OC - Banned")
         banned_players = options['banned']
-        model.add_constraints((so.expr_sum(squad[p,w] for w in gameweeks) == 0 for p in banned_players), name='ban_player')
-        model.add_constraints((so.expr_sum(squad_fh[p,w] for w in gameweeks) == 0 for p in banned_players), name='ban_player_fh')
+        model.add_constraints((so.expr_sum(squad[p,w] for w in gameweeks) == 0 for p in banned_players if p in players), name='ban_player')
+        model.add_constraints((so.expr_sum(squad_fh[p,w] for w in gameweeks) == 0 for p in banned_players if p in players), name='ban_player_fh')
     
     if options.get('banned_next_gw', None):
         print("OC - Banned Next GW")
         banned_in_gw = [(x, gameweeks[0]) if isinstance(x, int) else tuple(x) for x in options['banned_next_gw']]
-        model.add_constraints((squad[p0, p1] == 0 for (p0, p1) in banned_in_gw), name='ban_player_specified_gw')
+        model.add_constraints((squad[p0, p1] == 0 for (p0, p1) in banned_in_gw if p0 in players), name='ban_player_specified_gw')
 
     if options.get('locked', None):
         print("OC - Locked")
