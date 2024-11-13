@@ -118,7 +118,7 @@ def create_squad_timeline(current_squad, picks, filename):
                     va='center',
                     fontsize=8)
 
-            stats_text = f"{player['xP']:.1f} xPts, {int(player['xMin'])} xMin"
+            stats_text = f"{player['xP']:.1f} xPts : {int(player['xMin'])} xMin"
             ax.text(gw_idx * gameweek_spacing,
                     y_pos - 0.15,
                     stats_text,
