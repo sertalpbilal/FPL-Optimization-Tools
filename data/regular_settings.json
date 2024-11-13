@@ -64,5 +64,7 @@
     "data_weights": {"review": 40, "review-odds": 30, "mikkel": 30, "kiwi": 0},
     "export_data": "final.csv",
     "team_data": "json",
-    "team_id": null
+    "team_id": null,
+    "export_image": true,
+    "solve_name": "regular"
 }

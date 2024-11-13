@@ -24,6 +24,7 @@ def solve_regular(runtime_options=None):
     base_folder = pathlib.Path()
     sys.path.append(str(base_folder / "../src"))
     from multi_period_dev import connect, get_my_data, prep_data, solve_multi_period_fpl, generate_team_json
+    from visualization import create_squad_timeline
     import data_parser as pr
 
     if is_colab:
@@ -88,7 +89,17 @@ def solve_regular(runtime_options=None):
         stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
         if not (os.path.exists("../data/results/")):
             os.mkdir("../data/results/")
-        result['picks'].to_csv(f"../data/results/regular_{stamp}_{run_id}_{iter}.csv")
+
+        solve_name = options.get('solve_name', 'regular')
+        filename = f"{solve_name}_{stamp}_{run_id}_{iter}"
+        result['picks'].to_csv('../data/results/' + filename + '.csv')
+
+        if options.get('export_image', 0) and not is_colab:
+            create_squad_timeline(
+                current_squad=data['initial_squad'],
+                picks=result['picks'],
+                filename=filename
+            )
 
     print("Result Summary")
     result_table = pd.DataFrame(response)

@@ -143,7 +143,9 @@ You will need to follow steps below to install required platform and also optimi
     },
     "export_data": "final.csv",
     "team_data": "json",
-    "team_id": null
+    "team_id": null,
+    "export_images": false,
+    "solve_name": "regular"
   }
   ```
 
@@ -242,6 +244,8 @@ You will need to follow steps below to install required platform and also optimi
   - `export_data`: option for exporting final data as a CSV file (when using `mixed` data)
   - `team_data`: option for using `team_id` value rather than the `team.json` file. Uses `team.json` by default, set value to `ID` to use `team_id`. Note that with this method, any transfers already made this gameweek won't be taken into account, so they must be added to `booked_transfers`
   - `team_id`: the team_id to optimise for. Requires `team_data` to be set to `ID`
+  - `export_images`: option for exporting visualizations of the lineup
+  - `solve_name`: name of the solve, used for naming the output files
 
 - Run the multi-period optimization
 
