@@ -1016,6 +1016,10 @@ def solve_multi_period_fpl(data, options):
         summary_of_actions = ""
         move_summary = {'chip': [], 'buy': [], 'sell': []}
         cumulative_xpts = 0
+
+        # collect statistics
+        statistics = {}
+
         for w in gameweeks:
             summary_of_actions += f"** GW {w}:\n"
             chip_decision = ("WC" if use_wc[w].get_value() > 0.5 else "") + ("FH" if use_fh[w].get_value() > 0.5 else "") + ("BB" if use_bb[w].get_value() > 0.5 else "") + ("TC" if use_tc_gw[w].get_value() > 0.5 else "")
@@ -1052,6 +1056,16 @@ def solve_multi_period_fpl(data, options):
             summary_of_actions += "Bench: \n\t" + ', '.join(bench_players['name'].tolist()) + "\n"
             summary_of_actions += "Lineup xPts: " + str(round(lineup_players['xp_cont'].sum(),2)) + "\n---\n\n"
             cumulative_xpts = cumulative_xpts + round(lineup_players['xp_cont'].sum(),2)
+
+            statistics[w] = {
+                'itb': in_the_bank[w].get_value(),
+                'ft': free_transfers[w].get_value(),
+                'pt': penalized_transfers[w].get_value(),
+                'nt': number_of_transfers[w].get_value(),
+                'xP': round(lineup_players['xp_cont'].sum(), 2),
+                'chip': chip_decision if chip_decision != "" else None
+            }
+
         print("Cumulative xPts: " + str(round(cumulative_xpts,2)) + "\n---\n\n")
 
         if options.get('delete_tmp', True):
@@ -1090,6 +1104,7 @@ def solve_multi_period_fpl(data, options):
             'picks': picks_df,
             'total_xp': total_xp,
             'summary': summary_of_actions,
+            'statistics': statistics,
             'buy': buy_decisions,
             'sell': sell_decisions,
             'chip': chip_decisions,
