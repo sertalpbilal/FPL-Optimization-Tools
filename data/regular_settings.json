@@ -1,5 +1,5 @@
 {
-    "horizon": 5,
+    "horizon": 3,
     "decay_base": 0.84,
     "ft_value": 1.5,
     "ft_value_list": {},
@@ -33,9 +33,9 @@
     "use_bb": null,
     "use_fh": null,
     "use_tc": null,
-    "chip_limits": {"bb": 0, "wc": 0, "fh": 0, "tc": 0},
+    "chip_limits": {"bb": 0, "wc": 1, "fh": 0, "tc": 0},
     "no_chip_gws": [],
-    "allowed_chip_gws": {"bb": [], "wc": [], "fh": [], "tc": []},
+    "allowed_chip_gws": {"bb": [], "wc": [13], "fh": [], "tc": []},
     "forced_chip_gws": {"bb": [], "wc": [], "fh": [], "tc": []},
     "run_chip_combinations": {"bb": [], "wc": [], "fh": [], "tc": []},
     "future_transfer_limit": null,
@@ -46,7 +46,7 @@
     "ft_custom_value": {},
     "preseason": false,
     "use_login": false,
-    "solver": "cbc",
+    "solver": "highs",
     "solver_path": null,
     "no_opposing_play": false,
     "opposing_play_group": "position",
@@ -63,8 +63,8 @@
     "datasource" : "review",
     "data_weights": {"review": 40, "review-odds": 30, "mikkel": 30, "kiwi": 0},
     "export_data": "final.csv",
-    "team_data": "json",
-    "team_id": null,
+    "team_data": "ID",
+    "team_id": 15258,
     "export_image": true,
     "solve_name": "regular"
 }
