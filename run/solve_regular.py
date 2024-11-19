@@ -97,6 +97,7 @@ def solve_regular(runtime_options=None):
         if options.get('export_image', 0) and not is_colab:
             create_squad_timeline(
                 current_squad=data['initial_squad'],
+                statistics=result['statistics'],
                 picks=result['picks'],
                 filename=filename
             )

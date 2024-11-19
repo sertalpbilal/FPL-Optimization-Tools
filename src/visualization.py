@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
 
-def create_squad_timeline(current_squad, picks, filename):
+def create_squad_timeline(current_squad, statistics, picks, filename):
     df = pd.DataFrame(picks)
 
     bg_color = '#1a1a1a'
@@ -212,10 +212,24 @@ def create_squad_timeline(current_squad, picks, filename):
                         player_positions[week][in_p][0]
                     ], color=text_color, alpha=0.5, linewidth=1)
 
-        if week != base_week:
-            weekly_xp = gw_players['xP'].sum()
-            ax.text(gw_idx * gameweek_spacing, -1, f'{weekly_xp:.1f} xPts',
+        if week != base_week and week in statistics:
+            gw_statistics = statistics[week]
+
+            ax.text(gw_idx * gameweek_spacing, -1, f"{gw_statistics['xP']:.2f} xPts",
                     color=text_color, fontsize=10, ha='center')
+
+            ax.text(gw_idx * gameweek_spacing, -1.4, f"ITB: {gw_statistics['itb']:.1f}",
+                    color=text_color, fontsize=8, ha='center')
+
+            transfer_str = ''
+            for key in ["ft", "pt", "nt"]:
+                if key in gw_statistics:
+                    transfer_str += f'{key.upper()}: {gw_statistics[key]}  '
+
+            ax.text(gw_idx * gameweek_spacing, -1.75, transfer_str,
+                    color=text_color, fontsize=8, ha='center')
+
+
 
     total_width = (len(display_weeks) - 1) * gameweek_spacing + box_width
     ax.set_xlim(-5, total_width)
