@@ -147,7 +147,7 @@ def solve_regular(runtime_options=None):
                 line_text += '(' + chip_text + ') '
             sell_text = ', '.join(picks[(picks['week'] == gw) & (picks['transfer_out'] == 1)]['name'].to_list())
             buy_text = ', '.join(picks[(picks['week'] == gw) & (picks['transfer_in'] == 1)]['name'].to_list())
-            if sell_text != '':
+            if sell_text != '' or buy_text != '':
                 line_text += sell_text + ' -> ' + buy_text
             else:
                 line_text += "Roll"
