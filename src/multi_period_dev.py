@@ -32,7 +32,11 @@ def get_dict_combinations(my_dict):
     all_combs = [dict(zip(my_dict.keys(), values)) for values in product(*my_dict.values())]
     feasible_combs = []
     for comb in all_combs:
-        c_values = [i for i in comb.values() if i is not None]
+        comb_copy = comb.copy()
+        if comb_copy.get('am'):
+            comb_copy['am_1'] = comb_copy['am'] + 1
+            comb_copy['am_2'] = comb_copy['am'] + 2
+        c_values = [i for i in comb_copy.values() if i is not None]
         if len(c_values) == len(set(c_values)):
             feasible_combs.append(comb)
         # else we have a duplicate
@@ -187,11 +191,14 @@ def prep_data(my_data, options):
         player = [x for x in fpl_data["elements"] if x["id"] == pid][0]
         player["now_cost"] += change
 
-    gw = 0
-    for e in fpl_data['events']:
-        if e['is_next']:
-            gw = e['id']
-            break
+    if options.get('override_next_gw', None):
+        gw = int(options['override_next_gw'])
+    else:
+        gw = 0
+        for e in fpl_data['events']:
+            if e['is_next']:
+                gw = e['id']
+                break
 
     horizon = options.get('horizon', 3)
 
@@ -215,6 +222,9 @@ def prep_data(my_data, options):
 
     merged_data = pd.merge(elements_team, data, left_on='id_x', right_on='review_id')
     merged_data.set_index(['id_x'], inplace=True)
+
+    # Drop duplicates
+    merged_data = merged_data.drop_duplicates(subset=['ID'], keep='first')
 
     # Check if data exists
     for week in range(gw, min(39, gw+horizon)):
@@ -308,6 +318,8 @@ def prep_data(my_data, options):
     team_code_dict = team_data.set_index('id')['name'].to_dict()
     fixture_data = requests.get('https://fantasy.premierleague.com/api/fixtures/').json()
     fixtures = [{'gw': f['event'], 'home': team_code_dict[f['team_h']], 'away': team_code_dict[f['team_a']]} for f in fixture_data]
+
+    
 
     return {
         'merged_data': merged_data,
@@ -413,7 +425,7 @@ def solve_multi_period_fpl(data, options):
     team_short_dict = team_data.set_index('name')['short_name'].to_dict()
 
     try:
-        am_df = pd.read_csv("../data/am_pts.csv")
+        am_df = pd.read_csv("../data/am_pts.csv", na_values=['nan', 'NaN']).fillna(0)
         am_enabled=True
     except:
         print("No data found for Assistant Manager projections. AM Chip will be disabled.")
@@ -463,6 +475,7 @@ def solve_multi_period_fpl(data, options):
     use_am_tr_out = model.add_variables(teams_extended, gameweeks, name='use_am_tr_out', vartype=so.binary)
 
     # Dictionaries
+
     lineup_type_count = {(t,w): so.expr_sum(lineup[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
     squad_type_count = {(t,w): so.expr_sum(squad[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
     squad_fh_type_count = {(t,w): so.expr_sum(squad_fh[p,w] for p in players if merged_data.loc[p, 'element_type'] == t) for t in element_types for w in gameweeks}
@@ -513,11 +526,12 @@ def solve_multi_period_fpl(data, options):
                 for pair in pairs:
                     chip = pair['chip']
                     variable = pair['variable']
-                    if current_chips.get(chip) is not None:
-                        model.add_constraint(variable[current_chips[chip]] == 1, name=f"cc_{chip}")
+                    cc_gw = current_chips.get(chip)
+                    if cc_gw is not None and cc_gw in gameweeks:
+                        model.add_constraint(variable[cc_gw] == 1, name=f"cc_{chip}_1")
                         options['chip_limits'][chip] = 1
                     else:
-                        model.add_constraint(so.expr_sum(variable[w] for w in gameweeks) == 0, name=f"cc_{chip}")
+                        model.add_constraint(so.expr_sum(variable[w] for w in gameweeks) == 0, name=f"cc_{chip}_2")
                         options['chip_limits'][chip] = 0
     
 
@@ -614,14 +628,17 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((so.expr_sum(use_am_pick[t,w] for t in teams_extended) == 1 for w in gameweeks), name='am_pick_1')
     model.add_constraints((use_am_pick[t,w] == (use_am_pick[t,w-1] if w-1 in gameweeks else (1 if t == 'dummy' else 0)) + use_am_tr_in[t,w] - use_am_tr_out[t,w] for t in teams_extended for w in gameweeks), name='am_sq')
     model.add_constraints((use_am_tr_in[t,w] + use_am_tr_out[t,w] <= 1 for t in teams_extended for w in gameweeks), name='am_tre')
-
     model.add_constraints((use_am_tr_in[t,w] <= use_am_active[w] for t in teams_extended for w in gameweeks if t != 'dummy'), 'no_am_tr_in')
     model.add_constraints((use_am_tr_out[t,w+1] <= use_am_active[w] for t in teams_extended for w in gameweeks if t != 'dummy' and w+1 in gameweeks), 'no_am_tr_out')
+    model.add_constraints((use_am_tr_out['dummy', w] == use_am[w] for w in gameweeks), name='am_trigger_st')
+    model.add_constraints((use_am_tr_in['dummy', w+3] == use_am[w] for w in gameweeks if w+3 in gameweeks), name='am_trigger_fn')
+
     if not am_enabled:
         model.add_constraints((use_am[w] == 0 for w in gameweeks), name="no_am1")
         model.add_constraints((use_am_pick[t,w] == 0 for t in teams_extended for w in gameweeks if t != 'dummy'), name="no_am2")
         model.add_constraints((use_am_tr_in[t,w] == 0 for t in teams_extended for w in gameweeks if t != 'dummy'), name="no_am3")
         model.add_constraints((use_am_tr_out[t,w] == 0 for t in teams_extended for w in gameweeks if t != 'dummy'), name="no_am4")
+        model.add_constraints((use_am_pick['dummy', w] == 1 for w in gameweeks), name="no_am5")
 
     model.add_constraints((squad_fh[p,w] <= use_fh[w] for p in players for w in gameweeks), name='fh_squad_logic')
 
@@ -879,7 +896,8 @@ def solve_multi_period_fpl(data, options):
     ft_state_value = {}
     for s in ft_states:
         ft_state_value[s] = ft_state_value.get(s-1, 0) + ft_value_list.get(str(s), ft_value)
-    print(f"Using FT state values of {ft_state_value}")
+    # print(f"Using FT state values of {ft_state_value}")
+    print(f"Using FT values of {ft_value_list}")
     gw_ft_value = {w: so.expr_sum(ft_state_value[s] * free_transfers_state[w,s] for s in ft_states) for w in gameweeks}
     gw_ft_gain = {w: gw_ft_value[w] - gw_ft_value.get(w-1, 0) for w in gameweeks}
 
