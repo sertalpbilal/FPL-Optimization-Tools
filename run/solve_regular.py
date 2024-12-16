@@ -8,18 +8,54 @@ import argparse
 import random
 import string
 import requests
+import subprocess
+
 
 def get_random_id(n):
     return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
 
 
+def is_latest_version():
+    try:
+        # Get the current branch name
+        branch = subprocess.check_output(
+            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+            stderr=subprocess.DEVNULL,
+            text=True
+        ).strip()
+
+        # Fetch the latest updates from the remote
+        subprocess.run(['git', 'fetch'], check=True, stderr=subprocess.DEVNULL)
+
+        # Check if there are commits in the remote branch not in the local branch
+        updates = subprocess.check_output(
+            ['git', 'rev-list', f'HEAD..origin/{branch}'],
+            stderr=subprocess.DEVNULL,
+            text=True
+        ).strip()
+
+        if updates:
+            print("Your repository is not up-to-date. Please pull the latest changes.")
+            return False
+        else:
+            print("Your repository is up-to-date.")
+            return True
+    except subprocess.CalledProcessError as e:
+        print("Error: Could not check the repository status.")
+        return False
+
+
+
 def solve_regular(runtime_options=None):
 
+    
     try:
         import google.colab
         is_colab = True
     except:
         is_colab = False
+        print("Checking for updates...")
+        is_latest_version()
 
     base_folder = pathlib.Path()
     sys.path.append(str(base_folder / "../src"))
