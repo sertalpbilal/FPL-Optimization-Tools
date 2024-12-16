@@ -1003,9 +1003,15 @@ def solve_multi_period_fpl(data, options):
                 # mip_improving_solution_file="tmp/{problem_id}_incumbent.sol"
 
             command = f'{highs_exec} --parallel on --options_file {opt_file_name} --random_seed {random_seed} --presolve {presolve} --model_file {mps_file_name} --time_limit {secs} --solution_file {sol_file_name}'
+
+            if os.name != 'nt' and use_cmd:
+                print("Non-Windows OS is detected. Setting use_cmd to false")
+                use_cmd = false
+
             if use_cmd:
                 # highs occasionally freezes in Windows, if it happens, try use_cmd value as False
                 print('If you are using Windows, HiGHS occasionally freezes after solves are completed. Use \n\t"use_cmd": false\nin regular settings if it happens.')
+
                 os.system(command)
             else:
                 def print_output(process):
@@ -1192,11 +1198,24 @@ def solve_multi_period_fpl(data, options):
                     summary_of_actions += f"Buy {p} - {merged_data['web_name'][p]}\n"
                     if w == next_gw:
                         move_summary['buy'].append(merged_data['web_name'][p])
+
+            for t in teams_shorts:
+                if use_am_tr_in[t,w].get_value() > 0.5:
+                    summary_of_actions += f"(AM) Buy - {am_manager[t]}\n"
+                    if w == next_gw:
+                        move_summary['buy'].append(am_manager[t])
+
             for p in players:
                 if transfer_out[p,w].get_value() > 0.5:
                     summary_of_actions += f"Sell {p} - {merged_data['web_name'][p]}\n"
                     if w == next_gw:
                         move_summary['sell'].append(merged_data['web_name'][p])
+
+            for t in teams_shorts:
+                if use_am_tr_out[t,w].get_value() > 0.5:
+                    summary_of_actions += f"(AM) Sell - {am_manager[t]}\n"
+                    if w == next_gw:
+                        move_summary['sell'].append(am_manager[t])
 
             lineup_players = picks_df[(picks_df['week'] == w) & (picks_df['lineup'] == 1)]
             bench_players = picks_df[(picks_df['week'] == w) & (picks_df['bench'] >= 0)]
