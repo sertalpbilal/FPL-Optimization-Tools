@@ -496,7 +496,7 @@ def solve_multi_period_fpl(data, options):
     player_team = {p: merged_data.loc[p, 'name'] for p in players}
     squad_count = {w: so.expr_sum(squad[p, w] for p in players) for w in gameweeks}
     squad_fh_count = {w: so.expr_sum(squad_fh[p, w] for p in players) for w in gameweeks}
-    number_of_transfers = {w: so.expr_sum(transfer_out[p,w] for p in players) + so.expr_sum(use_am_tr_out[t,w] for t in teams_extended) for w in gameweeks}
+    number_of_transfers = {w: so.expr_sum(transfer_out[p,w] for p in players) + so.expr_sum(use_am_tr_out[t,w] for t in teams_extended if t != 'dummy') - use_am_tr_in['dummy', w] for w in gameweeks}
     # number_of_transfers[next_gw-1] = 1
     transfer_diff = {w: number_of_transfers[w] - free_transfers[w] - 15 * use_wc[w] for w in gameweeks}
     use_tc_gw = {w: so.expr_sum(use_tc[p,w] for p in players) for w in gameweeks}
@@ -574,7 +574,7 @@ def solve_multi_period_fpl(data, options):
     
     ## Free transfer constraints
     # 2024-2025 variation: min 1 / max 5 / roll over WC & FH
-    raw_gw_ft = {w: free_transfers[w] - transfer_count[w] + 1 - use_wc[w] - use_fh[w] + use_am_tr_out['dummy',w] + use_am_tr_in['dummy',w] for w in gameweeks}
+    raw_gw_ft = {w: free_transfers[w] - transfer_count[w] + 1 - use_wc[w] - use_fh[w] for w in gameweeks}
     model.add_constraints((free_transfers[w+1] <= raw_gw_ft[w] + 16 * ft_below_lb[w] for w in gameweeks if w+1 in gameweeks), name='newft1')
     model.add_constraints((free_transfers[w+1] <= 1 + 4 * (1-ft_below_lb[w]) for w in gameweeks if w+1 in gameweeks), name='newft2')
     model.add_constraints((free_transfers[w+1] >= raw_gw_ft[w] - 2 * ft_above_ub[w] for w in gameweeks if w+1 in gameweeks and w > 1), name='newft3')
