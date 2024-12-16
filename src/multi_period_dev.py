@@ -1006,12 +1006,11 @@ def solve_multi_period_fpl(data, options):
 
             if os.name != 'nt' and use_cmd:
                 print("Non-Windows OS is detected. Setting use_cmd to false")
-                use_cmd = false
+                use_cmd = true
 
             if use_cmd:
                 # highs occasionally freezes in Windows, if it happens, try use_cmd value as False
                 print('If you are using Windows, HiGHS occasionally freezes after solves are completed. Use \n\t"use_cmd": false\nin regular settings if it happens.')
-
                 os.system(command)
             else:
                 def print_output(process):
