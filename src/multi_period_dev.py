@@ -220,6 +220,40 @@ def prep_data(my_data, options):
     if options.get('export_data', '') != '' and datasource == 'mixed':
         data.to_csv(f"../data/{options['export_data']}")
 
+    # AM fix
+    am_data = data[data['Pos'] == 'AM'].copy()
+    data = data[data['Pos'] != 'AM'].copy()
+
+    if options.get('export_am_ev'):
+        manager_dict = {
+            "ARS": "Arteta",
+            "AVL": "Emery",
+            "BOU": "Iraola",
+            "BRE": "Frank",
+            "BHA": "Hurzeler",
+            "CHE": "Maresca",
+            "CRY": "Glasner",
+            "EVE": "Dyche",
+            "FUL": "Silva",
+            "IPS": "McKenna",
+            "LEI": "van Nistelrooy",
+            "LIV": "Slot",
+            "MCI": "Guardiola",
+            "MUN": "Amorim",
+            "NEW": "Howe",
+            "NFO": "Nuno",
+            "SOU": "Martin",
+            "TOT": "Postecoglou",
+            "WHU": "Lopetegui",
+            "WOL": "O'Neil",
+        }
+        am_data["Manager"] = am_data["ID"].map(manager_dict)
+        am_data = am_data.rename(columns={"ID": "team", "BV": "Price"})
+        selected_columns = ["team", "Manager", "Price"] + [col for col in am_data.columns if "_Pts" in col]
+        am_data_final = am_data[selected_columns].copy()
+
+        am_data_final.to_csv("../data/am_pts.csv")
+
     merged_data = pd.merge(elements_team, data, left_on='id_x', right_on='review_id')
     merged_data.set_index(['id_x'], inplace=True)
 
