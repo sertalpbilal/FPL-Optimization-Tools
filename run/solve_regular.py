@@ -155,7 +155,8 @@ def solve_regular(runtime_options=None):
 
     print("Result Summary")
     result_table = pd.DataFrame(response)
-    print(result_table[['iter', 'sell', 'buy', 'chip', 'score']])
+    result_table = result_table.sort_values(by="score", ascending=False)
+    print(result_table[['iter', 'sell', 'buy', 'chip', 'score']].to_string(index=False))
 
     if len(options.get('report_decay_base', [])) > 0:
         try:

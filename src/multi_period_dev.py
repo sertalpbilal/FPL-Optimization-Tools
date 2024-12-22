@@ -1360,12 +1360,17 @@ def solve_multi_period_fpl(data, options):
                 chip = pair['chip']
                 variable = pair['variable']
                 model.drop_constraint(model.get_constraint(f'cc_{chip}'))
+                model.drop_constraint(model.get_constraint(f'use_{chip}_limit'))
+
                 if current_chips.get(chip) is not None:
                     model.add_constraint(variable[current_chips[chip]] == 1, name=f"cc_{chip}")
                     options['chip_limits'][chip] = 1
+                    model.add_constraint(so.expr_sum(variable[w] for w in gameweeks) == 1, name=f'use_{chip}_limit')
+
                 else:
                     model.add_constraint(so.expr_sum(variable[w] for w in gameweeks) == 0, name=f"cc_{chip}")
                     options['chip_limits'][chip] = 0
+                    model.add_constraint(so.expr_sum(variable[w] for w in gameweeks) == 0, name=f'use_{chip}_limit')
             
         
 
