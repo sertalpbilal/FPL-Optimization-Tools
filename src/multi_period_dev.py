@@ -254,6 +254,13 @@ def prep_data(my_data, options):
 
         am_data_final.to_csv("../data/am_pts.csv")
 
+    # Type fixes due to AM projections
+    data['review_id'] = data['review_id'].astype(np.int64)
+    for col in data.columns:
+        if "_xMins" in col:
+            data[col] = pd.to_numeric(data[col], errors="coerce").fillna(0).astype(int)
+
+
     merged_data = pd.merge(elements_team, data, left_on='id_x', right_on='review_id')
     merged_data.set_index(['id_x'], inplace=True)
 
