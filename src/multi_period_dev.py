@@ -873,6 +873,13 @@ def solve_multi_period_fpl(data, options):
         model.add_constraints((weekly_sum[t,w] <= 3 * def_aux[t,w] for t in teams for w in gameweeks), name='dauxc1')
         model.add_constraints((weekly_sum[t,w] >= 2 - 3 * (1 - def_aux[t,w]) for t in teams for w in gameweeks), name='dauxc2')
 
+    if options.get("transfer_itb_buffer"):
+        buffer_amount = float(options['transfer_itb_buffer'])
+        gw_with_tr = model.add_variables(gameweeks, name='gw_with_tr', vartype=so.binary)
+        model.add_constraints((15 * gw_with_tr[w] >= number_of_transfers[w] for w in gameweeks), name='gw_with_tr_lb')
+        model.add_constraints((gw_with_tr[w] <= number_of_transfers[w] for w in gameweeks), name='gw_with_tr_ub')
+        model.add_constraints((in_the_bank[w] >= buffer_amount * gw_with_tr[w] for w in gameweeks), name='buffer_con')
+
     if options.get("pick_prices", None) not in [None, {"G": "", "D": "", "M": "", "F": ""}]:
         print("OC - Pick Prices")
         buffer = 0.2
@@ -1232,7 +1239,7 @@ def solve_multi_period_fpl(data, options):
             if chip_decision != "":
                 summary_of_actions += "CHIP " + chip_decision + "\n"
                 move_summary['chip'].append(chip_decision + str(w))
-            summary_of_actions += f"ITB={in_the_bank[w].get_value()}, FT={free_transfers[w].get_value()}, PT={penalized_transfers[w].get_value()}, NT={number_of_transfers[w].get_value()}\n"
+            summary_of_actions += f"ITB={in_the_bank[w-1].get_value()}->{in_the_bank[w].get_value()}, FT={free_transfers[w].get_value()}, PT={penalized_transfers[w].get_value()}, NT={number_of_transfers[w].get_value()}\n"
             for p in players:
                 if transfer_in[p,w].get_value() > 0.5:
                     summary_of_actions += f"Buy {p} - {merged_data['web_name'][p]}\n"

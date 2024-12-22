@@ -215,12 +215,14 @@ You will need to follow steps below to install required platform and also optimi
     - `"penalty"` if you want to penalize each instance with a static value
   - `opposing_play_group`: `all` if you do not want any type of opposing players or `position` if you only don't want your offense playing against your defense
   - `opposing_play_penalty`: if `"penalty"` is chosen in `no_opposing_play` option, this penalty is deducted from the objective for each cross-play
-  - `pick_prices`: price points of players you want to force in a comma separated string
+  - `pick_prices`: price points of players you want to force in a comma separated string  
     For example, to force two 11.5M forwards, and one 8M midfielder, use
     `"pick_prices": {"G": "", "D": "", "M": "8", "F": "11.5,11.5"}`
   - `no_gk_rotation_after`: use same lineup GK after given GW, e.g. setting this value to `26` means all GWs after 26 will use same lineup GK
   - `max_defenders_per_team`: the maximum number of defenders and goalkeepers from one team in your squad, defaults to 3
   - `double_defense_pick`: forces solver to use either 0 or more than 2 defender/goalkeeper from each team
+  - `transfer_itb_buffer`: minimum itb to have if any transfer is being planned for the GW to ensure robustness  
+    use `"transfer_itb_buffer": 0.1` if you want to leave 0.1 in the bank in gameweeks with scheduled transfers
   - `iteration`: number of different solutions to be generated, the criteria is controlled by `iteration_criteria`
   - `iteration_criteria`: rule on separating what a different solution mean
     - `this_gw_transfer_in` will force to replace players to buy current GW in each solution
@@ -241,6 +243,7 @@ You will need to follow steps below to install required platform and also optimi
 
     under `data` folder to be present
 
+  - `export_am_ev`: option for exporting AM projection from `fplreview` projection file as `data/am_pts.csv`
   - `data_weights`: weight percentage for each data source, given as a dictionary, where keys should be one of valid data sources
   - `export_data`: option for exporting final data as a CSV file (when using `mixed` data)
   - `team_data`: option for using `team_id` value rather than the `team.json` file. Uses `team.json` by default, set value to `ID` to use `team_id`. Note that with this method, any transfers already made this gameweek won't be taken into account, so they must be added to `booked_transfers`

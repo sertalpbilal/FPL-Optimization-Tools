@@ -63,6 +63,7 @@
     "no_gk_rotation_after": null,
     "max_defenders_per_team": 3,
     "double_defense_pick": false,
+    "transfer_itb_buffer": null,
     "iteration": 1,
     "iteration_criteria": "this_gw_transfer_in",
     "iteration_difference": 1,
