@@ -528,10 +528,10 @@ def solve_multi_period_fpl(data, options):
                     variable = pair['variable']
                     cc_gw = current_chips.get(chip)
                     if cc_gw is not None and cc_gw in gameweeks:
-                        model.add_constraint(variable[cc_gw] == 1, name=f"cc_{chip}_1")
+                        model.add_constraint(variable[cc_gw] == 1, name=f"cc_{chip}")
                         options['chip_limits'][chip] = 1
                     else:
-                        model.add_constraint(so.expr_sum(variable[w] for w in gameweeks) == 0, name=f"cc_{chip}_2")
+                        model.add_constraint(so.expr_sum(variable[w] for w in gameweeks) == 0, name=f"cc_{chip}")
                         options['chip_limits'][chip] = 0
     
 
