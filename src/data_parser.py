@@ -5,10 +5,18 @@ from fuzzywuzzy import fuzz
 import numpy as np
 
 
-def read_data(options, source, weights=None):
+def read_data(options, source, weights=None, discard_am=False):
     if source == 'review':
         data = pd.read_csv(options.get('data_path', '../data/fplreview.csv'))
         data['review_id'] = data['ID']
+        
+        if discard_am:
+            data = data[data['Pos'] != 'AM'].copy()
+            data['review_id'] = data['review_id'].astype(np.int64)
+            for col in data.columns:
+                if "_xMins" in col:
+                    data[col] = pd.to_numeric(data[col], errors="coerce").fillna(0).astype(int)
+        
         return data
     elif source == 'review-odds':
         data = pd.read_csv(options.get('data_path', '../data/fplreview-odds.csv'))
@@ -25,7 +33,7 @@ def read_data(options, source, weights=None):
         for (name, weight) in weights.items():
             if (weight == 0):
                 continue
-            df = read_data(options, name, None)
+            df = read_data(options, name, weights=None, discard_am=True)
             # drop players without data
             first_gw_col = None
             for col in df.columns:
