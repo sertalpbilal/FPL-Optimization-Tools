@@ -233,7 +233,7 @@ def prep_data(my_data, options):
             "BHA": "Hurzeler",
             "CHE": "Maresca",
             "CRY": "Glasner",
-            "EVE": "Dyche",
+            "EVE": "Moyes",
             "FUL": "Silva",
             "IPS": "McKenna",
             "LEI": "van Nistelrooy",
@@ -242,10 +242,10 @@ def prep_data(my_data, options):
             "MUN": "Amorim",
             "NEW": "Howe",
             "NFO": "Nuno",
-            "SOU": "Martin",
+            "SOU": "Jurić",
             "TOT": "Postecoglou",
-            "WHU": "Lopetegui",
-            "WOL": "O'Neil",
+            "WHU": "Potter",
+            "WOL": "Pereira",
         }
         am_data["Manager"] = am_data["ID"].map(manager_dict)
         am_data = am_data.rename(columns={"ID": "team", "BV": "Price"})
