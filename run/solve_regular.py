@@ -142,7 +142,10 @@ def solve_regular(runtime_options=None):
             os.mkdir("../data/results/")
 
         solve_name = options.get('solve_name', 'regular')
-        filename = f"{solve_name}_{stamp}_{run_id}_{iter}"
+        if options.get("binary_file_name"):
+            filename = f"{solve_name}_{options.get("binary_file_name")}_{stamp}_{run_id}_{iter}"
+        else:
+            filename = f"{solve_name}_{stamp}_{run_id}_{iter}"
         result['picks'].to_csv('../data/results/' + filename + '.csv')
 
         if options.get('export_image', 0) and not is_colab:
