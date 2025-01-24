@@ -7,7 +7,11 @@ import numpy as np
 
 def read_data(options, source, weights=None, discard_am=False):
     if source == 'review':
-        data = pd.read_csv(options.get('data_path', '../data/fplreview.csv'))
+        if options.get("binary_file_name"):
+            data_path = "../data/" + options.get("binary_file_name") + ".csv"
+        else:
+            data_path = options.get('data_path', '../data/fplreview.csv')
+        data = pd.read_csv(data_path)
         data['review_id'] = data['ID']
         
         if discard_am:
