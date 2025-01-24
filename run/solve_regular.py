@@ -143,7 +143,8 @@ def solve_regular(runtime_options=None):
 
         solve_name = options.get('solve_name', 'regular')
         if options.get("binary_file_name"):
-            filename = f"{solve_name}_{options.get("binary_file_name")}_{stamp}_{run_id}_{iter}"
+            bfn = options.get('binary_file_name')
+            filename = f"{solve_name}_{bfn}_{stamp}_{run_id}_{iter}"
         else:
             filename = f"{solve_name}_{stamp}_{run_id}_{iter}"
         result['picks'].to_csv('../data/results/' + filename + '.csv')
