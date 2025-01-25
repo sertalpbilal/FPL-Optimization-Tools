@@ -278,7 +278,7 @@ def convert_mikkel_to_review(target):
     values = []
     existing_players = df_final['review_id'].to_list()
     for i in player_ids:
-        if i not in existing_players and i['element_type'] != 5:
+        if i not in existing_players and player_pos[i] != 5:
             entry = {'review_id': i, 'Name': player_names[i], 'Pos': pos_no[player_pos[i]], 'Value': player_price[i], **{f'{gw}_{tag}': 0 for gw in gws for tag in ['Pts', 'xMins']}}
             values.append(entry)
 
