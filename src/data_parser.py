@@ -171,7 +171,8 @@ def fix_mikkel(file_address):
         'combined': e['first_name'] + ' ' + e['second_name'],
         'team': team_code_dict[e['team_code']]['mikkel_short'],
         'position': element_type_dict[e['element_type']],
-    } for e in players]
+    } for e in players
+      if e["element_type"] <= 4]
     for target in player_names:
         target['wn'] = remove_accents(target['web_name'])
         target['cn'] = remove_accents(target['combined'])
@@ -213,7 +214,7 @@ def fix_mikkel(file_address):
     existing_ids = df_cleaned['FPL ID'].tolist()
     missing_players = []
     for p in players:
-        if p['id'] in existing_ids:
+        if p['id'] in existing_ids or p["element_type"] == 5:
             continue
         missing_players.append({
             'Position': element_type_dict[p['element_type']],
@@ -277,7 +278,7 @@ def convert_mikkel_to_review(target):
     values = []
     existing_players = df_final['review_id'].to_list()
     for i in player_ids:
-        if i not in existing_players:
+        if i not in existing_players and i['element_type'] != 5:
             entry = {'review_id': i, 'Name': player_names[i], 'Pos': pos_no[player_pos[i]], 'Value': player_price[i], **{f'{gw}_{tag}': 0 for gw in gws for tag in ['Pts', 'xMins']}}
             values.append(entry)
 
