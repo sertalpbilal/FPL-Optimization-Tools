@@ -99,7 +99,7 @@ def read_data(options, source, weights=None, discard_am=False):
         team_code_dict = {i['code']: i for i in teams}
         missing_players = []
         for p in players:
-            if p['id'] in existing_ids:
+            if p['id'] in existing_ids or p['element_type'] == 5:
                 continue
             missing_players.append({
                 'fpl_id': p['id'],
