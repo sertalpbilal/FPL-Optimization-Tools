@@ -636,6 +636,8 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((use_wc[w] + use_fh[w] + use_bb[w] + use_tc_gw[w] + use_am_active[w] <= 1 for w in gameweeks), name='single_chip')
     model.add_constraints((aux[w] <= 1-use_wc[w-1] for w in gameweeks if w > next_gw), name='ft_after_wc')
     model.add_constraints((aux[w] <= 1-use_fh[w-1] for w in gameweeks if w > next_gw), name='ft_after_fh')
+    # can only use tc on captain
+    model.add_constraints((use_tc[p,w] <= captain[p,w] for p in players for w in gameweeks), name='tc_cap_rel')
 
 
     if options.get('use_wc', None) is not None:
@@ -767,7 +769,7 @@ def solve_multi_period_fpl(data, options):
         if horizon > no_tr_gws:
             model.add_constraints((so.expr_sum(transfer_in[p,w] for p in players) <= 15 * use_wc[w] for w in gameweeks if w > last_gw - no_tr_gws), name='tr_ban_gws')
 
-    if options.get("num_transfers", None):
+    if options.get("num_transfers", None) is not None:
         print("OC - Num Transfers")
         model.add_constraint(so.expr_sum(transfer_in[p,next_gw] for p in players) == options['num_transfers'], name='tr_limit')
 
