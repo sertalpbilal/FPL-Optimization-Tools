@@ -224,7 +224,7 @@ def prep_data(my_data, options):
     am_data = data[data['Pos'] == 'AM'].copy()
     data = data[data['Pos'] != 'AM'].copy()
 
-    if options.get('export_am_ev'):
+    if options.get('export_am_ev') and len(am_data) > 0:
         manager_dict = {
             "ARS": "Arteta",
             "AVL": "Emery",
