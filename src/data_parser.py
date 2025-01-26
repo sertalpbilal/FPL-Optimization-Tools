@@ -24,7 +24,16 @@ def read_data(options, source, weights=None, discard_am=False):
         return data
     elif source == 'review-odds':
         data = pd.read_csv(options.get('data_path', '../data/fplreview-odds.csv'))
+
         data['review_id'] = data['ID']
+
+        if discard_am:
+            data = data[data['Pos'] != 'AM'].copy()
+            data['review_id'] = data['review_id'].astype(np.int64)
+            for col in data.columns:
+                if "_xMins" in col:
+                    data[col] = pd.to_numeric(data[col], errors="coerce").fillna(0).astype(int)
+
         return data
     elif source == 'mikkel':
         convert_mikkel_to_review(options.get('mikkel_data_path', '../data/TransferAlgorithm.csv'))
