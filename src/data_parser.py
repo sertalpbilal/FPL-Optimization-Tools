@@ -46,7 +46,7 @@ def read_data(options, source, weights=None, discard_am=False):
         for (name, weight) in weights.items():
             if (weight == 0):
                 continue
-            df = read_data(options, name, weights=None, discard_am=True)
+            df = read_data(options, name, weights=None, discard_am=False)
             # drop players without data
             first_gw_col = None
             for col in df.columns:
@@ -60,6 +60,18 @@ def read_data(options, source, weights=None, discard_am=False):
                     df[col.split('_')[0] + '_weight'] = weight
             all_data.append(df)
         
+        # Separate AM columns
+        am_data = [i[i['Pos'] == 'AM'].copy() for i in all_data]
+        for i,d in enumerate(all_data):
+            d = d[d['Pos'] != 'AM'].copy()
+            d['review_id'] = d['review_id'].astype(np.int64)
+
+            for col in d.columns:
+                if "_xMins" in col:
+                    d[col] = pd.to_numeric(d[col], errors="coerce").fillna(0).astype(int)
+
+            all_data[i] = d
+
         # Update EV by weight
         new_data = []
         # for d, w in zip(data, data_weights):
@@ -125,6 +137,13 @@ def read_data(options, source, weights=None, discard_am=False):
 
         final_data = pd.concat([final_data, pd.DataFrame(missing_players)]).fillna(0)
 
+        if options.get('export_am_ev'):
+            for d in am_data:
+                if len(d) > 0:
+                    am_first = d[['Pos', 'ID', 'Name', 'BV', 'SV', 'Team'] + [c for c in d.columns if '_Pts' in c]]
+                    final_data = pd.concat([final_data, am_first])
+                    final_data.fillna(0, inplace=True)
+                    break
 
 
         return final_data
