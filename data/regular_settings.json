@@ -70,7 +70,7 @@
     "iteration_target": [],
     "report_decay_base": [0.85, 1.0, 1.017],
     "datasource": "review",
-    "export_am_ev": false,
+    "export_am_ev": true,
     "data_weights": { "review": 40, "review-odds": 30, "mikkel": 30 },
     "export_data": "final.csv",
     "team_data": "json",
