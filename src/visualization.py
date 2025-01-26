@@ -69,7 +69,10 @@ def create_squad_timeline(current_squad, statistics, picks, filename):
             ax.text(gw_idx * gameweek_spacing, base_y + 1, f'GW{week}',
                     color=text_color, fontsize=10, ha='center')
             if 'chip' in gw_players.columns and not gw_players['chip'].isna().all():
-                chip = gw_players['chip'].iloc[0]
+                try:
+                    chip = gw_players.loc[gw_players['chip'] != '']['chip'].iloc[0]
+                except:
+                    chip = gw_players['chip'].iloc[0]
                 if pd.notna(chip):
                     ax.text(gw_idx * gameweek_spacing, base_y + 0.7, chip,
                             color=text_color, fontsize=8, ha='center')
