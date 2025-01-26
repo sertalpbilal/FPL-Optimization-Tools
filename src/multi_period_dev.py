@@ -1273,6 +1273,7 @@ def solve_multi_period_fpl(data, options):
                     if w == next_gw:
                         move_summary['sell'].append(am_manager[t])
 
+            gw_players = picks_df[picks_df['week'] == w]
             lineup_players = picks_df[(picks_df['week'] == w) & (picks_df['lineup'] == 1)]
             bench_players = picks_df[(picks_df['week'] == w) & (picks_df['bench'] >= 0)]
 
@@ -1315,6 +1316,7 @@ def solve_multi_period_fpl(data, options):
                 'pt': penalized_transfers[w].get_value(),
                 'nt': number_of_transfers[w].get_value(),
                 'xP': round(lineup_players['xp_cont'].sum(), 2),
+                'obj': round(gw_total[w].get_value(), 2),
                 'chip': chip_decision if chip_decision != "" else None
             }
 

@@ -295,10 +295,13 @@ def create_squad_timeline(current_squad, statistics, picks, filename):
             # Position summary stats relative to last player
             stats_y = base_y - (player_idx + 1) * player_spacing
 
-            ax.text(gw_idx * gameweek_spacing, stats_y, f"{gw_statistics['xP']:.2f} xPts",
+            ax.text(gw_idx * gameweek_spacing, stats_y, f"Lineup {gw_statistics['xP']:.2f} xPts",
+                    color=text_color, fontsize=10, ha='center')
+            
+            ax.text(gw_idx * gameweek_spacing, stats_y - 0.4, f"Obj {gw_statistics['obj']:.2f} xPts",
                     color=text_color, fontsize=10, ha='center')
 
-            ax.text(gw_idx * gameweek_spacing, stats_y - 0.4, f"ITB: {gw_statistics['itb']:.1f}",
+            ax.text(gw_idx * gameweek_spacing, stats_y - 0.8, f"ITB: {gw_statistics['itb']:.1f}",
                     color=text_color, fontsize=8, ha='center')
 
             transfer_str = ''
@@ -306,7 +309,7 @@ def create_squad_timeline(current_squad, statistics, picks, filename):
                 if key in gw_statistics:
                     transfer_str += f'{key.upper()}: {gw_statistics[key]}  '
 
-            ax.text(gw_idx * gameweek_spacing, stats_y - 0.75, transfer_str,
+            ax.text(gw_idx * gameweek_spacing, stats_y - 1.15, transfer_str,
                     color=text_color, fontsize=8, ha='center')
 
     total_width = (len(display_weeks) - 1) * gameweek_spacing + box_width
