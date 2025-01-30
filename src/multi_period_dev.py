@@ -14,6 +14,7 @@ import random
 import string
 from data_parser import read_data
 from itertools import product
+import traceback
 
 def get_random_id(n):
     return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
@@ -1072,14 +1073,18 @@ def solve_multi_period_fpl(data, options):
             else:
                 def print_output(process):
                     while True:
-                        output = process.stdout.readline()
-                        if 'Solving report' in output:
-                            time.sleep(2)
-                            process.kill()
-                        elif output == '' and process.poll() is not None:
-                            break
-                        elif output:
-                            print(output.strip())
+                        try:
+                            output = process.stdout.readline()
+                            if 'Solving report' in output:
+                                time.sleep(2)
+                                process.kill()
+                            elif output == '' and process.poll() is not None:
+                                break
+                            elif output:
+                                print(output.strip())
+                        except Exception as e:
+                            print('Exception when reading output')
+                            traceback.print_exc()
 
                 process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
                 output_thread = threading.Thread(target=print_output, args=(process,))
