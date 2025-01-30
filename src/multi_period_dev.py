@@ -760,6 +760,10 @@ def solve_multi_period_fpl(data, options):
         locked_in_gw = [(x, gameweeks[0]) if isinstance(x, int) else tuple(x) for x in options['locked_next_gw']]
         model.add_constraints((squad[p0, p1] == 1 for (p0, p1) in locked_in_gw), name='lock_player_specified_gw')
 
+    if options.get("locked_am", None):
+        print("OC - Locked AM")
+        model.add_constraints((use_am_pick[manager, gw] == 1 for (manager, gw) in options["locked_am"]), name="force_am_specified_gw")
+
     if options.get("no_future_transfer", None):
         print("OC - No Future Tr")
         model.add_constraint(so.expr_sum(transfer_in[p,w] for p in players for w in gameweeks if w > next_gw and w != options.get('use_wc')) == 0, name='no_future_transfer')

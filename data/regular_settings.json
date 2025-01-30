@@ -19,6 +19,7 @@
     "banned_next_gw": [],
     "locked": [],
     "locked_next_gw": [],
+    "locked_am": [],
     "price_changes": [],
     "keep": [],
     "delete_tmp": true,
