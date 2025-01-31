@@ -1089,6 +1089,8 @@ def solve_multi_period_fpl(data, options):
                         except Exception as e:
                             print('Exception when reading output')
                             traceback.print_exc()
+                            break
+                    process.kill()
 
                 process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
                 output_thread = threading.Thread(target=print_output, args=(process,))
