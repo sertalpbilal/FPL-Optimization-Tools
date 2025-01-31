@@ -1087,8 +1087,8 @@ def solve_multi_period_fpl(data, options):
                             elif output:
                                 print(output.strip())
                         except Exception as e:
-                            print('Exception when reading output')
-                            traceback.print_exc()
+                            print('File closed')
+                            # traceback.print_exc()
                             break
                     process.kill()
 
