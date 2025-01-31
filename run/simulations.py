@@ -15,11 +15,11 @@ def run_sensitivity(options=None):
         # print("")
         runs = int(input("How many simulations would you like to run? "))
         processes = int(input("How many processes you want to run in parallel? "))
+        use_binaries = input("Use binaries (y or n)? ")
     else:
         runs = options.get('count', 1)
         processes = options.get('processes', 1)
-    
-    use_binaries = options.get('use_binaries', 'n')
+        use_binaries = options.get('use_binaries', 'n')
 
     # if use_binaries is set loop through binary_files dict in regular_settings and set number of sim run for each binary based on provided weights
     if use_binaries.lower() == 'y':
