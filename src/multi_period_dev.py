@@ -698,12 +698,12 @@ def solve_multi_period_fpl(data, options):
     model.add_constraint(so.expr_sum(use_am[w] for w in gameweeks) <= chip_limits.get('am', 0), name='use_am_limit')
 
     # AM constraints
-    model.add_constraints((use_am_pick['dummy',w] == 1 - use_am_active[w] for w in gameweeks), name='am_dummy')
+    model.add_constraints((use_am_pick['dummy',w] == 1 - use_am_active[w] for w in all_gw), name='am_dummy')
     model.add_constraints((use_am_active[w] >= use_am[w] for w in gameweeks), name='am_t0')
-    model.add_constraints((use_am_active[w+1] >= use_am[w] for w in gameweeks if w+1 in gameweeks), name='am_t1')
-    model.add_constraints((use_am_active[w+2] >= use_am[w] for w in gameweeks if w+2 in gameweeks), name='am_t2')
-    model.add_constraint(so.expr_sum(use_am_active[w] for w in gameweeks) <= 3, name='am_max3')
-    model.add_constraints((so.expr_sum(use_am_pick[t,w] for t in teams_extended) == 1 for w in gameweeks), name='am_pick_1')
+    model.add_constraints((use_am_active[w+1] >= use_am[w] for w in gameweeks if w+1 in all_gw), name='am_t1')
+    model.add_constraints((use_am_active[w+2] >= use_am[w] for w in gameweeks if w+2 in all_gw), name='am_t2')
+    model.add_constraint(so.expr_sum(use_am_active[w] for w in all_gw) <= 3, name='am_max3')
+    model.add_constraints((so.expr_sum(use_am_pick[t,w] for t in teams_extended) == 1 for w in all_gw), name='am_pick_1')
     model.add_constraints((use_am_pick[t,w] == (use_am_pick[t,w-1] if w-1 in all_gw else (1 if t == 'dummy' else 0)) + use_am_tr_in[t,w] - use_am_tr_out[t,w] for t in teams_extended for w in gameweeks), name='am_sq')
     model.add_constraints((use_am_tr_in[t,w] + use_am_tr_out[t,w] <= 1 for t in teams_extended for w in gameweeks), name='am_tre')
     model.add_constraints((use_am_tr_in[t,w] <= use_am_active[w] for t in teams_extended for w in gameweeks if t != 'dummy'), 'no_am_tr_in')
@@ -712,20 +712,25 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((use_am_tr_in['dummy', w+3] == use_am[w] for w in gameweeks if w+3 in gameweeks), name='am_trigger_fn')
 
     if not am_enabled:
-        model.add_constraints((use_am[w] == 0 for w in gameweeks), name="no_am1")
-        model.add_constraints((use_am_pick[t,w] == 0 for t in teams_extended for w in gameweeks if t != 'dummy'), name="no_am2")
-        model.add_constraints((use_am_tr_in[t,w] == 0 for t in teams_extended for w in gameweeks if t != 'dummy'), name="no_am3")
-        model.add_constraints((use_am_tr_out[t,w] == 0 for t in teams_extended for w in gameweeks if t != 'dummy'), name="no_am4")
-        model.add_constraints((use_am_pick['dummy', w] == 1 for w in gameweeks), name="no_am5")
+        model.add_constraints((use_am[w] == 0 for w in all_gw), name="no_am1")
+        model.add_constraints((use_am_pick[t,w] == 0 for t in teams_extended for w in all_gw if t != 'dummy'), name="no_am2")
+        model.add_constraints((use_am_tr_in[t,w] == 0 for t in teams_extended for w in all_gw if t != 'dummy'), name="no_am3")
+        model.add_constraints((use_am_tr_out[t,w] == 0 for t in teams_extended for w in all_gw if t != 'dummy'), name="no_am4")
+        model.add_constraints((use_am_pick['dummy', w] == 1 for w in all_gw), name="no_am5")
 
     else:
         if initial_am_team:
+            previous_gw = next_gw-1
             am_chip = [x for x in data["my_data"]["chips"] if x["name"] == "manager"][0]
             start_gw = am_chip["played_by_entry"][0]
             model.add_constraints((use_am_active[gw] == (1 if gw < start_gw + 3 else 0) for gw in all_gw), name="am_active_in_gw")
-            model.add_constraint((use_am_pick[initial_am_team, all_gw[0]] == 1), name="current_am")
+            model.add_constraint(use_am_pick[initial_am_team, previous_gw] == 1, name="current_am")
+            model.add_constraints((use_am_pick[t,previous_gw] == 0 for t in teams_extended if t != initial_am_team), name='nc_am')
         else:
-            model.add_constraint((use_am_active[all_gw[0]] == 0), name="am_disabled")
+            previous_gw = next_gw-1 
+            model.add_constraint(use_am_active[previous_gw] == 0, name="am_disabled")
+            model.add_constraints((use_am_pick[t,previous_gw] == 0 for t in teams_shorts), name="am01")
+            model.add_constraint(use_am_pick['dummy',previous_gw] == 1, name="am02")
 
     model.add_constraints((squad_fh[p,w] <= use_fh[w] for p in players for w in gameweeks), name='fh_squad_logic')
 
