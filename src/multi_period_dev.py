@@ -724,6 +724,8 @@ def solve_multi_period_fpl(data, options):
             start_gw = am_chip["played_by_entry"][0]
             model.add_constraints((use_am_active[gw] == (1 if gw < start_gw + 3 else 0) for gw in all_gw), name="am_active_in_gw")
             model.add_constraint((use_am_pick[initial_am_team, all_gw[0]] == 1), name="current_am")
+        else:
+            model.add_constraint((use_am_active[all_gw[0]] == 0), name="am_disabled")
 
     model.add_constraints((squad_fh[p,w] <= use_fh[w] for p in players for w in gameweeks), name='fh_squad_logic')
 
