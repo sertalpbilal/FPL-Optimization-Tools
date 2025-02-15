@@ -80,8 +80,20 @@
     "solve_name": "regular",
     "override_next_gw": null,
     "binary_files": {
-      "fplreview_binary_1.csv": 0.6,
-      "fplreview_binary_2.csv": 0.3,
-      "fplreview_binary_3.csv": 0.1
-    }
+      "fplreview_binary_1.csv": {
+        "weight": 0.34,
+        "fixtures": { 
+          "Arsenal": { "33": "34", "36": "29"},
+          "Newcastle": { "33": "34", "36": "29"}
+        }
+      },
+      "fplreview_binary_2.csv": {
+        "weight": 0.2,
+        "fixtures": { 
+          "Brighton": { "33": "34", "36": "29"},
+          "Wolves": { "33": "34", "36": "29"}
+        }        
+      }    
+    },
+    "generate_binary_files": true
 }
