@@ -120,21 +120,38 @@ def generate_team_json(team_id, options):
     # once they have been iterated through, can then add on the current selling price
     squad = {x["element"]: start_prices[x["element"]] for x in gw1["picks"]}
 
-    itb = 1000 - sum(squad.values())
-    for t in transfers:
-        if t["event"] == fh:
-            continue
-        itb += t["element_out_cost"]
-        itb -= t["element_in_cost"]
-        del squad[t["element_out"]]
-        squad[t["element_in"]] = t["element_in_cost"]
-
     am_used = 0
+    transfers_with_am = transfers.copy()
     for i, chip in enumerate(chips):
         chips[i]["played_by_entry"] = [chip["event"]]
         if chip["name"] == "manager":
             am_used = chip["event"]
         del chips[i]["event"]
+
+    if am_used:
+        # find the manager that was initially picked and add that as a 'fake' transfer
+        url  = f"{BASE_URL}/entry/{team_id}/event/{am_used}/picks/"
+        manager = session.get(url).json()["picks"][-1]["element"]
+        transfers_with_am.append({"event": am_used, "element_in": manager, "element_in_cost": start_prices[manager], "element_out": None, "element_out_cost": 0})
+
+    if am_used and next_gw - am_used >= 3:
+        # find the manager that was present at the end of the AM chip and add that as a 'fake' transfer
+        url  = f"{BASE_URL}/entry/{team_id}/event/{am_used + 2}/picks/"
+        manager = session.get(url).json()["picks"][-1]["element"]
+        transfers_with_am.append({"event": am_used + 3, "element_in": None, "element_in_cost": 0, "element_out": manager, "element_out_cost": start_prices[manager]})
+
+    transfers_with_am = sorted(transfers_with_am, key=lambda x: x["event"])
+
+    itb = 1000 - sum(squad.values())
+    for t in transfers_with_am:
+        if t["event"] == fh:
+            continue
+        itb += t["element_out_cost"]
+        itb -= t["element_in_cost"]
+        if t["element_in"]:
+            squad[t["element_in"]] = t["element_in_cost"]
+        if t["element_out"]:
+            del squad[t["element_out"]]
 
     fts = calculate_fts(transfers, next_gw, fh, wc_gws)
     my_data = {
@@ -167,19 +184,6 @@ def generate_team_json(team_id, options):
             }
         )
 
-    if am_used and next_gw < am_used + 3:
-        last_gw_url = f"{BASE_URL}/entry/{team_id}/event/{next_gw - 1}/picks/"
-        curr_picks = session.get(last_gw_url).json()
-        am = [x for x in curr_picks["picks"] if x["element_type"] == 5][0]["element"]
-        my_data["picks"].append(
-            {
-                "element": am,
-                "purchase_price": start_prices[am],
-                "selling_price": start_prices[am],
-                "element_type": 5
-            }
-        )
-        my_data["transfers"]["bank"] -= start_prices[am]
     return my_data
 
 
