@@ -6,6 +6,7 @@ from concurrent.futures import ProcessPoolExecutor
 import argparse
 from solve_regular import solve_regular
 import json
+import re
 
 def run_sensitivity(options=None):
 
@@ -24,23 +25,35 @@ def run_sensitivity(options=None):
     # if use_binaries is set loop through binary_files dict in regular_settings and set number of sim run for each binary based on provided weights
     if use_binaries.lower() == 'y':
         print("Using binary config for simulations")
+        print("Using binary config for simulations")
         with open('../data/regular_settings.json') as f:
-            settings = json.load(f)
+           settings = json.load(f)     
 
         # if generate_binary_files is set to true, generate binary files based on fixture configs
         if settings.get("generate_binary_files"):
             print("Generating binary files")
-            from binary_file_generator import generate_binary_files
 
+            from binary_file_generator import generate_binary_files
+            
+            # Read binary fixture markdown file
+            with open("../data/binary_fixture_settings.md", "r") as file:
+                fixture_setting_md = file.read()
+
+            # Extract JSON block using regex
+            match = re.search(r"```json\n(.*?)\n```", fixture_setting_md, re.DOTALL)
+            if match:
+                json_str = match.group(1)  # Extract JSON content
+                binary_fixture_settings = json.loads(json_str)
+            
             file_path = '../data/fplreview_original.csv'
-            generate_binary_files(file_path, settings)
+            generate_binary_files(file_path, binary_fixture_settings)
 
         # get total weights for configured binary files for scaling up weights to add up to 1
-        total_weights = sum([config.get("weight") for config in settings.get("binary_files").values()])
+        total_weights = sum([weight for weight in settings.get("binary_files").values()])
         
-        for binary, config in settings.get("binary_files").items():
-            scaled_weight = (config.get("weight") / total_weights)
-            print(f"Binary file {binary} weight scaled from {config.get("weight")} to {scaled_weight:.2f}") 
+        for binary, weight in settings["binary_files"].items():
+            scaled_weight = (weight / total_weights)
+            print(f"Binary file {binary} weight scaled from {weight} to {scaled_weight:.2f}") 
             weighted_runs = round(scaled_weight * runs)    
 
             print(f"Running {weighted_runs} simulations for binary file {binary}")

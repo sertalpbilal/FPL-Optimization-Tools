@@ -1,18 +1,11 @@
 import pandas as pd
 
-def generate_binary_files(file_path, options):
-    # Check if binary processing is enabled
-    if not options.get("generate_binary_files", False):
-        print("Binary file generation is disabled.")
-        return None
-    
+def generate_binary_files(file_path, fixtures_json):
     # Iterate through each binary file entry in config
-    for file_name, file_config in options.get("binary_files", {}).items():
+    for file_name, fixtures in fixtures_json.items():
         
         # Load original fixture CSV file
         df = pd.read_csv(file_path)
-
-        fixtures = file_config.get("fixtures", {})
         
         for team, binary_fix in fixtures.items():
             # Apply changes only to rows where the Team column matches the specified team
@@ -32,13 +25,11 @@ def generate_binary_files(file_path, options):
                     df.loc[team_mask, orig_gw_pts_col] = pd.to_numeric(df.loc[team_mask, orig_gw_pts_col], errors='coerce')
                     df.loc[team_mask, orig_gw_xmins_col] = pd.to_numeric(df.loc[team_mask, orig_gw_xmins_col], errors='coerce')
                     
-                    # Update key_Pts by adding key_value_Pts
+                    # Update target GW xPts by adding xPts from original GW 
                     df.loc[team_mask, new_gw_pts_col] += df.loc[team_mask, orig_gw_pts_col]
                     
-                    # Average key_xMins and key_value_xMins
-                    df.loc[team_mask, new_gw_xmins_col] = (
-                        df.loc[team_mask, new_gw_xmins_col] + df.loc[team_mask, orig_gw_xmins_col]
-                    ) / 2
+                    # Use target GW xMins
+                    df.loc[team_mask, new_gw_xmins_col] = df.loc[team_mask, new_gw_xmins_col]
                     
                     # Zero out key_value_Pts and key_value_xMins
                     df.loc[team_mask, [orig_gw_pts_col, orig_gw_xmins_col]] = 0
