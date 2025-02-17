@@ -19,6 +19,7 @@
     "banned_next_gw": [],
     "locked": [],
     "locked_next_gw": [],
+    "locked_am": [],
     "price_changes": [],
     "keep": [],
     "delete_tmp": true,
@@ -70,12 +71,17 @@
     "iteration_target": [],
     "report_decay_base": [0.85, 1.0, 1.017],
     "datasource": "review",
-    "export_am_ev": false,
+    "export_am_ev": true,
     "data_weights": { "review": 40, "review-odds": 30, "mikkel": 30 },
     "export_data": "final.csv",
     "team_data": "json",
     "team_id": null,
     "export_image": true,
     "solve_name": "regular",
-    "override_next_gw": null
+    "override_next_gw": null,
+    "binary_files": {
+      "fplreview_binary_1.csv": 0.6,
+      "fplreview_binary_2.csv": 0.3,
+      "fplreview_binary_3.csv": 0.1
+    }
 }

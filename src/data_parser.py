@@ -5,14 +5,35 @@ from fuzzywuzzy import fuzz
 import numpy as np
 
 
-def read_data(options, source, weights=None):
+def read_data(options, source, weights=None, discard_am=False):
     if source == 'review':
-        data = pd.read_csv(options.get('data_path', '../data/fplreview.csv'))
+        if options.get("binary_file_name"):
+            data_path = "../data/" + options.get("binary_file_name") + ".csv"
+        else:
+            data_path = options.get('data_path', '../data/fplreview.csv')
+        data = pd.read_csv(data_path)
         data['review_id'] = data['ID']
+        
+        if discard_am:
+            data = data[data['Pos'] != 'AM'].copy()
+            data['review_id'] = data['review_id'].astype(np.int64)
+            for col in data.columns:
+                if "_xMins" in col:
+                    data[col] = pd.to_numeric(data[col], errors="coerce").fillna(0).astype(int)
+        
         return data
     elif source == 'review-odds':
         data = pd.read_csv(options.get('data_path', '../data/fplreview-odds.csv'))
+
         data['review_id'] = data['ID']
+
+        if discard_am:
+            data = data[data['Pos'] != 'AM'].copy()
+            data['review_id'] = data['review_id'].astype(np.int64)
+            for col in data.columns:
+                if "_xMins" in col:
+                    data[col] = pd.to_numeric(data[col], errors="coerce").fillna(0).astype(int)
+
         return data
     elif source == 'mikkel':
         convert_mikkel_to_review(options.get('mikkel_data_path', '../data/TransferAlgorithm.csv'))
@@ -25,7 +46,7 @@ def read_data(options, source, weights=None):
         for (name, weight) in weights.items():
             if (weight == 0):
                 continue
-            df = read_data(options, name, None)
+            df = read_data(options, name, weights=None, discard_am=False)
             # drop players without data
             first_gw_col = None
             for col in df.columns:
@@ -39,6 +60,18 @@ def read_data(options, source, weights=None):
                     df[col.split('_')[0] + '_weight'] = weight
             all_data.append(df)
         
+        # Separate AM columns
+        am_data = [i[i['Pos'] == 'AM'].copy() for i in all_data]
+        for i,d in enumerate(all_data):
+            d = d[d['Pos'] != 'AM'].copy()
+            d['review_id'] = d['review_id'].astype(np.int64)
+
+            for col in d.columns:
+                if "_xMins" in col:
+                    d[col] = pd.to_numeric(d[col], errors="coerce").fillna(0).astype(int)
+
+            all_data[i] = d
+
         # Update EV by weight
         new_data = []
         # for d, w in zip(data, data_weights):
@@ -87,7 +120,7 @@ def read_data(options, source, weights=None):
         team_code_dict = {i['code']: i for i in teams}
         missing_players = []
         for p in players:
-            if p['id'] in existing_ids:
+            if p['id'] in existing_ids or p['element_type'] == 5:
                 continue
             missing_players.append({
                 'fpl_id': p['id'],
@@ -104,6 +137,13 @@ def read_data(options, source, weights=None):
 
         final_data = pd.concat([final_data, pd.DataFrame(missing_players)]).fillna(0)
 
+        if options.get('export_am_ev'):
+            for d in am_data:
+                if len(d) > 0:
+                    am_first = d[['Pos', 'ID', 'Name', 'BV', 'SV', 'Team'] + [c for c in d.columns if '_Pts' in c]]
+                    final_data = pd.concat([final_data, am_first])
+                    final_data.fillna(0, inplace=True)
+                    break
 
 
         return final_data
@@ -159,7 +199,8 @@ def fix_mikkel(file_address):
         'combined': e['first_name'] + ' ' + e['second_name'],
         'team': team_code_dict[e['team_code']]['mikkel_short'],
         'position': element_type_dict[e['element_type']],
-    } for e in players]
+    } for e in players
+      if e["element_type"] <= 4]
     for target in player_names:
         target['wn'] = remove_accents(target['web_name'])
         target['cn'] = remove_accents(target['combined'])
@@ -201,7 +242,7 @@ def fix_mikkel(file_address):
     existing_ids = df_cleaned['FPL ID'].tolist()
     missing_players = []
     for p in players:
-        if p['id'] in existing_ids:
+        if p['id'] in existing_ids or p["element_type"] == 5:
             continue
         missing_players.append({
             'Position': element_type_dict[p['element_type']],
@@ -265,7 +306,7 @@ def convert_mikkel_to_review(target):
     values = []
     existing_players = df_final['review_id'].to_list()
     for i in player_ids:
-        if i not in existing_players:
+        if i not in existing_players and player_pos[i] != 5:
             entry = {'review_id': i, 'Name': player_names[i], 'Pos': pos_no[player_pos[i]], 'Value': player_price[i], **{f'{gw}_{tag}': 0 for gw in gws for tag in ['Pts', 'xMins']}}
             values.append(entry)
 

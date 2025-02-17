@@ -101,6 +101,7 @@ You will need to follow steps below to install required platform and also optimi
     "banned_next_gw": [],
     "locked": [],
     "locked_next_gw": [],
+    "locked_am": [],
     "price_changes": [],
     "delete_tmp": true,
     "secs": 300,
@@ -175,6 +176,7 @@ You will need to follow steps below to install required platform and also optimi
   - `banned_next_gw`: list of player IDs to be banned for the next gameweek. Alternatively, you can supply an `[ID, gameweek]` list as an element of the list to ban a player just for one specific gameweek. E.g. `[100, [200, 32]]` bans player with ID 100 for the next gameweek, and bans player with ID 200 for gameweek 32
   - `locked`: list of player IDs to always have during the horizon (e.g. `233` for Salah)
   - `locked_next_gw`: List of player IDs to force just for the next gameweek. See `banned_next_gw` for extended usage
+  - `locked_am`: List of [team, gameweek] pairs to lock a manager in for. E.g. [["LIV", 24], ["FUL", 25]] will lock in the Liverpool manager for gameweek 24, and the Fulham manager for gameweek 25
   - `price_changes`: Supply a list of `[ID, price_change]` pairs to solve as if a player's price has risen or dropped compared to the live price. E.g. `[[311, 1], [351, -1]]` will solve as if Alexander-Arnold's price is £0.1m higher, and Haaland's price is £0.1m lower than it is in reality.
   - `delete_tmp`: `true` or `false` whether to delete generated temporary files after solve
   - `secs`: time limit for the solve (in seconds)
