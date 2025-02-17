@@ -15,6 +15,32 @@ def get_random_id(n):
     return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
 
 
+def load_config_files(config_paths):
+    """
+    Load and merge multiple configuration files.
+    Files are merged in order, with later files overriding earlier ones.
+    """
+    merged_config = {}
+    if not config_paths:
+        return merged_config
+    
+    paths = config_paths.split(';')
+    for path in paths:
+        path = path.strip()
+        if not path:
+            continue
+        try:
+            with open(path) as f:
+                config = json.load(f)
+                merged_config.update(config)
+        except FileNotFoundError:
+            print(f"Warning: Configuration file {path} not found")
+        except json.JSONDecodeError:
+            print(f"Warning: Configuration file {path} is not valid JSON")
+    
+    return merged_config
+
+
 def is_latest_version():
     try:
         # Get the current branch name
@@ -63,28 +89,40 @@ def solve_regular(runtime_options=None):
     from visualization import create_squad_timeline
     import data_parser as pr
 
+    # Create a base parser first for the --config argument
+    base_parser = argparse.ArgumentParser(add_help=False)
+    base_parser.add_argument('--config', type=str, help='Path to one or more configuration files (semicolon-delimited)')
+    base_args, remaining_args = base_parser.parse_known_args()
+
+    # Load base configuration file
     if is_colab:
-        # Read options from the file
         with open('settings.json') as f:
             options = json.load(f)
-
     else:
-        # Read options from the file
         with open('../data/regular_settings.json') as f:
             options = json.load(f)
 
-    parser = argparse.ArgumentParser(add_help=False)
-    for key in options.keys():
-        if isinstance(options[key], (list, dict)):
+    # Load and merge additional configuration files if specified
+    if base_args.config:
+        config_options = load_config_files(base_args.config)
+        options.update(config_options)  # Override base config with additional configs
+
+    # Create the full parser with all configuration options
+    parser = argparse.ArgumentParser(parents=[base_parser])
+    for key, value in options.items():
+        if isinstance(value, (list, dict)):
             continue
+        parser.add_argument(f"--{key}", type=type(value), default=value)
 
-        parser.add_argument(f"--{key}", default=options[key], type=type(options[key]))
-
-    args = parser.parse_known_args()[0]
-    options = {**options, **vars(args)}
+    # Parse remaining arguments, which will take highest priority
+    args = parser.parse_args(remaining_args)
+    cli_options = {k: v for k, v in vars(args).items() if v is not None and k != 'config'}
+    
+    # Update options with CLI arguments (highest priority)
+    options.update(cli_options)
     
     if runtime_options is not None:
-        options = {**options, **runtime_options}
+        options.update(runtime_options)
 
     if options.get("cbc_path") != "" and options.get("cbc_path") is not None:
         os.environ['PATH'] += os.pathsep + options.get("cbc_path")
