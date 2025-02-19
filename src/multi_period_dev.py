@@ -1470,8 +1470,8 @@ def solve_multi_period_fpl(data, options):
             target_gws = options.get('iteration_target', [next_gw])
             transferred_players = [[p,w] for p in players for w in target_gws if transfer_in[p,w].get_value() > 0.5]
             remaining_players = [[p,w] for p in players for w in target_gws if transfer_in[p,w].get_value() < 0.5]
-            transferred_managers = [[t,w] for p in teams_extended for w in target_gws if use_am_tr_in[t,w].get_value() > 0.5]
-            remaining_managers = [[t,w] for p in teams_extended for w in target_gws if use_am_tr_in[t,w].get_value() < 0.5]
+            transferred_managers = [[t,w] for t in teams_extended for w in target_gws if use_am_tr_in[t,w].get_value() > 0.5]
+            remaining_managers = [[t,w] for t in teams_extended for w in target_gws if use_am_tr_in[t,w].get_value() < 0.5]
             actions = so.expr_sum(1-transfer_in[p,w] for [p,w] in transferred_players) \
                     + so.expr_sum(transfer_in[p,w] for [p,w] in remaining_players) \
                     + so.expr_sum(1-use_am_tr_in[t,w] for [t,w] in transferred_managers) \
