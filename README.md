@@ -268,6 +268,36 @@ You will need to follow steps below to install required platform and also optimi
     regular_2021-11-04_10-00-00.csv
   ```
 
+### CLI Arguments
+
+As noted above, the default configuration file is located in `data/regular_settings.json`. 
+
+Any string/numeric option can also be specified included as a CLI argument, allowing for quick running of multiple configurations. For example, to run the solver with a different `horizon` value, you can run the following command:
+
+```shell
+python solve_regular.py --horizon 5
+```
+
+This will override the `horizon` value in the `regular_settings.json` file with the value `5`.
+
+### Multiple Configuration Files
+
+There may be instances where you need to make large changes to the configuration file (such as when solving for chips), but want to retain the original configuration file for future use. In this case, you can create a new configuration file and pass it as an argument to the solver. For example, to run the solver with a different configuration file, you can run the following command:
+
+```shell
+python solve_regular.py --config="../data/my_new_config.json"
+```
+
+This will override the configuration file with the one located at `../data/my_new_config.json`.
+
+You can also stack configurations by passing multiple files. This lets you create configuration files that are subsets of the main configuration file, and then combine them as needed. For example, to run the solver with two configuration files, you can run the following command:
+
+```shell
+python solve_regular.py --config="../data/my_new_config.json;../data/my_other_config.json"
+```
+
+You can continue to pass CLI commands as needed, and they will always override the configuration files.
+
 ## Run in Docker
 
 A Dockerised version of the solver is included in this repo which
