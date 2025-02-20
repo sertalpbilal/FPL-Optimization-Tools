@@ -253,14 +253,20 @@ def solve_regular(runtime_options=None):
     for result in response:
         picks = result['picks']
         gws = picks['week'].unique()
-        print(f"Solution {result['iter']+1}")
+        am_chip_end_df = picks.loc[picks["name"] == "AM-Chip-End", "week"]
+        am_chip_end = None if len(am_chip_end_df) == 0 else am_chip_end_df.iloc[0]
         for gw in gws:
             line_text = ''
             chip_text = picks[picks['week']==gw].iloc[0]['chip']
             if chip_text != '':
                 line_text += '(' + chip_text + ') '
-            sell_text = ', '.join(picks[(picks['week'] == gw) & (picks['transfer_out'] == 1)]['name'].to_list())
-            buy_text = ', '.join(picks[(picks['week'] == gw) & (picks['transfer_in'] == 1)]['name'].to_list())
+            if gw == am_chip_end:
+                sell_text = ', '.join(picks[(picks['week'] == gw) & (picks['transfer_out'] == 1) & (picks["pos"] != "AMN")]['name'].to_list())
+                buy_text = ', '.join(picks[(picks['week'] == gw) & (picks['transfer_in'] == 1) & (picks["pos"] != "AMN")]['name'].to_list())
+            else:
+                sell_text = ', '.join(picks[(picks['week'] == gw) & (picks['transfer_out'] == 1)]['name'].to_list())
+                buy_text = ', '.join(picks[(picks['week'] == gw) & (picks['transfer_in'] == 1)]['name'].to_list())
+
             if sell_text != '' or buy_text != '':
                 line_text += sell_text + ' -> ' + buy_text
             else:
