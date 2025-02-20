@@ -80,20 +80,61 @@
     "solve_name": "regular",
     "override_next_gw": null,
     "binary_files": {
-      "fplreview_binary_1.csv": {
-        "weight": 0.34,
-        "fixtures": { 
-          "Arsenal": { "33": "34", "36": "29"},
-          "Newcastle": { "33": "34", "36": "29"}
-        }
-      },
-      "fplreview_binary_2.csv": {
-        "weight": 0.2,
-        "fixtures": { 
-          "Brighton": { "33": "34", "36": "29"},
-          "Wolves": { "33": "34", "36": "29"}
-        }        
-      }    
+        "fplreview_binary_1.csv": {
+          "weight": 0.031,
+          "fixtures": { 
+            "Bournemouth": { "33": "34" },
+            "Man Utd": { "33": "34" },
+            "Man City": { "33": "34" },
+            "Aston Villa": { "33": "34" },
+            "Newcastle": { "36": "34" },
+            "Ipswich": { "36": "34" }
+          }
+        },
+        "fplreview_binary_2.csv": {
+          "weight": 0.025,
+          "fixtures": { 
+            "Bournemouth": { "33": "34", "36": "37" },
+            "Man Utd": { "33": "34" },
+            "Man City": { "33": "34", "36": "37" },
+            "Aston Villa": { "33": "34" },
+            "Newcastle": { "36": "34" },
+            "Ipswich": { "36": "34" }
+          }       
+        },
+        "fplreview_binary_3.csv": {
+          "weight": 0.018,
+          "fixtures": { 
+            "Man City": { "33": "34" },
+            "Aston Villa": { "33": "34" },
+            "Newcastle": { "36": "34" },
+            "Ipswich": { "36": "34" },
+            "Arsenal": { "36": "34" },
+            "Crystal Palace": { "36": "34" }
+          }       
+        },
+        "fplreview_binary_4.csv": {
+          "weight": 0.017,
+          "fixtures": { 
+            "Bournemouth": { "33": "34" },
+            "Man Utd": { "33": "34" },
+            "Man City": { "33": "34" },
+            "Aston Villa": { "33": "34" },
+            "Arsenal": { "36": "34" },
+            "Crystal Palace": { "36": "34" }
+          }       
+        },
+        "fplreview_binary_5.csv": {
+          "weight": 0.017,
+          "fixtures": { 
+            "Bournemouth": { "33": "34" },
+            "Man Utd": { "33": "34" },
+            "Man City": { "36": "34" },
+            "Aston Villa": { "36": "34" },
+            "Newcastle": { "36": "34" },
+            "Ipswich": { "36": "34" }
+          }       
+        }      
     },
     "generate_binary_files": true
 }
