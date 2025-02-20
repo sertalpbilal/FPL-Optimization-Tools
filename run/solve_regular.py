@@ -90,6 +90,7 @@ def solve_regular(runtime_options=None):
     import data_parser as pr
 
     # Create a base parser first for the --config argument
+    # remaining_args is all the command line args that aren't --config
     base_parser = argparse.ArgumentParser(add_help=False)
     base_parser.add_argument('--config', type=str, help='Path to one or more configuration files (semicolon-delimited)')
     base_args, remaining_args = base_parser.parse_known_args()
@@ -110,17 +111,51 @@ def solve_regular(runtime_options=None):
     # Create the full parser with all configuration options
     parser = argparse.ArgumentParser(parents=[base_parser])
     for key, value in options.items():
-        if isinstance(value, (list, dict)):
+        if value is None or isinstance(value, (list, dict)):
+            parser.add_argument(f"--{key}", default=value)
             continue
         parser.add_argument(f"--{key}", type=type(value), default=value)
 
     # Parse remaining arguments, which will take highest priority
-    args = parser.parse_args(remaining_args)
-    cli_options = {k: v for k, v in vars(args).items() if v is not None and k != 'config'}
-    
+    args = vars(parser.parse_args(remaining_args))
+
+    # this code block is to look at command line arguments (read as a string) and determine what type
+    # they should be when there is no default argument type set by the code above
+    for key, value in args.items():
+        if key not in options:
+            continue
+        if value == options[key]:  # skip anything that hasn't been edited by command line argument
+            continue
+
+        if options[key] is None or isinstance(options[key], (list, dict)):
+            if value.isdigit():
+                args[key] = int(value)
+                continue
+
+            try:
+                args[key] = float(value)
+                continue
+            except ValueError:
+                pass
+
+            if value[0] in "[{":
+                try:
+                    args[key] = json.loads(value)
+                    continue
+                except json.JSONDecodeError:
+                    value = value.replace("'", '"')
+                    args[key] = json.loads(value)
+                    continue
+                finally:
+                    pass
+
+            print(f"Problem with CL argument: {key}. Original value: {options[key]}, New value: {value}")
+
+    cli_options = {k: v for k, v in args.items() if v is not None and k != 'config'}
+
     # Update options with CLI arguments (highest priority)
     options.update(cli_options)
-    
+
     if runtime_options is not None:
         options.update(runtime_options)
 
