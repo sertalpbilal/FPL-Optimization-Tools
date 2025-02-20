@@ -4,3 +4,4 @@ sasoptpy>=1.0.5a0
 fuzzywuzzy
 python-Levenshtein
 matplotlib
+pytest
