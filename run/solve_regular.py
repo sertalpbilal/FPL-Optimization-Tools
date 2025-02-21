@@ -253,6 +253,7 @@ def solve_regular(runtime_options=None):
     for result in response:
         picks = result['picks']
         gws = picks['week'].unique()
+        print(f"Solution {result['iter']+1}")
         am_chip_end_df = picks.loc[picks["name"] == "AM-Chip-End", "week"]
         am_chip_end = None if len(am_chip_end_df) == 0 else am_chip_end_df.iloc[0]
         for gw in gws:
