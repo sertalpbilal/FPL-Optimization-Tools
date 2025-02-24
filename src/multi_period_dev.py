@@ -506,12 +506,10 @@ def solve_multi_period_fpl(data, options):
 
     try:
         am_df = pd.read_csv("../data/am_pts.csv", na_values=['nan', 'NaN']).fillna(0)
-        am_enabled=True
+        am_pts_exists = True
     except:
-        print("No data found for Assistant Manager projections. AM Chip will be disabled.")
         am_df = pd.DataFrame([], columns=['team', 'Price', 'Manager'])
-        am_enabled=False
-        options['use_am'] = None
+        am_pts_exists = False
     am_price = am_df.set_index('team')['Price'].to_dict()
     am_price['dummy'] = 0
     am_pts = {(row['team'], int(col.split('_')[0])): row[col] for _,row in am_df.iterrows() for col in am_df.columns if '_Pts'in col}
@@ -678,7 +676,6 @@ def solve_multi_period_fpl(data, options):
     # can only use tc on captain
     model.add_constraints((use_tc[p,w] <= captain[p,w] for p in players for w in gameweeks), name='tc_cap_rel')
 
-
     if options.get('use_wc', None) is not None:
         model.add_constraint(use_wc[options['use_wc']] == 1, name='force_wc')
         chip_limits['wc'] = 1
@@ -695,6 +692,43 @@ def solve_multi_period_fpl(data, options):
         model.add_constraint(use_am[options['use_am']] == 1, name='force_am')
         chip_limits['am'] = 1
     
+    if len(allowed_chip_gws.get('wc', [])) > 0:
+        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['wc']]
+        model.add_constraints((use_wc[w] == 0 for w in gws_banned), name='banned_wc_gws')
+        chip_limits['wc'] = 1
+    if len(allowed_chip_gws.get('fh', [])) > 0:
+        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['fh']]
+        model.add_constraints((use_fh[w] == 0 for w in gws_banned), name='banned_fh_gws')
+        chip_limits['fh'] = 1
+    if len(allowed_chip_gws.get('bb', [])) > 0:
+        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['bb']]
+        model.add_constraints((use_bb[w] == 0 for w in gws_banned), name='banned_bb_gws')
+        chip_limits['bb'] = 1
+    if len(allowed_chip_gws.get('tc', [])) > 0:
+        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['tc']]
+        model.add_constraints((use_tc_gw[w] == 0 for w in gws_banned), name='banned_tc_gws')
+        chip_limits['tc'] = 1
+    if len(allowed_chip_gws.get('am', [])) > 0:
+        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['am']]
+        model.add_constraints((use_am[w] == 0 for w in gws_banned), name='banned_am_gws')
+        chip_limits['am'] = 1
+
+    if len(forced_chip_gws.get('wc', [])) > 0:
+        model.add_constraint(so.expr_sum(use_wc[w] for w in forced_chip_gws['wc']) == 1, name='force_wc_gw')
+        chip_limits['wc'] = 1
+    if len(forced_chip_gws.get('fh', [])) > 0:
+        model.add_constraint(so.expr_sum(use_fh[w] for w in forced_chip_gws['fh']) == 1, name='force_fh_gw')
+        chip_limits['fh'] = 1
+    if len(forced_chip_gws.get('bb', [])) > 0:
+        model.add_constraint(so.expr_sum(use_bb[w] for w in forced_chip_gws['bb']) == 1, name='force_bb_gw')
+        chip_limits['bb'] = 1
+    if len(forced_chip_gws.get('tc', [])) > 0:
+        model.add_constraint(so.expr_sum(use_tc_gw[w] for w in forced_chip_gws['tc']) == 1, name='force_tc_gw')
+        chip_limits['tc'] = 1
+    if len(forced_chip_gws.get('am', [])) > 0:
+        model.add_constraint(so.expr_sum(use_am[w] for w in forced_chip_gws['am']) == 1, name='force_am_gw')
+        chip_limits['am'] = 1
+
     model.add_constraint(so.expr_sum(use_wc[w] for w in gameweeks) <= chip_limits.get('wc', 0), name='use_wc_limit')
     model.add_constraint(so.expr_sum(use_bb[w] for w in gameweeks) <= chip_limits.get('bb', 0), name='use_bb_limit')
     model.add_constraint(so.expr_sum(use_fh[w] for w in gameweeks) <= chip_limits.get('fh', 0), name='use_fh_limit')
@@ -715,60 +749,35 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((use_am_tr_out['dummy', w] == use_am[w] for w in gameweeks), name='am_trigger_st')
     model.add_constraints((use_am_tr_in['dummy', w+3] == use_am[w] for w in gameweeks if w+3 in gameweeks), name='am_trigger_fn')
 
-    if not am_enabled:
-        model.add_constraints((use_am[w] == 0 for w in all_gw), name="no_am1")
-        model.add_constraints((use_am_pick[t,w] == 0 for t in teams_extended for w in all_gw if t != 'dummy'), name="no_am2")
-        model.add_constraints((use_am_tr_in[t,w] == 0 for t in teams_extended for w in all_gw if t != 'dummy'), name="no_am3")
-        model.add_constraints((use_am_tr_out[t,w] == 0 for t in teams_extended for w in all_gw if t != 'dummy'), name="no_am4")
-        model.add_constraints((use_am_pick['dummy', w] == 1 for w in all_gw), name="no_am5")
+    model.add_constraints((squad_fh[p,w] <= use_fh[w] for p in players for w in gameweeks), name='fh_squad_logic')
 
-    else:
+
+    am_wanted = bool(options.get("chip_limits", {}).get("am")) or bool(initial_am_team)
+    if am_wanted and am_pts_exists:
         if initial_am_team:
-            previous_gw = next_gw-1
+            previous_gw = next_gw - 1
             am_chip = [x for x in data["my_data"]["chips"] if x["name"] == "manager"][0]
             start_gw = am_chip["played_by_entry"][0]
             model.add_constraints((use_am_active[gw] == (1 if gw < start_gw + 3 else 0) for gw in all_gw), name="am_active_in_gw")
             model.add_constraint(use_am_pick[initial_am_team, previous_gw] == 1, name="current_am")
             model.add_constraints((use_am_pick[t,previous_gw] == 0 for t in teams_extended if t != initial_am_team), name='nc_am')
         else:
-            previous_gw = next_gw-1 
-            model.add_constraint(use_am_active[previous_gw] == 0, name="am_disabled")
+            previous_gw = next_gw - 1
+            model.add_constraint(use_am_active[previous_gw] == 0, name="am_disabled_prev_gw")
             model.add_constraints((use_am_pick[t,previous_gw] == 0 for t in teams_shorts), name="am01")
             model.add_constraint(use_am_pick['dummy',previous_gw] == 1, name="am02")
 
-    model.add_constraints((squad_fh[p,w] <= use_fh[w] for p in players for w in gameweeks), name='fh_squad_logic')
-
-    if len(allowed_chip_gws.get('wc', [])) > 0:
-        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['wc']]
-        model.add_constraints((use_wc[w] == 0 for w in gws_banned), name='banned_wc_gws')
-    if len(allowed_chip_gws.get('fh', [])) > 0:
-        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['fh']]
-        model.add_constraints((use_fh[w] == 0 for w in gws_banned), name='banned_fh_gws')
-    if len(allowed_chip_gws.get('bb', [])) > 0:
-        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['bb']]
-        model.add_constraints((use_bb[w] == 0 for w in gws_banned), name='banned_bb_gws')
-    if len(allowed_chip_gws.get('tc', [])) > 0:
-        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['tc']]
-        model.add_constraints((use_tc_gw[w] == 0 for w in gws_banned), name='banned_tc_gws')
-    if len(allowed_chip_gws.get('am', [])) > 0:
-        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws['am']]
-        model.add_constraints((use_am[w] == 0 for w in gws_banned), name='banned_am_gws')
-
-    if len(forced_chip_gws.get('wc', [])) > 0:
-        model.add_constraint(so.expr_sum(use_wc[w] for w in forced_chip_gws['wc']) == 1, name='force_wc_gw')
-        chip_limits['wc'] = 1
-    if len(forced_chip_gws.get('fh', [])) > 0:
-        model.add_constraint(so.expr_sum(use_fh[w] for w in forced_chip_gws['fh']) == 1, name='force_fh_gw')
-        chip_limits['fh'] = 1
-    if len(forced_chip_gws.get('bb', [])) > 0:
-        model.add_constraint(so.expr_sum(use_bb[w] for w in forced_chip_gws['bb']) == 1, name='force_bb_gw')
-        chip_limits['bb'] = 1
-    if len(forced_chip_gws.get('tc', [])) > 0:
-        model.add_constraint(so.expr_sum(use_tc_gw[w] for w in forced_chip_gws['tc']) == 1, name='force_tc_gw')
-        chip_limits['tc'] = 1
-    if len(forced_chip_gws.get('am', [])) > 0:
-        model.add_constraint(so.expr_sum(use_am[w] for w in forced_chip_gws['am']) == 1, name='force_am_gw')
-        chip_limits['am'] = 1
+    else:
+        if am_wanted:
+            raise ValueError(
+                "\nYou are attempting to play the AM chip without an am_pts.csv file in the data/ folder.\n"
+                + "If using fplreview projections, you can set export_am_ev to true in order to automatically create the file."
+            )
+        model.add_constraints((use_am[w] == 0 for w in gameweeks), name="no_am1")
+        model.add_constraints((use_am_pick[t,w] == 0 for t in teams_extended for w in all_gw if t != 'dummy'), name="no_am2")
+        model.add_constraints((use_am_tr_in[t,w] == 0 for t in teams_extended for w in gameweeks if t != 'dummy'), name="no_am3")
+        model.add_constraints((use_am_tr_out[t,w] == 0 for t in teams_extended for w in gameweeks if t != 'dummy'), name="no_am4"), 
+        model.add_constraints((use_am_pick['dummy', w] == 1 for w in all_gw), name="no_am5")
 
     ## Multiple-sell fix
     model.add_constraints((transfer_out_first[p,w] + transfer_out_regular[p,w] <= 1 for p in price_modified_players for w in gameweeks), name='multi_sell_1')
