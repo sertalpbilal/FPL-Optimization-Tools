@@ -23,12 +23,25 @@ def run_sensitivity(options=None):
 
     # if use_binaries is set loop through binary_files dict in regular_settings and set number of sim run for each binary based on provided weights
     if use_binaries.lower() == 'y':
-        print("Using binary files for simulations")
+        print("Using binary config for simulations")
         with open('../data/regular_settings.json') as f:
             settings = json.load(f)
 
-        for binary, weight in settings["binary_files"].items():
-            weighted_runs = round(weight * runs)    
+        # if generate_binary_files is set to true, generate binary files based on fixture configs
+        if settings.get("generate_binary_files"):
+            print("Generating binary files")
+            from binary_file_generator import generate_binary_files
+
+            file_path = '../data/fplreview_original.csv'
+            generate_binary_files(file_path, settings)
+
+        # get total weights for configured binary files for scaling up weights to add up to 1
+        total_weights = sum([config.get("weight") for config in settings.get("binary_files").values()])
+        
+        for binary, config in settings.get("binary_files").items():
+            scaled_weight = (config.get("weight") / total_weights)
+            print(f"Binary file {binary} weight scaled from {config.get("weight")} to {scaled_weight:.2f}") 
+            weighted_runs = round(scaled_weight * runs)    
 
             print(f"Running {weighted_runs} simulations for binary file {binary}")
 
