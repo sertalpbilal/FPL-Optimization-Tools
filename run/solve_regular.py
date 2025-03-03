@@ -1,14 +1,17 @@
-import os
-import sys
-import pathlib
-import json
-import datetime
-import pandas as pd
 import argparse
+import csv
+import datetime
+import json
+import os
+import pathlib
 import random
 import string
-import requests
 import subprocess
+import sys
+import time
+
+import pandas as pd
+import requests
 
 
 def get_random_id(n):
@@ -85,9 +88,9 @@ def solve_regular(runtime_options=None):
 
     base_folder = pathlib.Path()
     sys.path.append(str(base_folder / "../src"))
-    from multi_period_dev import connect, get_my_data, prep_data, solve_multi_period_fpl, generate_team_json
-    from visualization import create_squad_timeline
     import data_parser as pr
+    from multi_period_dev import connect, generate_team_json, get_my_data, prep_data, solve_multi_period_fpl
+    from visualization import create_squad_timeline
 
     # Create a base parser first for the --config argument
     # remaining_args is all the command line args that aren't --config
@@ -206,6 +209,7 @@ def solve_regular(runtime_options=None):
 
     response = solve_multi_period_fpl(data, options)
     run_id = get_random_id(5)
+    options["run_id"] = run_id
     for result in response:
         iter = result['iter']
         print(result['summary'])
@@ -274,6 +278,39 @@ def solve_regular(runtime_options=None):
                 line_text += "Roll"
             print(f"\tGW{gw}: {line_text}")
 
+        solutions_file = options.get("solutions_file")
+        if solutions_file:
+            write_line_to_file(solutions_file, result, options)
+
+
+def write_line_to_file(filename, result, options):
+    t = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+    gw = min(result["picks"]["week"])
+    score = round(result["score"], 3)
+    picks = result["picks"]
+
+    cap = picks[(picks["week"] == gw) & (picks["captain"] > 0.5)].iloc[0]["id"].astype(int)
+    vcap = picks[(picks["week"] == gw) & (picks["vicecaptain"] > 0.5)].iloc[0]["id"].astype(int)
+    am_df = picks[(picks["week"] == gw) & (picks["pos"] == "AMN") & (picks["name"] != "AM-Chip-Start") & (picks["name"] != "AM-Chip-End")]
+    am = am_df.iloc[0]["team"] if len(am_df) > 0 else None
+
+    run_id = options["run_id"]
+    iter = result["iter"]
+    team_id = options.get("team_id")
+    chips = [options.get(x) for x in ["use_wc", "use_bb", "use_fh", "use_tc", "use_am"]]
+    sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["name"].to_list())
+    buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["name"].to_list())
+
+    data = [run_id, iter, team_id] + chips + [am, cap, vcap] + [sell_text, buy_text] + [score, t]
+    if not os.path.exists(filename):
+        headers = ["run_id", "iter", "user_id", "wc", "bb", "fh", "tc", "am", "am_team", "cap", "vcap", "sell", "buy", "score", "datetime"]
+        with open(filename, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(headers)
+
+    with open(filename, "a", newline="") as f:
+        writer = csv.writer(f)
+        writer.writerow(data)
 
     # Link to FPL.Team
     # get_fplteam_link(options, response)
