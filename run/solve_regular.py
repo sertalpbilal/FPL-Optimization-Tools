@@ -301,9 +301,13 @@ def write_line_to_file(filename, result, options):
     sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["name"].to_list())
     buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["name"].to_list())
 
+    headers = ["run_id", "iter", "user_id", "wc", "bb", "fh", "tc", "am", "am_team", "cap", "vcap", "sell", "buy", "score", "datetime"]
     data = [run_id, iter, team_id] + chips + [am, cap, vcap] + [sell_text, buy_text] + [score, t]
+    if options.get("show_summary", False):
+        headers.append("summary")
+        data.append(result["summary"])
+
     if not os.path.exists(filename):
-        headers = ["run_id", "iter", "user_id", "wc", "bb", "fh", "tc", "am", "am_team", "cap", "vcap", "sell", "buy", "score", "datetime"]
         with open(filename, "w", newline="") as f:
             writer = csv.writer(f)
             writer.writerow(headers)
