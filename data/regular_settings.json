@@ -83,5 +83,6 @@
       "fplreview_binary_1.csv": 0.6,
       "fplreview_binary_2.csv": 0.3,
       "fplreview_binary_3.csv": 0.1
-    }
+    },
+    "generate_binary_files": false
 }
