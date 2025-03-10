@@ -312,7 +312,7 @@ def write_line_to_file(filename, result, options):
             writer = csv.writer(f)
             writer.writerow(headers)
 
-    with open(filename, "a", newline="") as f:
+    with open(filename, "a", newline="", encoding="utf-8") as f:
         writer = csv.writer(f)
         writer.writerow(data)
 
