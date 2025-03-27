@@ -5,8 +5,7 @@ import requests
 import os
 import time
 import subprocess
-import threading
-from subprocess import Popen, DEVNULL
+from subprocess import Popen
 from pathlib import Path
 import json
 from requests import Session
@@ -14,7 +13,7 @@ import random
 import string
 from data_parser import read_data
 from itertools import product
-import traceback
+import highspy
 
 def get_random_id(n):
     return ''.join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
@@ -1106,83 +1105,26 @@ def solve_multi_period_fpl(data, options):
                     var.set_value(float(words[2]))
 
         elif solver == 'highs':
+            h = highspy.Highs()
+            h.readModel(mps_file_name)
 
-            highs_exec = options.get('solver_path') or 'highs'
+            # Set options
+            h.setOptionValue("time_limit", options.get('secs', 20*60))
+            h.setOptionValue("presolve", options.get('presolve', 'on'))
+            h.setOptionValue("mip_rel_gap", options.get('gap', 0))
+            h.setOptionValue("random_seed", options.get('random_seed', 0))
+            h.setOptionValue("parallel", options.get('parallel', 'on'))
+            h.setOptionValue("solution_file", sol_file_name)
 
-            secs = options.get('secs', 20*60)
-            presolve = options.get('presolve', 'on')
-            gap = options.get('gap', 0)
-            random_seed = options.get('random_seed', 0)
-
-            with open(opt_file_name, 'w') as f:
-                f.write(f'''mip_rel_gap = {gap}''')
-                # mip_improving_solution_file="tmp/{problem_id}_incumbent.sol"
-
-            command = f'{highs_exec} --parallel on --options_file {opt_file_name} --random_seed {random_seed} --presolve {presolve} --model_file {mps_file_name} --time_limit {secs} --solution_file {sol_file_name}'
-
-            is_colab = False
-            try:
-                import google.colab
-                is_colab = True
-            except:
-                is_colab = False
-
-            if os.name != 'nt' and use_cmd is False and not is_colab:
-                print("Non-Windows OS is detected. Setting use_cmd to true")
-                use_cmd = True
-
-            if use_cmd:
-                # highs occasionally freezes in Windows, if it happens, try use_cmd value as False
-                # print('If you are using Windows, HiGHS occasionally freezes after solves are completed. Use \n\t"use_cmd": false\nin regular settings if it happens.')
-                os.system(command)
-            else:
-                def print_output(process):
-                    while True:
-                        try:
-                            output = process.stdout.readline()
-                            if 'Solving report' in output:
-                                time.sleep(2)
-                                process.kill()
-                            elif output == '' and process.poll() is not None:
-                                break
-                            elif output:
-                                print(output.strip())
-                        except Exception as e:
-                            print('File closed')
-                            # traceback.print_exc()
-                            break
-                    process.kill()
-
-                process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-                output_thread = threading.Thread(target=print_output, args=(process,))
-                output_thread.start()
-                output_thread.join()
+            # Run solver
+            h.run()
 
             # Parsing
-            with open(sol_file_name, 'r') as f:
-                for v in model.get_variables():
-                    v.set_value(0)
-                cols_started = False
-                for line in f:
-                    if not cols_started and "# Columns" not in line:
-                        continue
-                    elif "# Columns" in line:
-                        cols_started = True
-                        continue
-                    elif cols_started and line[0] != "#":
-                        words = line.split()
-                        v = model.get_variable(words[0])
-                        try:
-                            if v.get_type() == so.INT:
-                                v.set_value(round(float(words[1])))
-                            elif v.get_type() == so.BIN:
-                                v.set_value(round(float(words[1])))
-                            elif v.get_type() == so.CONT:
-                                v.set_value(round(float(words[1]),3))
-                        except:
-                            print("Error", words[0], line)
-                    elif line[0] == "#":
-                        break
+            solution = h.getSolution()
+            values = list(solution.col_value)
+            for idx, v in enumerate(model.get_variables()):
+                v.set_value(values[idx])
+
 
         # DataFrame generation
         picks = []
