@@ -1122,8 +1122,8 @@ def solve_multi_period_fpl(data, options):
             # Parsing
             solution = h.getSolution()
             values = list(solution.col_value)
-            for idx, v in enumerate(model.get_variables()):
-                v.set_value(values[idx])
+            for var, value in zip(model.get_variables(), values):
+                var.set_value(value)
 
 
         # DataFrame generation
