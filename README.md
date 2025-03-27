@@ -207,10 +207,8 @@ You will need to follow steps below to install required platform and also optimi
     will set value of 2nd FT for GW35 to 2 EV, and for GW38 to 0.5 EV
   - `preseason`: solve flag for GW1 where team data is not important
   - `no_trs_except_wc`: when `true` prevents solver to make transfers except using wildcard
-  - `solver`: solver engine, can use either `cbc` (default) or `highs`  
-    In order to use `highs` solver, you need to download the binary from the following repository  
-    https://github.com/JuliaBinaryWrappers/HiGHSstatic_jll.jl
-  - `solver_path`: binary location of the solver
+  - `solver`: solver engine, can use either `cbc` or `highs` (default)
+  - `solver_path`: binary location of the solver - no longer needed for `highs`
   - `no_opposing_play`: controls the level of cross-playing players in the lineup
     - `true` if you do not want to have players in your lineup playing against each other in a GW
     - `false` if you do not want to use this option
