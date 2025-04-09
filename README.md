@@ -256,6 +256,7 @@ You will need to follow steps below to install required platform and also optimi
   - `binary_files`: configure binary files names, their weights, and team-level fixture settings
   - `generate_binary_files`: flag for generating binary files based on fixture settings provided in 'binary_files'
   - `solutions_file`: the name of a file that an overview of all solves gets outputted to. Useful when running solves in parallel.
+  - `verbose`: enable the verbose output of the solver, default is `true`.
 
 - Run the multi-period optimization
 
