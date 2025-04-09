@@ -12,4 +12,6 @@ data/fplreview.csv
 data/kiwi.csv
 data/TransferAlgorithm.csv
 data/login.json
+data/am_pts.csv
 run/results/*.csv
+run/HiGHS.log

@@ -1113,6 +1113,7 @@ def solve_multi_period_fpl(data, options):
             presolve = options.get('presolve', 'on')
             gap = options.get('gap', 0)
             random_seed = options.get('random_seed', 0)
+            verbose = options.get('verbose', True)
 
             with open(opt_file_name, 'w') as f:
                 f.write(f'''mip_rel_gap = {gap}''')
@@ -1146,7 +1147,8 @@ def solve_multi_period_fpl(data, options):
                             elif output == '' and process.poll() is not None:
                                 break
                             elif output:
-                                print(output.strip())
+                                if verbose:
+                                    print(output.strip())
                         except Exception as e:
                             print('File closed')
                             # traceback.print_exc()
