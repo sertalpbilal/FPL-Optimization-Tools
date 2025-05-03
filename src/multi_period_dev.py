@@ -810,6 +810,7 @@ def solve_multi_period_fpl(data, options):
         print("OC - Banned Next GW")
         banned_in_gw = [(x, gameweeks[0]) if isinstance(x, int) else tuple(x) for x in options['banned_next_gw']]
         model.add_constraints((squad[p0, p1] == 0 for (p0, p1) in banned_in_gw if p0 in players), name='ban_player_specified_gw')
+        model.add_constraints((squad_fh[p0, p1] == 0 for (p0, p1) in banned_in_gw if p0 in players), name='ban_player_specified_gw_fh')
 
     if options.get('locked', None):
         print("OC - Locked")
