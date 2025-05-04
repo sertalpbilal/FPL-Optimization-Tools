@@ -5,3 +5,4 @@ fuzzywuzzy
 python-Levenshtein
 matplotlib
 pytest
+highspy
