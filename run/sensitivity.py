@@ -46,7 +46,7 @@ def read_sensitivity(options=None):
         # Read CSV files and process plans
         for filename in Path(directory).glob("*.csv"):
             plan = pd.read_csv(filename)
-            plan = plan.loc[plan["squad"] == 1]
+            plan = plan.loc[(plan["squad"] == 1) | (plan["transfer_out"] == 1)]
             plan = plan.sort_values(by=["week", "iter", "pos", "id"])
             iter = plan.iloc[0]["iter"] if not plan.empty else 0
             gameweeks.update(plan["week"].unique())
@@ -159,7 +159,7 @@ def read_sensitivity(options=None):
             no_plans = 0
             for filename in Path(directory).glob("*.csv"):
                 plan = pd.read_csv(filename)
-                plan = plan.loc[plan["squad"] == 1]
+                plan = plan.loc[(plan["squad"] == 1) | (plan["transfer_out"] == 1)]
                 plan = plan.sort_values(by=["week", "iter", "pos", "id"])
                 try:
                     iter = plan.iloc[0]["iter"]
@@ -267,7 +267,7 @@ def read_sensitivity(options=None):
             no_plans = 0
             for filename in Path(directory).glob("*.csv"):
                 plan = pd.read_csv(filename)
-                plan = plan.loc[plan["squad"] == 1]
+                plan = plan.loc[(plan["squad"] == 1) | (plan["transfer_out"] == 1)]
                 # Goalkeepers list of tuples (name, lineup status)
                 goalkeepers += (
                     plan[
