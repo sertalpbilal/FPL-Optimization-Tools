@@ -14,7 +14,7 @@ import time
 import pandas as pd
 import requests
 
-from src.multi_period_dev import generate_team_json, prep_data, solve_multi_period_fpl
+from src.solver import generate_team_json, prep_data, solve_multi_period_fpl
 from src.visualization import create_squad_timeline
 
 IS_COLAB = "COLAB_GPU" in os.environ
