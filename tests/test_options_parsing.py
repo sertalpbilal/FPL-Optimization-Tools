@@ -140,7 +140,7 @@ def test_config_priority_order(temp_config_files, monkeypatch):
 
         parser = argparse.ArgumentParser(parents=[base_parser])
         for key, value in options.items():
-            if not isinstance(value, (list, dict)):
+            if not isinstance(value, list | dict):
                 parser.add_argument(f"--{key}", type=type(value), default=value)
 
         args = parser.parse_args(remaining)
@@ -172,7 +172,7 @@ def test_partial_cli_override(temp_config_files, monkeypatch):
 
         parser = argparse.ArgumentParser(parents=[base_parser])
         for key, value in options.items():
-            if not isinstance(value, (list, dict)):
+            if not isinstance(value, list | dict):
                 parser.add_argument(f"--{key}", type=type(value), default=value)
 
         args = parser.parse_args(remaining)

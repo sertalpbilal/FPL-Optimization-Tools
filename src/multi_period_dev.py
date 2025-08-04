@@ -1,4 +1,3 @@
-import json
 import os
 import random
 import string
@@ -13,9 +12,16 @@ import numpy as np
 import pandas as pd
 import requests
 import sasoptpy as so
-from requests import Session
 
-from data_parser import read_data
+from src.data_parser import read_data
+
+BINARY_THRESHOLD = 0.5  # threshold value for evaluating binary variables
+BASE_URL = "https://fantasy.premierleague.com/api"
+IS_COLAB = "COLAB_GPU" in os.environ
+SQUAD_SIZE = 15
+LINEUP_SIZE = 11
+MAX_GAMEWEEK = 38
+MAX_PLAYERS_PER_TEAM = 3
 
 
 def get_random_id(n):
@@ -35,57 +41,11 @@ def get_dict_combinations(my_dict):
     all_combs = [dict(zip(my_dict.keys(), values, strict=False)) for values in product(*my_dict.values())]
     feasible_combs = []
     for comb in all_combs:
-        comb_copy = comb.copy()
-        if comb_copy.get("am"):
-            comb_copy["am_1"] = comb_copy["am"] + 1
-            comb_copy["am_2"] = comb_copy["am"] + 2
-        c_values = [i for i in comb_copy.values() if i is not None]
+        c_values = [i for i in comb.values() if i is not None]
         if len(c_values) == len(set(c_values)):
             feasible_combs.append(comb)
         # else we have a duplicate
     return feasible_combs
-
-
-def connect():
-    print(
-        "This method is provided for people who want to automate login. However with 2FA changes, it is unlikely to work, and I'd suggest using team.json method from now on as explained in README file."
-    )
-    base_folder = Path()
-    with open(base_folder / "../data/login.json") as f:
-        credentials = json.load(f)
-    session = Session()
-    payload = {
-        "password": credentials["password"],
-        "login": credentials["email"],
-        "redirect_uri": "https://fantasy.premierleague.com/",
-        "app": "plfpl-web",
-    }
-    headers = {
-        "user-agent": "Dalvik/2.1.0 (Linux; U; Android 6.0; Android SDK built for x86_64 Build/MASTER)",
-        "cookie": "pl_euconsent-v2=CPUn1YtPUn1YtFCABAENBRCsAP_AAH_AAAwIF5wAQF5gXnABAXmAAAAA.YAAAAAAAAAAA; pl_euconsent-v2-intent-confirmed=^{^%^22tcf^%^22:^[755^]^%^2C^%^22oob^%^22:^[^]^}; pl_oob-vendors=^{^}; datadome=q_f99WYn0dSxMnuNGw8TQuIf2YeVio7m7Yk-jVBaWf43sM2v86YYVH17srelKLrR6B9ynB5V2z7pNs~jG6VKc~4u3up4WBrCYD6rekwuM3cRG8.9XbLGXAE4Cz~BWyv",
-    }
-    session.get("https://fantasy.premierleague.com/")
-    time.sleep(1)
-    v = session.post("https://users.premierleague.com/accounts/login/", data=payload, headers=headers, cookies=session.cookies)
-    if v.status_code != 200:
-        print("Login attempt failed, checking local file")
-        if os.path.exists("team.json"):
-            return [session, None]
-        print("""If you are getting this error, do the following:
-            - Open your browser and log in to FPL
-            - After the login, go to following link (replace 'TEAM_ID' with your team ID)
-              > https://fantasy.premierleague.com/api/my-team/TEAM_ID/
-            - Create a file in this directory called 'team.json' and paste the content.
-        """)
-        return [None, None]
-    else:
-        r = session.get("https://fantasy.premierleague.com/api/me/")
-        if r.status_code != 200:
-            raise ValueError("Cannot read data")
-        try:
-            return [session, r.json()["player"]["entry"]]
-        except Exception:
-            return [None, None]
 
 
 def get_my_data(session, team_id):
@@ -96,13 +56,12 @@ def get_my_data(session, team_id):
 
 
 def generate_team_json(team_id, options):
-    price_changes = {pid: change for pid, change in options.get("price_changes", [])}
-    BASE_URL = "https://fantasy.premierleague.com/api"
+    price_changes = dict(options.get("price_changes", []))
     with requests.Session() as session:
         static_url = f"{BASE_URL}/bootstrap-static/"
         static = session.get(static_url).json()
         element_to_type_dict = {x["id"]: x["element_type"] for x in static["elements"]}
-        next_gw = [x for x in static["events"] if x["is_next"]][0]["id"]
+        next_gw = next(x for x in static["events"] if x["is_next"])["id"]
 
         start_prices = {x["id"]: x["now_cost"] - x["cost_change_start"] for x in static["elements"]}
         gw1_url = f"{BASE_URL}/entry/{team_id}/event/1/picks/"
@@ -122,46 +81,8 @@ def generate_team_json(team_id, options):
     # once they have been iterated through, can then add on the current selling price
     squad = {x["element"]: start_prices[x["element"]] for x in gw1["picks"]}
 
-    am_used = 0
-    transfers_with_am = transfers.copy()
-    for i, chip in enumerate(chips):
-        chips[i]["played_by_entry"] = [chip["event"]]
-        if chip["name"] == "manager":
-            am_used = chip["event"]
-        del chips[i]["event"]
-
-    if am_used:
-        # find the manager that was initially picked and add that as a 'fake' transfer
-        url = f"{BASE_URL}/entry/{team_id}/event/{am_used}/picks/"
-        manager = session.get(url).json()["picks"][-1]["element"]
-        transfers_with_am.append(
-            {
-                "event": am_used,
-                "element_in": manager,
-                "element_in_cost": start_prices[manager],
-                "element_out": None,
-                "element_out_cost": 0,
-            }
-        )
-
-    if am_used and next_gw - am_used >= 3:
-        # find the manager that was present at the end of the AM chip and add that as a 'fake' transfer
-        url = f"{BASE_URL}/entry/{team_id}/event/{am_used + 2}/picks/"
-        manager = session.get(url).json()["picks"][-1]["element"]
-        transfers_with_am.append(
-            {
-                "event": am_used + 3,
-                "element_in": None,
-                "element_in_cost": 0,
-                "element_out": manager,
-                "element_out_cost": start_prices[manager],
-            }
-        )
-
-    transfers_with_am = sorted(transfers_with_am, key=lambda x: x["event"])
-
     itb = 1000 - sum(squad.values())
-    for t in transfers_with_am:
+    for t in transfers:
         if t["event"] == fh:
             continue
         itb += t["element_out_cost"]
@@ -183,7 +104,7 @@ def generate_team_json(team_id, options):
         },
     }
     for player_id, purchase_price in squad.items():
-        now_cost = [x for x in static["elements"] if x["id"] == player_id][0]["now_cost"]
+        now_cost = next(x for x in static["elements"] if x["id"] == player_id)["now_cost"]
         if player_id in price_changes:
             now_cost += price_changes[player_id]
 
@@ -234,7 +155,7 @@ def prep_data(my_data, options):
     for pid, change in options.get("price_changes", []):
         if pid not in valid_ids:
             continue
-        player = [x for x in fpl_data["elements"] if x["id"] == pid][0]
+        player = next(x for x in fpl_data["elements"] if x["id"] == pid)[0]
         player["now_cost"] += change
 
     if options.get("override_next_gw", None):
@@ -266,40 +187,6 @@ def prep_data(my_data, options):
     if options.get("export_data", "") != "" and datasource == "mixed":
         data.to_csv(f"../data/{options['export_data']}")
 
-    # AM fix
-    am_data = data[data["Pos"] == "AM"].copy()
-    data = data[data["Pos"] != "AM"].copy()
-
-    if options.get("export_am_ev") and len(am_data) > 0:
-        manager_dict = {
-            "ARS": "Arteta",
-            "AVL": "Emery",
-            "BOU": "Iraola",
-            "BRE": "Frank",
-            "BHA": "Hurzeler",
-            "CHE": "Maresca",
-            "CRY": "Glasner",
-            "EVE": "Moyes",
-            "FUL": "Silva",
-            "IPS": "McKenna",
-            "LEI": "van Nistelrooy",
-            "LIV": "Slot",
-            "MCI": "Guardiola",
-            "MUN": "Amorim",
-            "NEW": "Howe",
-            "NFO": "Nuno",
-            "SOU": "Jurić",
-            "TOT": "Postecoglou",
-            "WHU": "Potter",
-            "WOL": "Pereira",
-        }
-        am_data["Manager"] = am_data["ID"].map(manager_dict)
-        am_data = am_data.rename(columns={"ID": "team", "BV": "Price"})
-        selected_columns = ["team", "Manager", "Price"] + [col for col in am_data.columns if "_Pts" in col]
-        am_data_final = am_data[selected_columns].copy()
-
-        am_data_final.to_csv("../data/am_pts.csv")
-
     # Type fixes due to AM projections
     data["review_id"] = data["review_id"].astype(np.int64)
     for col in data.columns:
@@ -315,7 +202,7 @@ def prep_data(my_data, options):
     # Check if data exists
     for week in range(gw, min(39, gw + horizon)):
         if f"{week}_Pts" not in data.keys():
-            raise ValueError(f"{week}_Pts is not inside prediction data, change your horizon parameter or update your prediction data")
+            raise ValueError(f"{week}_Pts is not inside prediction data - change your horizon or update your prediction data")
 
     original_keys = merged_data.columns.to_list()
     keys = [k for k in original_keys if "_Pts" in k]
@@ -338,17 +225,11 @@ def prep_data(my_data, options):
     cutoff = merged_data["total_ev"].quantile((100 - options.get("keep_top_ev_percent", 10)) / 100)
     safe_players_due_ev = merged_data[(merged_data["total_ev"] > cutoff)]["review_id"].tolist()
 
-    initial_squad = [int(i["element"]) for i in my_data["picks"] if i["element_type"] != 5]
-    initial_am_team = None
-    if len(my_data["picks"]) == 16:
-        initial_am_id = [int(i["element"]) for i in my_data["picks"] if i["element_type"] == 5][0]
-        initial_am_element = [x for x in fpl_data["elements"] if x["id"] == initial_am_id][0]
-        initial_am_team = [x["short_name"] for x in fpl_data["teams"] if x["id"] == initial_am_element["team"]][0]
-
+    initial_squad = [int(i["element"]) for i in my_data["picks"]]
     safe_players = initial_squad + options.get("locked", []) + options.get("keep", []) + locked_next_gw + safe_players_due_price + safe_players_due_ev
 
     # Filter players by xMin
-    xmin_lb = options.get("xmin_lb", 1)
+    xmin_lb = options.get("xmin_lb", 100)
     print(len(merged_data), "total players (before)")
     merged_data = merged_data[(merged_data["total_min"] >= xmin_lb) | (merged_data["review_id"].isin(safe_players))].copy()
 
@@ -381,8 +262,6 @@ def prep_data(my_data, options):
     preseason = options.get("preseason", False)
     if not preseason:
         for i in my_data["picks"]:
-            if i["element_type"] == 5:
-                continue
             if buy_price[i["element"]] != sell_price[i["element"]]:
                 price_modified_players.append(i["element"])
                 print(f"Added player {i['element']} to list, buy price {buy_price[i['element']]} sell price {sell_price[i['element']]}")
@@ -419,7 +298,6 @@ def prep_data(my_data, options):
         "type_data": type_data,
         "next_gw": gw,
         "initial_squad": initial_squad,
-        "initial_am_team": initial_am_team,
         "sell_price": sell_price,
         "buy_price": buy_price,
         "price_modified_players": price_modified_players,
@@ -443,7 +321,12 @@ def solve_multi_period_fpl(data, options):
     """
 
     print(
-        "This solver is free for personal, educational, or non-commercial use under the Apache License 2.0. Commercial entities must obtain a Commercial License before accessing, viewing, or using the code for any commercial purposes. Unauthorized access or use by commercial entities without a valid commercial license is strictly prohibited. To obtain a commercial license, please contact us at info@fploptimized.com."
+        "This solver is free for personal, educational, or non-commercial use under the "
+        "Apache License 2.0. Commercial entities must obtain a Commercial License before "
+        "accessing, viewing, or using the code for any commercial purposes. Unauthorized "
+        "access or use by commercial entities without a valid commercial license is strictly "
+        "prohibited. To obtain a commercial license, please contact us at "
+        "info@fploptimized.com."
     )
 
     try:
@@ -463,16 +346,16 @@ def solve_multi_period_fpl(data, options):
     bench_weights = {int(key): value for (key, value) in bench_weights.items()}
     # wc_limit = options.get('wc_limit', 0)
     ft_value = options.get("ft_value", 1.5)
-    ft_value_list = options.get("ft_value_list", dict())
+    ft_value_list = options.get("ft_value_list", {})
     # ft_gw_value = {}
     ft_use_penalty = options.get("ft_use_penalty", None)
     itb_value = options.get("itb_value", 0.08)
     ft = data.get("ft", 1)
     ft_base = data.get("ft_base", 1)
     ft = max(0, ft)
-    chip_limits = options.get("chip_limits", dict())
-    allowed_chip_gws = options.get("allowed_chip_gws", dict())
-    forced_chip_gws = options.get("forced_chip_gws", dict())
+    chip_limits = options.get("chip_limits", {})
+    allowed_chip_gws = options.get("allowed_chip_gws", {})
+    forced_chip_gws = options.get("forced_chip_gws", {})
     run_chip_combinations = options.get("run_chip_combinations", None)
     booked_transfers = options.get("booked_transfers", [])
     preseason = options.get("preseason", False)
@@ -488,7 +371,6 @@ def solve_multi_period_fpl(data, options):
     type_data = data["type_data"]
     next_gw = data["next_gw"]
     initial_squad = data["initial_squad"]
-    initial_am_team = data["initial_am_team"]
     itb = data["itb"]
     fixtures = data["fixtures"]
     if preseason:
@@ -501,30 +383,15 @@ def solve_multi_period_fpl(data, options):
     players = merged_data.index.to_list()
     element_types = type_data.index.to_list()
     teams = team_data["name"].to_list()
-    teams_shorts = team_data["short_name"].to_list()
-    teams_extended = teams_shorts + ["dummy"]
     last_gw = next_gw + horizon - 1
-    if last_gw > 38:
-        last_gw = 38
-        horizon = 39 - next_gw
+    if last_gw > MAX_GAMEWEEK:
+        last_gw = MAX_GAMEWEEK
+        horizon = MAX_GAMEWEEK + 1 - next_gw
     gameweeks = list(range(next_gw, last_gw + 1))
-    all_gw = [next_gw - 1] + gameweeks
+    all_gw = [next_gw - 1, *gameweeks]
     order = [0, 1, 2, 3]
     price_modified_players = data["price_modified_players"]
     ft_states = [0, 1, 2, 3, 4, 5]
-
-    team_short_dict = team_data.set_index("name")["short_name"].to_dict()
-
-    try:
-        am_df = pd.read_csv("../data/am_pts.csv", na_values=["nan", "NaN"]).fillna(0)
-        am_pts_exists = True
-    except Exception:
-        am_df = pd.DataFrame([], columns=["team", "Price", "Manager"])
-        am_pts_exists = False
-    am_price = am_df.set_index("team")["Price"].to_dict()
-    am_price["dummy"] = 0
-    am_pts = {(row["team"], int(col.split("_")[0])): row[col] for _, row in am_df.iterrows() for col in am_df.columns if "_Pts" in col}
-    am_manager = am_df.set_index("team")["Manager"].to_dict()
 
     # Model
     model = so.Model(name=problem_name)
@@ -537,7 +404,6 @@ def solve_multi_period_fpl(data, options):
     vicecap = model.add_variables(players, gameweeks, name="vicecap", vartype=so.binary)
     bench = model.add_variables(players, gameweeks, order, name="bench", vartype=so.binary)
     transfer_in = model.add_variables(players, gameweeks, name="transfer_in", vartype=so.binary)
-    # transfer_out = model.add_variables(players, gameweeks, name='transfer_out', vartype=so.binary)
     transfer_out_first = model.add_variables(price_modified_players, gameweeks, name="tr_out_first", vartype=so.binary)
     transfer_out_regular = model.add_variables(players, gameweeks, name="tr_out_reg", vartype=so.binary)
     transfer_out = {
@@ -550,21 +416,14 @@ def solve_multi_period_fpl(data, options):
     free_transfers_state = model.add_variables(gameweeks, ft_states, name="ft_state", vartype=so.binary)
     penalized_transfers = model.add_variables(gameweeks, name="pt", vartype=so.integer, lb=0)
     aux = model.add_variables(gameweeks, name="aux", vartype=so.binary)
-    transfer_count = model.add_variables(gameweeks, name="trc", vartype=so.integer, lb=0, ub=15)
+    transfer_count = model.add_variables(gameweeks, name="trc", vartype=so.integer, lb=0, ub=SQUAD_SIZE)
 
     use_wc = model.add_variables(gameweeks, name="use_wc", vartype=so.binary)
     use_bb = model.add_variables(gameweeks, name="use_bb", vartype=so.binary)
     use_fh = model.add_variables(gameweeks, name="use_fh", vartype=so.binary)
     use_tc = model.add_variables(players, gameweeks, name="use_tc", vartype=so.binary)
-    use_am = model.add_variables(gameweeks, name="use_am", vartype=so.binary)
-
-    use_am_active = model.add_variables(all_gw, name="use_am_active", vartype=so.binary)
-    use_am_pick = model.add_variables(teams_extended, all_gw, name="use_am_pick", vartype=so.binary)
-    use_am_tr_in = model.add_variables(teams_extended, gameweeks, name="use_am_tr_in", vartype=so.binary)
-    use_am_tr_out = model.add_variables(teams_extended, gameweeks, name="use_am_tr_out", vartype=so.binary)
 
     # Dictionaries
-
     lineup_type_count = {
         (t, w): so.expr_sum(lineup[p, w] for p in players if merged_data.loc[p, "element_type"] == t) for t in element_types for w in gameweeks
     }
@@ -579,30 +438,22 @@ def solve_multi_period_fpl(data, options):
     sell_price = data["sell_price"]
     buy_price = data["buy_price"]
     sold_amount = {
-        w: so.expr_sum(sell_price[p] * transfer_out_first[p, w] for p in price_modified_players)
-        + so.expr_sum(buy_price[p] * transfer_out_regular[p, w] for p in players)
-        + so.expr_sum(am_price.get(t, 0) * use_am_tr_out[t, w] for t in teams_extended)
+        w: (
+            so.expr_sum(sell_price[p] * transfer_out_first[p, w] for p in price_modified_players)
+            + so.expr_sum(buy_price[p] * transfer_out_regular[p, w] for p in players)
+        )
         for w in gameweeks
     }
     fh_sell_price = {p: sell_price[p] if p in price_modified_players else buy_price[p] for p in players}
-    bought_amount = {
-        w: so.expr_sum(buy_price[p] * transfer_in[p, w] for p in players)
-        + so.expr_sum(am_price.get(t, 0) * use_am_tr_in[t, w] for t in teams_extended)
-        for w in gameweeks
-    }
+    bought_amount = {w: so.expr_sum(buy_price[p] * transfer_in[p, w] for p in players) for w in gameweeks}
     points_player_week = {(p, w): merged_data.loc[p, f"{w}_Pts"] for p in players for w in gameweeks}
     minutes_player_week = {(p, w): merged_data.loc[p, f"{w}_xMins"] for p in players for w in gameweeks}
     player_team = {p: merged_data.loc[p, "name"] for p in players}
     squad_count = {w: so.expr_sum(squad[p, w] for p in players) for w in gameweeks}
     squad_fh_count = {w: so.expr_sum(squad_fh[p, w] for p in players) for w in gameweeks}
-    number_of_transfers = {
-        w: so.expr_sum(transfer_out[p, w] for p in players)
-        + so.expr_sum(use_am_tr_out[t, w] for t in teams_extended if t != "dummy")
-        - use_am_tr_in["dummy", w]
-        for w in gameweeks
-    }
+    number_of_transfers = {w: so.expr_sum(transfer_out[p, w] for p in players) for w in gameweeks}
     # number_of_transfers[next_gw-1] = 1
-    transfer_diff = {w: number_of_transfers[w] - free_transfers[w] - 15 * use_wc[w] for w in gameweeks}
+    transfer_diff = {w: number_of_transfers[w] - free_transfers[w] - SQUAD_SIZE * use_wc[w] for w in gameweeks}
     use_tc_gw = {w: so.expr_sum(use_tc[p, w] for p in players) for w in gameweeks}
     # if weekly_hit_limit is not None:
     #     penalized_transfers.set_bounds(ub=weekly_hit_limit)
@@ -625,7 +476,6 @@ def solve_multi_period_fpl(data, options):
                     {"chip": "fh", "variable": use_fh},
                     {"chip": "bb", "variable": use_bb},
                     {"chip": "tc", "variable": use_tc_gw},
-                    {"chip": "am", "variable": use_am},
                 ]
                 for pair in pairs:
                     chip = pair["chip"]
@@ -646,9 +496,12 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((free_transfers[w] >= 1 for w in gameweeks if w > next_gw), name="future_ft_limit")
 
     # Constraints
-    model.add_constraints((squad_count[w] == 15 for w in gameweeks), name="squad_count")
-    model.add_constraints((squad_fh_count[w] == 15 * use_fh[w] for w in gameweeks), name="squad_fh_count")
-    model.add_constraints((so.expr_sum(lineup[p, w] for p in players) == 11 + 4 * use_bb[w] for w in gameweeks), name="lineup_count")
+    model.add_constraints((squad_count[w] == SQUAD_SIZE for w in gameweeks), name="squad_count")
+    model.add_constraints((squad_fh_count[w] == SQUAD_SIZE * use_fh[w] for w in gameweeks), name="squad_fh_count")
+    model.add_constraints(
+        (so.expr_sum(lineup[p, w] for p in players) == LINEUP_SIZE + (SQUAD_SIZE - LINEUP_SIZE) * use_bb[w] for w in gameweeks),
+        name="lineup_count",
+    )
     model.add_constraints(
         (so.expr_sum(bench[p, w, 0] for p in players if player_type[p] == 1) == 1 - use_bb[w] for w in gameweeks),
         name="bench_gk",
@@ -693,11 +546,11 @@ def solve_multi_period_fpl(data, options):
         name="valid_squad_fh",
     )
     model.add_constraints(
-        (so.expr_sum(squad[p, w] for p in players if player_team[p] == t) + use_am_pick[team_short_dict[t], w] <= 3 for t in teams for w in all_gw),
+        (so.expr_sum(squad[p, w] for p in players if player_team[p] == t) <= MAX_PLAYERS_PER_TEAM for t in teams for w in all_gw),
         name="team_limit",
     )
     model.add_constraints(
-        (so.expr_sum(squad_fh[p, w] for p in players if player_team[p] == t) <= 3 * use_fh[w] for t in teams for w in gameweeks),
+        (so.expr_sum(squad_fh[p, w] for p in players if player_team[p] == t) <= MAX_PLAYERS_PER_TEAM * use_fh[w] for t in teams for w in gameweeks),
         name="team_limit_fh",
     )
     ## Transfer constraints
@@ -747,16 +600,13 @@ def solve_multi_period_fpl(data, options):
     )
     model.add_constraints((so.expr_sum(free_transfers_state[w, s] for s in ft_states) == 1 for w in gameweeks), name="ftsc2")
 
-    # model.add_constraints((free_transfers[w] == aux[w] + 1 for w in gameweeks if w > threshold_gw), name='aux_ft_rel')
-    # model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w-1] - 2 * use_fh[w-1] <= 2 * aux[w] for w in gameweeks if w > threshold_gw), name='force_aux_1')
-    # model.add_constraints((free_transfers[w-1] - number_of_transfers[w-1] - 2 * use_wc[w-1] - 2 * use_fh[w-1] >= aux[w] + (-14)*(1-aux[w]) for w in gameweeks if w > threshold_gw), name='force_aux_2')
     if preseason and threshold_gw in gameweeks:
         model.add_constraint(free_transfers[threshold_gw] == 1, name="ps_initial_ft")
     model.add_constraints((penalized_transfers[w] >= transfer_diff[w] for w in gameweeks), name="pen_transfer_rel")
 
     ## Chip constraints
     model.add_constraints(
-        (use_wc[w] + use_fh[w] + use_bb[w] + use_tc_gw[w] + use_am_active[w] <= 1 for w in gameweeks),
+        (use_wc[w] + use_fh[w] + use_bb[w] + use_tc_gw[w] <= 1 for w in gameweeks),
         name="single_chip",
     )
     model.add_constraints((aux[w] <= 1 - use_wc[w - 1] for w in gameweeks if w > next_gw), name="ft_after_wc")
@@ -776,9 +626,6 @@ def solve_multi_period_fpl(data, options):
     if options.get("use_tc", None) is not None:
         model.add_constraint(use_tc_gw[options["use_tc"]] == 1, name="force_tc")
         chip_limits["tc"] = 1
-    if options.get("use_am", None) is not None:
-        model.add_constraint(use_am[options["use_am"]] == 1, name="force_am")
-        chip_limits["am"] = 1
 
     if len(allowed_chip_gws.get("wc", [])) > 0:
         gws_banned = [w for w in gameweeks if w not in allowed_chip_gws["wc"]]
@@ -796,10 +643,6 @@ def solve_multi_period_fpl(data, options):
         gws_banned = [w for w in gameweeks if w not in allowed_chip_gws["tc"]]
         model.add_constraints((use_tc_gw[w] == 0 for w in gws_banned), name="banned_tc_gws")
         chip_limits["tc"] = 1
-    if len(allowed_chip_gws.get("am", [])) > 0:
-        gws_banned = [w for w in gameweeks if w not in allowed_chip_gws["am"]]
-        model.add_constraints((use_am[w] == 0 for w in gws_banned), name="banned_am_gws")
-        chip_limits["am"] = 1
 
     if len(forced_chip_gws.get("wc", [])) > 0:
         model.add_constraint(so.expr_sum(use_wc[w] for w in forced_chip_gws["wc"]) == 1, name="force_wc_gw")
@@ -813,71 +656,12 @@ def solve_multi_period_fpl(data, options):
     if len(forced_chip_gws.get("tc", [])) > 0:
         model.add_constraint(so.expr_sum(use_tc_gw[w] for w in forced_chip_gws["tc"]) == 1, name="force_tc_gw")
         chip_limits["tc"] = 1
-    if len(forced_chip_gws.get("am", [])) > 0:
-        model.add_constraint(so.expr_sum(use_am[w] for w in forced_chip_gws["am"]) == 1, name="force_am_gw")
-        chip_limits["am"] = 1
 
     model.add_constraint(so.expr_sum(use_wc[w] for w in gameweeks) <= chip_limits.get("wc", 0), name="use_wc_limit")
     model.add_constraint(so.expr_sum(use_bb[w] for w in gameweeks) <= chip_limits.get("bb", 0), name="use_bb_limit")
     model.add_constraint(so.expr_sum(use_fh[w] for w in gameweeks) <= chip_limits.get("fh", 0), name="use_fh_limit")
     model.add_constraint(so.expr_sum(use_tc_gw[w] for w in gameweeks) <= chip_limits.get("tc", 0), name="use_tc_limit")
-    model.add_constraint(so.expr_sum(use_am[w] for w in gameweeks) <= chip_limits.get("am", 0), name="use_am_limit")
-
-    # AM constraints
-    model.add_constraints((use_am_pick["dummy", w] == 1 - use_am_active[w] for w in all_gw), name="am_dummy")
-    model.add_constraints((use_am_active[w] >= use_am[w] for w in gameweeks), name="am_t0")
-    model.add_constraints((use_am_active[w + 1] >= use_am[w] for w in gameweeks if w + 1 in all_gw), name="am_t1")
-    model.add_constraints((use_am_active[w + 2] >= use_am[w] for w in gameweeks if w + 2 in all_gw), name="am_t2")
-    model.add_constraint(so.expr_sum(use_am_active[w] for w in all_gw) <= 3, name="am_max3")
-    model.add_constraints((so.expr_sum(use_am_pick[t, w] for t in teams_extended) == 1 for w in all_gw), name="am_pick_1")
-    model.add_constraints(
-        (
-            use_am_pick[t, w] == (use_am_pick[t, w - 1] if w - 1 in all_gw else (1 if t == "dummy" else 0)) + use_am_tr_in[t, w] - use_am_tr_out[t, w]
-            for t in teams_extended
-            for w in gameweeks
-        ),
-        name="am_sq",
-    )
-    model.add_constraints((use_am_tr_in[t, w] + use_am_tr_out[t, w] <= 1 for t in teams_extended for w in gameweeks), name="am_tre")
-    model.add_constraints(
-        (use_am_tr_in[t, w] <= use_am_active[w] for t in teams_extended for w in gameweeks if t != "dummy"),
-        "no_am_tr_in",
-    )
-    model.add_constraints(
-        (use_am_tr_out[t, w + 1] <= use_am_active[w] for t in teams_extended for w in gameweeks if t != "dummy" and w + 1 in gameweeks),
-        "no_am_tr_out",
-    )
-    model.add_constraints((use_am_tr_out["dummy", w] == use_am[w] for w in gameweeks), name="am_trigger_st")
-    model.add_constraints((use_am_tr_in["dummy", w + 3] == use_am[w] for w in gameweeks if w + 3 in gameweeks), name="am_trigger_fn")
-
     model.add_constraints((squad_fh[p, w] <= use_fh[w] for p in players for w in gameweeks), name="fh_squad_logic")
-
-    am_wanted = bool(options.get("chip_limits", {}).get("am")) or bool(initial_am_team)
-    if am_wanted and am_pts_exists:
-        if initial_am_team:
-            previous_gw = next_gw - 1
-            am_chip = [x for x in data["my_data"]["chips"] if x["name"] == "manager"][0]
-            start_gw = am_chip["played_by_entry"][0]
-            model.add_constraints((use_am_active[gw] == (1 if gw < start_gw + 3 else 0) for gw in all_gw), name="am_active_in_gw")
-            model.add_constraint(use_am_pick[initial_am_team, previous_gw] == 1, name="current_am")
-            model.add_constraints((use_am_pick[t, previous_gw] == 0 for t in teams_extended if t != initial_am_team), name="nc_am")
-        else:
-            previous_gw = next_gw - 1
-            model.add_constraint(use_am_active[previous_gw] == 0, name="am_disabled_prev_gw")
-            model.add_constraints((use_am_pick[t, previous_gw] == 0 for t in teams_shorts), name="am01")
-            model.add_constraint(use_am_pick["dummy", previous_gw] == 1, name="am02")
-
-    else:
-        if am_wanted:
-            raise ValueError(
-                "\nYou are attempting to play the AM chip without an am_pts.csv file in the data/ folder.\n"
-                + "If using fplreview projections, you can set export_am_ev to true in order to automatically create the file."
-            )
-        model.add_constraints((use_am[w] == 0 for w in gameweeks), name="no_am1")
-        model.add_constraints((use_am_pick[t, w] == 0 for t in teams_extended for w in all_gw if t != "dummy"), name="no_am2")
-        model.add_constraints((use_am_tr_in[t, w] == 0 for t in teams_extended for w in gameweeks if t != "dummy"), name="no_am3")
-        (model.add_constraints((use_am_tr_out[t, w] == 0 for t in teams_extended for w in gameweeks if t != "dummy"), name="no_am4"),)
-        model.add_constraints((use_am_pick["dummy", w] == 1 for w in all_gw), name="no_am5")
 
     ## Multiple-sell fix
     model.add_constraints(
@@ -903,9 +687,9 @@ def solve_multi_period_fpl(data, options):
 
     ## Tr Count Constraints
     ft_penalty = dict.fromkeys(gameweeks, 0)
-    model.add_constraints((transfer_count[w] >= number_of_transfers[w] - 15 * use_wc[w] for w in gameweeks), name="trc_lb")
+    model.add_constraints((transfer_count[w] >= number_of_transfers[w] - SQUAD_SIZE * use_wc[w] for w in gameweeks), name="trc_lb")
     model.add_constraints((transfer_count[w] <= number_of_transfers[w] for w in gameweeks), name="trc_ub1")
-    model.add_constraints((transfer_count[w] <= 15 * (1 - use_wc[w]) for w in gameweeks), name="trc_ub2")
+    model.add_constraints((transfer_count[w] <= SQUAD_SIZE * (1 - use_wc[w]) for w in gameweeks), name="trc_ub2")
     if ft_use_penalty is not None:
         ft_penalty = {w: ft_use_penalty * transfer_count[w] for w in gameweeks}
 
@@ -938,10 +722,6 @@ def solve_multi_period_fpl(data, options):
         locked_in_gw = [(x, gameweeks[0]) if isinstance(x, int) else tuple(x) for x in options["locked_next_gw"]]
         model.add_constraints((squad[p0, p1] == 1 for (p0, p1) in locked_in_gw), name="lock_player_specified_gw")
 
-    if options.get("locked_am", None):
-        print("OC - Locked AM")
-        model.add_constraints((use_am_pick[manager, gw] == 1 for (manager, gw) in options["locked_am"]), name="force_am_specified_gw")
-
     if options.get("no_future_transfer", None):
         print("OC - No Future Tr")
         model.add_constraint(
@@ -954,7 +734,7 @@ def solve_multi_period_fpl(data, options):
         no_tr_gws = options["no_transfer_last_gws"]
         if horizon > no_tr_gws:
             model.add_constraints(
-                (so.expr_sum(transfer_in[p, w] for p in players) <= 15 * use_wc[w] for w in gameweeks if w > last_gw - no_tr_gws),
+                (so.expr_sum(transfer_in[p, w] for p in players) <= SQUAD_SIZE * use_wc[w] for w in gameweeks if w > last_gw - no_tr_gws),
                 name="tr_ban_gws",
             )
 
@@ -1009,7 +789,7 @@ def solve_multi_period_fpl(data, options):
             )
 
     max_defs_per_team = options.get("max_defenders_per_team", 3)
-    if max_defs_per_team < 3:  # only add constraints if necessary
+    if max_defs_per_team < MAX_PLAYERS_PER_TEAM:  # only add constraints if necessary
         model.add_constraints(
             (
                 so.expr_sum(squad[p, w] for p in players if player_team[p] == t and merged_data.loc[p, "Pos"] in {"G", "D"}) <= max_defs_per_team
@@ -1109,7 +889,7 @@ def solve_multi_period_fpl(data, options):
     if options.get("double_defense_pick") is True:
         print("OC - Double Defense Pick")
         team_players = {t: [p for p in players if player_team[p] == t] for t in teams}
-        gk_df_players = {t: [p for p in team_players[t] if player_type[p] == 1 or player_type[p] == 2] for t in teams}
+        gk_df_players = {t: [p for p in team_players[t] if player_type[p] in [1, 2]] for t in teams}
         weekly_sum = {(t, w): so.expr_sum(lineup[p, w] for p in gk_df_players[t]) for t in teams for w in gameweeks}
         def_aux = model.add_variables(teams, gameweeks, vartype=so.binary, name="daux")
         model.add_constraints((weekly_sum[t, w] <= 3 * def_aux[t, w] for t in teams for w in gameweeks), name="dauxc1")
@@ -1118,7 +898,7 @@ def solve_multi_period_fpl(data, options):
     if options.get("transfer_itb_buffer"):
         buffer_amount = float(options["transfer_itb_buffer"])
         gw_with_tr = model.add_variables(gameweeks, name="gw_with_tr", vartype=so.binary)
-        model.add_constraints((15 * gw_with_tr[w] >= number_of_transfers[w] for w in gameweeks), name="gw_with_tr_lb")
+        model.add_constraints((SQUAD_SIZE * gw_with_tr[w] >= number_of_transfers[w] for w in gameweeks), name="gw_with_tr_lb")
         model.add_constraints((gw_with_tr[w] <= number_of_transfers[w] for w in gameweeks), name="gw_with_tr_ub")
         model.add_constraints((in_the_bank[w] >= buffer_amount * gw_with_tr[w] for w in gameweeks), name="buffer_con")
 
@@ -1188,7 +968,7 @@ def solve_multi_period_fpl(data, options):
 
     if options.get("no_trs_except_wc", False) is True:
         print("OC - No TRS except WC")
-        model.add_constraints((number_of_transfers[w] <= 15 * use_wc[w] for w in gameweeks), name="wc_trs_only")
+        model.add_constraints((number_of_transfers[w] <= SQUAD_SIZE * use_wc[w] for w in gameweeks), name="wc_trs_only")
 
     # FT gain
     ft_state_value = {}
@@ -1209,15 +989,9 @@ def solve_multi_period_fpl(data, options):
         )
         for w in gameweeks
     }
-    am_pts_week = {w: so.expr_sum(am_pts.get((t, w), 0) * use_am_pick[t, w] for t in teams_extended if t != "dummy") for w in gameweeks}
+
     gw_total = {
-        w: gw_xp[w]
-        - hit_cost * penalized_transfers[w]
-        + gw_ft_gain[w]
-        - ft_penalty[w]
-        + itb_value * in_the_bank[w]
-        - cp_penalty.get(w, 0)
-        + am_pts_week[w]
+        w: gw_xp[w] - hit_cost * penalized_transfers[w] + gw_ft_gain[w] - ft_penalty[w] + itb_value * in_the_bank[w] - cp_penalty.get(w, 0)
         for w in gameweeks
     }
 
@@ -1231,23 +1005,22 @@ def solve_multi_period_fpl(data, options):
     report_decay_base = options.get("report_decay_base", [])
     decay_metrics = {i: so.expr_sum(gw_total[w] * pow(i, w - next_gw) for w in gameweeks) for i in report_decay_base}
 
-    iteration = options.get("iteration", 1)
+    iterations = options.get("iteration", 1)
     iteration_criteria = options.get("iteration_criteria", "this_gw_transfer_in")
     solutions = []
 
-    for iter in range(iteration):
-        mps_file_name = f"tmp/{problem_name}_{problem_id}_{iter}.mps"
-        sol_file_name = f"tmp/{problem_name}_{problem_id}_{iter}_sol.txt"
-        opt_file_name = f"tmp/{problem_name}_{problem_id}_{iter}.opt"
+    for iteration in range(iterations):
+        mps_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}.mps"
+        sol_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}_sol.txt"
+        opt_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}.opt"
 
         # Solve
         tmp_folder = Path() / "tmp"
         tmp_folder.mkdir(exist_ok=True, parents=True)
         model.export_mps(mps_file_name)
-        print(f"Exported problem with name: {problem_name}_{problem_id}_{iter}")
+        print(f"Exported problem with name: {problem_name}_{problem_id}_{iteration}")
 
         t0 = time.time()
-        time.sleep(0.5)
 
         if options.get("export_debug", False) is True:
             with open("debug.sas", "w") as file:
@@ -1270,14 +1043,18 @@ def solve_multi_period_fpl(data, options):
                     process.wait()
 
             else:
-                command = f"{cbc_exec} {mps_file_name} cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt"
+                command = f"{cbc_exec} {mps_file_name} cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_{iteration}_sol_init.txt"
                 if use_cmd:
                     os.system(command)
                 else:
                     process = Popen(command, shell=False)
                     process.wait()
                 secs = options.get("secs", 20 * 60)
-                command = f"{cbc_exec} {mps_file_name} mips tmp/{problem_name}_{problem_id}_{iter}_sol_init.txt cost column sec {secs} solve solu {sol_file_name}"
+                command = (
+                    f"{cbc_exec} {mps_file_name} mips "
+                    f"tmp/{problem_name}_{problem_id}_{iteration}_sol_init.txt "
+                    f"cost column sec {secs} solve solu {sol_file_name}"
+                )
                 if use_cmd:
                     os.system(command)
                 else:
@@ -1314,22 +1091,33 @@ def solve_multi_period_fpl(data, options):
                 f.write(f"""mip_rel_gap = {gap}""")
                 # mip_improving_solution_file="tmp/{problem_id}_incumbent.sol"
 
-            command = f"{highs_exec} --parallel on --options_file {opt_file_name} --random_seed {random_seed} --presolve {presolve} --model_file {mps_file_name} --time_limit {secs} --solution_file {sol_file_name}"
+            command_args = [
+                highs_exec,
+                "--parallel",
+                "on",
+                "--options_file",
+                str(opt_file_name),
+                "--random_seed",
+                str(random_seed),
+                "--presolve",
+                str(presolve),
+                "--model_file",
+                str(mps_file_name),
+                "--time_limit",
+                str(secs),
+                "--solution_file",
+                str(sol_file_name),
+            ]
 
-            is_colab = False
-            try:
-                is_colab = True
-            except Exception:
-                is_colab = False
-
-            if os.name != "nt" and use_cmd is False and not is_colab:
+            if os.name != "nt" and use_cmd is False and not IS_COLAB:
                 print("Non-Windows OS is detected. Setting use_cmd to true")
                 use_cmd = True
 
             if use_cmd:
                 # highs occasionally freezes in Windows, if it happens, try use_cmd value as False
-                # print('If you are using Windows, HiGHS occasionally freezes after solves are completed. Use \n\t"use_cmd": false\nin regular settings if it happens.')
-                os.system(command)
+                # print('If you are using Windows, HiGHS occasionally freezes after solves are completed. '
+                #       'Use \n\t"use_cmd": false\nin regular settings if it happens.')
+                os.system(" ".join(command_args))
             else:
 
                 def print_output(process):
@@ -1384,46 +1172,46 @@ def solve_multi_period_fpl(data, options):
         picks = []
         for w in gameweeks:
             for p in players:
-                if squad[p, w].get_value() + squad_fh[p, w].get_value() + transfer_out[p, w].get_value() > 0.5:
+                if squad[p, w].get_value() + squad_fh[p, w].get_value() + transfer_out[p, w].get_value() > BINARY_THRESHOLD:
                     lp = merged_data.loc[p]
-                    is_captain = 1 if captain[p, w].get_value() > 0.5 else 0
+                    is_captain = 1 if captain[p, w].get_value() > BINARY_THRESHOLD else 0
                     is_squad = (
                         1
-                        if (use_fh[w].get_value() < 0.5 and squad[p, w].get_value() > 0.5)
-                        or (use_fh[w].get_value() > 0.5 and squad_fh[p, w].get_value() > 0.5)
+                        if (use_fh[w].get_value() < BINARY_THRESHOLD and squad[p, w].get_value() > BINARY_THRESHOLD)
+                        or (use_fh[w].get_value() > BINARY_THRESHOLD and squad_fh[p, w].get_value() > BINARY_THRESHOLD)
                         else 0
                     )
-                    is_lineup = 1 if lineup[p, w].get_value() > 0.5 else 0
-                    is_vice = 1 if vicecap[p, w].get_value() > 0.5 else 0
-                    is_tc = 1 if use_tc[p, w].get_value() > 0.5 else 0
-                    is_transfer_in = 1 if transfer_in[p, w].get_value() > 0.5 else 0
-                    is_transfer_out = 1 if transfer_out[p, w].get_value() > 0.5 else 0
+                    is_lineup = 1 if lineup[p, w].get_value() > BINARY_THRESHOLD else 0
+                    is_vice = 1 if vicecap[p, w].get_value() > BINARY_THRESHOLD else 0
+                    is_tc = 1 if use_tc[p, w].get_value() > BINARY_THRESHOLD else 0
+                    is_transfer_in = 1 if transfer_in[p, w].get_value() > BINARY_THRESHOLD else 0
+                    is_transfer_out = 1 if transfer_out[p, w].get_value() > BINARY_THRESHOLD else 0
                     bench_value = -1
                     for o in order:
-                        if bench[p, w, o].get_value() > 0.5:
+                        if bench[p, w, o].get_value() > BINARY_THRESHOLD:
                             bench_value = o
                     position = type_data.loc[lp["element_type"], "singular_name_short"]
                     player_buy_price = 0 if not is_transfer_in else buy_price[p]
                     player_sell_price = (
                         0
                         if not is_transfer_out
-                        else (sell_price[p] if p in price_modified_players and transfer_out_first[p, w].get_value() > 0.5 else buy_price[p])
+                        else (
+                            sell_price[p] if p in price_modified_players and transfer_out_first[p, w].get_value() > BINARY_THRESHOLD else buy_price[p]
+                        )
                     )
                     multiplier = 1 * (is_lineup == 1) + 1 * (is_captain == 1) + 1 * (is_tc == 1)
                     xp_cont = points_player_week[p, w] * multiplier
-                    current_iter = iter + 1
+                    current_iter = iteration + 1
 
                     # chip
-                    if use_wc[w].get_value() > 0.5:
+                    if use_wc[w].get_value() > BINARY_THRESHOLD:
                         chip_text = "WC"
-                    elif use_fh[w].get_value() > 0.5:
+                    elif use_fh[w].get_value() > BINARY_THRESHOLD:
                         chip_text = "FH"
-                    elif use_bb[w].get_value() > 0.5:
+                    elif use_bb[w].get_value() > BINARY_THRESHOLD:
                         chip_text = "BB"
-                    elif use_tc[p, w].get_value() > 0.5:
+                    elif use_tc[p, w].get_value() > BINARY_THRESHOLD:
                         chip_text = "TC"
-                    elif use_am_active[w].get_value() > 0.5:
-                        chip_text = "AM"
                     else:
                         chip_text = ""
 
@@ -1455,65 +1243,6 @@ def solve_multi_period_fpl(data, options):
                         }
                     )
 
-            if use_am_tr_out["dummy", w].get_value() > 0.5:
-                picks.append(
-                    {
-                        "week": w,
-                        "name": "AM-Chip-Start",
-                        "pos": "AMN",
-                        "transfer_out": use_am_tr_out["dummy", w].get_value(),
-                        "chip": chip_text,
-                        "iter": current_iter,
-                    }
-                )
-
-            if use_am_tr_in["dummy", w].get_value() > 0.5:
-                picks.append(
-                    {
-                        "week": w,
-                        "name": "AM-Chip-End",
-                        "pos": "AMN",
-                        "transfer_in": use_am_tr_in["dummy", w].get_value(),
-                        "chip": chip_text,
-                        "iter": current_iter,
-                    }
-                )
-
-            for t in teams:
-                ts = team_short_dict[t]
-                if use_am_pick[ts, w].get_value() > 0.5 or use_am_tr_out[ts, w].get_value() > 0.5:
-                    # chip
-                    if use_wc[w].get_value() > 0.5:
-                        chip_text = "WC"
-                    elif use_fh[w].get_value() > 0.5:
-                        chip_text = "FH"
-                    elif use_bb[w].get_value() > 0.5:
-                        chip_text = "BB"
-                    elif use_tc[p, w].get_value() > 0.5:
-                        chip_text = "TC"
-                    elif use_am_active[w].get_value() > 0.5:
-                        chip_text = "AM"
-                    else:
-                        chip_text = ""
-                    current_iter = iter + 1
-                    picks.append(
-                        {
-                            "week": w,
-                            "name": am_manager.get(ts, ""),
-                            "pos": "AMN",
-                            "team": t,
-                            "buy_price": (use_am_tr_in[ts, w] * am_price.get(ts, 0)).get_value(),
-                            "sell_price": (use_am_tr_out[ts, w] * am_price.get(ts, 0)).get_value(),
-                            "xP": am_pts.get((ts, w), 0),
-                            "transfer_in": use_am_tr_in[ts, w].get_value(),
-                            "transfer_out": use_am_tr_out[ts, w].get_value(),
-                            "multiplier": use_am_pick[ts, w].get_value(),
-                            "xp_cont": use_am_pick[ts, w].get_value() * round(am_pts.get((ts, w), 0), 2),
-                            "chip": chip_text,
-                            "iter": current_iter,
-                        }
-                    )
-
         picks_df = pd.DataFrame(picks).sort_values(by=["week", "lineup", "type", "xP"], ascending=[True, False, True, True])
         total_xp = so.expr_sum((lineup[p, w] + captain[p, w]) * points_player_week[p, w] for p in players for w in gameweeks).get_value()
 
@@ -1530,39 +1259,31 @@ def solve_multi_period_fpl(data, options):
         for w in gameweeks:
             summary_of_actions += f"** GW {w}:\n"
             chip_decision = (
-                ("WC" if use_wc[w].get_value() > 0.5 else "")
-                + ("FH" if use_fh[w].get_value() > 0.5 else "")
-                + ("BB" if use_bb[w].get_value() > 0.5 else "")
-                + ("TC" if use_tc_gw[w].get_value() > 0.5 else "")
-                + ("AM" if use_am_active[w].get_value() > 0.5 else "")
+                ("WC" if use_wc[w].get_value() > BINARY_THRESHOLD else "")
+                + ("FH" if use_fh[w].get_value() > BINARY_THRESHOLD else "")
+                + ("BB" if use_bb[w].get_value() > BINARY_THRESHOLD else "")
+                + ("TC" if use_tc_gw[w].get_value() > BINARY_THRESHOLD else "")
             )
             if chip_decision != "":
                 summary_of_actions += "CHIP " + chip_decision + "\n"
                 move_summary["chip"].append(chip_decision + str(w))
-            summary_of_actions += f"ITB={in_the_bank[w - 1].get_value()}->{in_the_bank[w].get_value()}, FT={free_transfers[w].get_value()}, PT={penalized_transfers[w].get_value()}, NT={number_of_transfers[w].get_value()}\n"
+            summary_of_actions += (
+                f"ITB={in_the_bank[w - 1].get_value()}->{in_the_bank[w].get_value()}, "
+                f"FT={free_transfers[w].get_value()}, "
+                f"PT={penalized_transfers[w].get_value()}, "
+                f"NT={number_of_transfers[w].get_value()}\n"
+            )
             for p in players:
-                if transfer_in[p, w].get_value() > 0.5:
+                if transfer_in[p, w].get_value() > BINARY_THRESHOLD:
                     summary_of_actions += f"Buy {p} - {merged_data['web_name'][p]}\n"
                     if w == next_gw:
                         move_summary["buy"].append(merged_data["web_name"][p])
 
-            for t in teams_shorts:
-                if use_am_tr_in[t, w].get_value() > 0.5:
-                    summary_of_actions += f"(AM) Buy - {am_manager[t]}\n"
-                    if w == next_gw:
-                        move_summary["buy"].append(am_manager[t])
-
             for p in players:
-                if transfer_out[p, w].get_value() > 0.5:
+                if transfer_out[p, w].get_value() > BINARY_THRESHOLD:
                     summary_of_actions += f"Sell {p} - {merged_data['web_name'][p]}\n"
                     if w == next_gw:
                         move_summary["sell"].append(merged_data["web_name"][p])
-
-            for t in teams_shorts:
-                if use_am_tr_out[t, w].get_value() > 0.5:
-                    summary_of_actions += f"(AM) Sell - {am_manager[t]}\n"
-                    if w == next_gw:
-                        move_summary["sell"].append(am_manager[t])
 
             picks_df[picks_df["week"] == w]
             lineup_players = picks_df[(picks_df["week"] == w) & (picks_df["lineup"] == 1)]
@@ -1572,22 +1293,13 @@ def solve_multi_period_fpl(data, options):
             # vicecap_name = picks_df[(picks_df['week'] == w) & (picks_df['vicecaptain'] == 1)].iloc[0]['name']
 
             summary_of_actions += "---\n"
-
-            if use_am_active[w].get_value() > 0.5:
-                target_t = None
-                for t in teams_extended:
-                    if use_am_pick[t, w].get_value() > 0.5:
-                        target_t = t
-                        break
-                summary_of_actions += f"Assistant Manager: \n\t{am_manager[target_t]} ({round(am_pts[target_t, w], 2)})\n"
-
             summary_of_actions += "Lineup: \n"
 
             def get_display(row):
                 return f"{row['name']} ({row['xP']}{', C' if row['captain'] == 1 else ''}{', V' if row['vicecaptain'] == 1 else ''})"
 
-            for type in [1, 2, 3, 4]:
-                type_players = lineup_players[lineup_players["type"] == type]
+            for typ in [1, 2, 3, 4]:
+                type_players = lineup_players[lineup_players["type"] == typ]
                 entries = type_players.apply(get_display, axis=1)
                 summary_of_actions += "\t" + ", ".join(entries.tolist()) + "\n"
             summary_of_actions += "Bench: \n\t" + ", ".join(bench_players["name"].tolist()) + "\n"
@@ -1640,7 +1352,7 @@ def solve_multi_period_fpl(data, options):
         # Add current solution to a list, and add a new cut
         solutions.append(
             {
-                "iter": iter,
+                "iter": iteration,
                 "model": model,
                 "picks": picks_df,
                 "total_xp": total_xp,
@@ -1660,63 +1372,52 @@ def solve_multi_period_fpl(data, options):
         iter_diff = options.get("iteration_difference", 1)
 
         if iteration_criteria == "this_gw_transfer_in":
-            actions = (
-                so.expr_sum(1 - transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() > 0.5)
-                + so.expr_sum(transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() < 0.5)
-                + so.expr_sum(1 - use_am_tr_in[t, next_gw] for t in teams_extended if use_am_tr_in[t, next_gw].get_value() > 0.5)
-                + so.expr_sum(use_am_tr_in[t, next_gw] for t in teams_extended if use_am_tr_in[t, next_gw].get_value() < 0.5)
-            )
-            model.add_constraint(actions >= 1, name=f"cutoff_{iter}")
+            actions = so.expr_sum(
+                1 - transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() > BINARY_THRESHOLD
+            ) + so.expr_sum(transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() < BINARY_THRESHOLD)
+            model.add_constraint(actions >= 1, name=f"cutoff_{iteration}")
 
         elif iteration_criteria == "this_gw_transfer_out":
-            actions = so.expr_sum(1 - transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() > 0.5) + so.expr_sum(
-                transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() < 0.5
-            )
-            model.add_constraint(actions >= 1, name=f"cutoff_{iter}")
+            actions = so.expr_sum(
+                1 - transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() > BINARY_THRESHOLD
+            ) + so.expr_sum(transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() < BINARY_THRESHOLD)
+            model.add_constraint(actions >= 1, name=f"cutoff_{iteration}")
 
         elif iteration_criteria == "this_gw_transfer_in_out":
             actions = (
-                so.expr_sum(1 - transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() > 0.5)
-                + so.expr_sum(transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() < 0.5)
-                + so.expr_sum(1 - transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() > 0.5)
-                + so.expr_sum(transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() < 0.5)
-                + so.expr_sum(1 - use_am_tr_in[t, next_gw] for t in teams_extended if use_am_tr_in[t, next_gw].get_value() > 0.5)
-                + so.expr_sum(use_am_tr_in[t, next_gw] for t in teams_extended if use_am_tr_in[t, next_gw].get_value() < 0.5)
+                so.expr_sum(1 - transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() > BINARY_THRESHOLD)
+                + so.expr_sum(transfer_in[p, next_gw] for p in players if transfer_in[p, next_gw].get_value() < BINARY_THRESHOLD)
+                + so.expr_sum(1 - transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() > BINARY_THRESHOLD)
+                + so.expr_sum(transfer_out[p, next_gw] for p in players if transfer_out[p, next_gw].get_value() < BINARY_THRESHOLD)
             )
-            model.add_constraint(actions >= 1, name=f"cutoff_{iter}")
+            model.add_constraint(actions >= 1, name=f"cutoff_{iteration}")
 
         elif iteration_criteria == "chip_gws":
             actions = (
-                so.expr_sum(1 - use_wc[w] for w in gameweeks if use_wc[w].get_value() > 0.5)
-                + so.expr_sum(use_wc[w] for w in gameweeks if use_wc[w].get_value() < 0.5)
-                + so.expr_sum(1 - use_bb[w] for w in gameweeks if use_bb[w].get_value() > 0.5)
-                + so.expr_sum(use_bb[w] for w in gameweeks if use_bb[w].get_value() < 0.5)
-                + so.expr_sum(1 - use_fh[w] for w in gameweeks if use_fh[w].get_value() > 0.5)
-                + so.expr_sum(use_fh[w] for w in gameweeks if use_fh[w].get_value() < 0.5)
-                + so.expr_sum(1 - use_am[w] for w in gameweeks if use_am[w].get_value() > 0.5)
-                + so.expr_sum(use_am[w] for w in gameweeks if use_am[w].get_value() < 0.5)
+                so.expr_sum(1 - use_wc[w] for w in gameweeks if use_wc[w].get_value() > BINARY_THRESHOLD)
+                + so.expr_sum(use_wc[w] for w in gameweeks if use_wc[w].get_value() < BINARY_THRESHOLD)
+                + so.expr_sum(1 - use_bb[w] for w in gameweeks if use_bb[w].get_value() > BINARY_THRESHOLD)
+                + so.expr_sum(use_bb[w] for w in gameweeks if use_bb[w].get_value() < BINARY_THRESHOLD)
+                + so.expr_sum(1 - use_fh[w] for w in gameweeks if use_fh[w].get_value() > BINARY_THRESHOLD)
+                + so.expr_sum(use_fh[w] for w in gameweeks if use_fh[w].get_value() < BINARY_THRESHOLD)
             )
-            model.add_constraint(actions >= 1, name=f"cutoff_{iter}")
+            model.add_constraint(actions >= 1, name=f"cutoff_{iteration}")
 
         elif iteration_criteria == "target_gws_transfer_in":
             target_gws = options.get("iteration_target", [next_gw])
-            transferred_players = [[p, w] for p in players for w in target_gws if transfer_in[p, w].get_value() > 0.5]
-            remaining_players = [[p, w] for p in players for w in target_gws if transfer_in[p, w].get_value() < 0.5]
-            transferred_managers = [[t, w] for t in teams_extended for w in target_gws if use_am_tr_in[t, w].get_value() > 0.5]
-            remaining_managers = [[t, w] for t in teams_extended for w in target_gws if use_am_tr_in[t, w].get_value() < 0.5]
-            actions = (
-                so.expr_sum(1 - transfer_in[p, w] for [p, w] in transferred_players)
-                + so.expr_sum(transfer_in[p, w] for [p, w] in remaining_players)
-                + so.expr_sum(1 - use_am_tr_in[t, w] for [t, w] in transferred_managers)
-                + so.expr_sum(use_am_tr_in[t, w] for [t, w] in remaining_managers)
+            transferred_players = [[p, w] for p in players for w in target_gws if transfer_in[p, w].get_value() > BINARY_THRESHOLD]
+            remaining_players = [[p, w] for p in players for w in target_gws if transfer_in[p, w].get_value() < BINARY_THRESHOLD]
+
+            actions = so.expr_sum(1 - transfer_in[p, w] for [p, w] in transferred_players) + so.expr_sum(
+                transfer_in[p, w] for [p, w] in remaining_players
             )
-            model.add_constraint(actions >= 1, name=f"cutoff_{iter}")
+            model.add_constraint(actions >= 1, name=f"cutoff_{iteration}")
 
         elif iteration_criteria == "this_gw_lineup":
-            selected_lineup = [p for p in players if lineup[p, next_gw].get_value() > 0.5]
+            selected_lineup = [p for p in players if lineup[p, next_gw].get_value() > BINARY_THRESHOLD]
             model.add_constraint(
                 so.expr_sum(lineup[p, next_gw] for p in selected_lineup) <= len(selected_lineup) - iter_diff,
-                name=f"cutoff_{iter}",
+                name=f"cutoff_{iteration}",
             )
 
         elif iteration_criteria == "chip_combinations":
@@ -1729,7 +1430,6 @@ def solve_multi_period_fpl(data, options):
                 {"chip": "fh", "variable": use_fh},
                 {"chip": "bb", "variable": use_bb},
                 {"chip": "tc", "variable": use_tc_gw},
-                {"chip": "am", "variable": use_am},
             ]
             for pair in pairs:
                 chip = pair["chip"]
@@ -1748,37 +1448,3 @@ def solve_multi_period_fpl(data, options):
                     model.add_constraint(so.expr_sum(variable[w] for w in gameweeks) == 0, name=f"use_{chip}_limit")
 
     return solutions
-
-
-if __name__ == "__main__":
-    t0 = time.time()
-
-    options = {
-        "horizon": 3,
-        "randomized": False,
-        # 'seed': 42
-        # 'use_wc': 8,
-        "wc_limit": 0,
-        "banned": [],
-        "xmin_lb": 0,
-    }
-
-    session, team_id = connect()
-    my_data = get_my_data(session, team_id)
-    data = prep_data(my_data, options)
-    result = solve_multi_period_fpl(data, options)
-
-    final_time = time.time()
-    print(final_time - t0, "seconds passed in total")
-
-    # You can change "use_wc" to another GW if you haven't activated your WC
-    if False:
-        options["use_wc"] = 12
-        data = prep_data(my_data, options)
-        result = solve_multi_period_fpl(data, options)
-        print(result["summary"])
-        result["picks"].to_csv("gw12_wildcard.csv")
-
-    # solve_standard_problem() # Episode 3 & 5
-    # solve_autobench_problem() # Episode 6
-    # solve_randomized_problem() # Episode 7

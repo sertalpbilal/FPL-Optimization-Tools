@@ -1,3 +1,4 @@
+# pylint: disable=PLR0915,PLR0912
 import argparse
 import csv
 import datetime
@@ -12,6 +13,12 @@ import time
 
 import pandas as pd
 import requests
+
+from src.multi_period_dev import generate_team_json, prep_data, solve_multi_period_fpl
+from src.visualization import create_squad_timeline
+
+IS_COLAB = "COLAB_GPU" in os.environ
+BINARY_THRESHOLD = 0.5
 
 
 def get_random_id(n):
@@ -29,17 +36,17 @@ def load_config_files(config_paths):
 
     paths = config_paths.split(";")
     for path in paths:
-        path = path.strip()
+        stripped_path = path.strip()
         if not path:
             continue
         try:
-            with open(path) as f:
+            with open(stripped_path) as f:
                 config = json.load(f)
                 merged_config.update(config)
         except FileNotFoundError:
-            print(f"Warning: Configuration file {path} not found")
+            print(f"Warning: Configuration file {stripped_path} not found")
         except json.JSONDecodeError:
-            print(f"Warning: Configuration file {path} is not valid JSON")
+            print(f"Warning: Configuration file {stripped_path} is not valid JSON")
 
     return merged_config
 
@@ -67,22 +74,12 @@ def is_latest_version():
 
 
 def solve_regular(runtime_options=None):
-    try:
-        is_colab = True
-    except Exception:
-        is_colab = False
+    if not IS_COLAB:
         print("Checking for updates...")
         is_latest_version()
 
     base_folder = pathlib.Path()
     sys.path.append(str(base_folder / "../src"))
-    from multi_period_dev import (
-        connect,
-        generate_team_json,
-        prep_data,
-        solve_multi_period_fpl,
-    )
-    from visualization import create_squad_timeline
 
     # Create a base parser first for the --config argument
     # remaining_args is all the command line args that aren't --config
@@ -91,7 +88,7 @@ def solve_regular(runtime_options=None):
     base_args, remaining_args = base_parser.parse_known_args()
 
     # Load base configuration file
-    if is_colab:
+    if IS_COLAB:
         with open("settings.json") as f:
             options = json.load(f)
     else:
@@ -106,7 +103,7 @@ def solve_regular(runtime_options=None):
     # Create the full parser with all configuration options
     parser = argparse.ArgumentParser(parents=[base_parser])
     for key, value in options.items():
-        if value is None or isinstance(value, (list, dict)):
+        if value is None or isinstance(value, list | dict):
             parser.add_argument(f"--{key}", default=value)
             continue
         parser.add_argument(f"--{key}", type=type(value), default=value)
@@ -122,7 +119,7 @@ def solve_regular(runtime_options=None):
         if value == options[key]:  # skip anything that hasn't been edited by command line argument
             continue
 
-        if options[key] is None or isinstance(options[key], (list, dict)):
+        if options[key] is None or isinstance(options[key], list | dict):
             if value.isdigit():
                 args[key] = int(value)
                 continue
@@ -138,8 +135,7 @@ def solve_regular(runtime_options=None):
                     args[key] = json.loads(value)
                     continue
                 except json.JSONDecodeError:
-                    value = value.replace("'", '"')
-                    args[key] = json.loads(value)
+                    args[key] = json.loads(value.replace("'", '"'))
                     continue
                 finally:
                     pass
@@ -159,15 +155,11 @@ def solve_regular(runtime_options=None):
 
     if options.get("preseason"):
         my_data = {"picks": [], "chips": [], "transfers": {"limit": None, "cost": 4, "bank": 1000, "value": 0}}
-    elif options.get("use_login", False):
-        session, team_id = connect()
-        if session is None and team_id is None:
-            exit(0)
     elif options.get("team_data", "json").lower() == "id":
         team_id = options.get("team_id", None)
         if team_id is None:
             print("You must supply your team_id in data/regular_settings.json")
-            exit(0)
+            sys.exit(0)
         my_data = generate_team_json(team_id, options)
     else:
         try:
@@ -183,7 +175,7 @@ def solve_regular(runtime_options=None):
                     if pid not in my_squad_ids:
                         continue
                     new_price = current_prices[pid] + change
-                    player = [x for x in my_data["picks"] if x["element"] == pid][0]
+                    player = next(x for x in my_data["picks"] if x["element"] == pid)
                     if player["purchase_price"] >= new_price:
                         player["selling_price"] = new_price
                     else:
@@ -196,14 +188,13 @@ def solve_regular(runtime_options=None):
                         2. Set "team_data" in regular_settings to "ID", and set the "team_id" value to your team's ID
                     """
             )
-            exit(0)
+            sys.exit(0)
     data = prep_data(my_data, options)
 
     response = solve_multi_period_fpl(data, options)
     run_id = get_random_id(5)
     options["run_id"] = run_id
     for result in response:
-        iter = result["iter"]
         print(result["summary"])
         time_now = datetime.datetime.now()
         stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
@@ -218,7 +209,7 @@ def solve_regular(runtime_options=None):
             filename = f"{solve_name}_{stamp}_{run_id}_{iter}"
         result["picks"].to_csv("../data/results/" + filename + ".csv")
 
-        if options.get("export_image", 0) and not is_colab:
+        if options.get("export_image", 0) and not IS_COLAB:
             create_squad_timeline(
                 current_squad=data["initial_squad"],
                 statistics=result["statistics"],
@@ -250,19 +241,13 @@ def solve_regular(runtime_options=None):
         picks = result["picks"]
         gws = picks["week"].unique()
         print(f"Solution {result['iter'] + 1}")
-        am_chip_end_df = picks.loc[picks["name"] == "AM-Chip-End", "week"]
-        am_chip_end = None if len(am_chip_end_df) == 0 else am_chip_end_df.iloc[0]
         for gw in gws:
             line_text = ""
             chip_text = picks[picks["week"] == gw].iloc[0]["chip"]
             if chip_text != "":
                 line_text += "(" + chip_text + ") "
-            if gw == am_chip_end:
-                sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1) & (picks["pos"] != "AMN")]["name"].to_list())
-                buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1) & (picks["pos"] != "AMN")]["name"].to_list())
-            else:
-                sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["name"].to_list())
-                buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["name"].to_list())
+            sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["name"].to_list())
+            buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["name"].to_list())
 
             if sell_text != "" or buy_text != "":
                 line_text += sell_text + " -> " + buy_text
@@ -281,15 +266,13 @@ def write_line_to_file(filename, result, options):
     score = round(result["score"], 3)
     picks = result["picks"]
 
-    cap = picks[(picks["week"] == gw) & (picks["captain"] > 0.5)].iloc[0]["id"].astype(int)
-    vcap = picks[(picks["week"] == gw) & (picks["vicecaptain"] > 0.5)].iloc[0]["id"].astype(int)
-    am_df = picks[(picks["week"] == gw) & (picks["pos"] == "AMN") & (picks["name"] != "AM-Chip-Start") & (picks["name"] != "AM-Chip-End")]
-    am = am_df.iloc[0]["team"] if len(am_df) > 0 else None
+    cap = picks[(picks["week"] == gw) & (picks["captain"] > BINARY_THRESHOLD)].iloc[0]["id"].astype(int)
+    vcap = picks[(picks["week"] == gw) & (picks["vicecaptain"] > BINARY_THRESHOLD)].iloc[0]["id"].astype(int)
 
     run_id = options["run_id"]
-    iter = result["iter"]
+    iteration = result["iter"]
     team_id = options.get("team_id")
-    chips = [options.get(x) for x in ["use_wc", "use_bb", "use_fh", "use_tc", "use_am"]]
+    chips = [options.get(x) for x in ["use_wc", "use_bb", "use_fh", "use_tc"]]
     sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["name"].to_list())
     buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["name"].to_list())
 
@@ -301,8 +284,6 @@ def write_line_to_file(filename, result, options):
         "bb",
         "fh",
         "tc",
-        "am",
-        "am_team",
         "cap",
         "vcap",
         "sell",
@@ -310,7 +291,7 @@ def write_line_to_file(filename, result, options):
         "score",
         "datetime",
     ]
-    data = [run_id, iter, team_id] + chips + [am, cap, vcap] + [sell_text, buy_text] + [score, t]
+    data = [run_id, iteration, team_id, *chips, cap, vcap, sell_text, buy_text, score, t]
     if options.get("show_summary", False):
         headers.append("summary")
         data.append(result["summary"])
@@ -339,13 +320,17 @@ def get_fplteam_link(options, response):
         picks = result["picks"]
         gws = picks["week"].unique()
         for gw in gws:
-            lineup_players = ",".join(picks[(picks["week"] == gw) & (picks["lineup"] > 0.5)]["id"].astype(str).to_list())
-            bench_players = ",".join(picks[(picks["week"] == gw) & (picks["bench"] > -0.5)]["id"].astype(str).to_list())
-            cap = picks[(picks["week"] == gw) & (picks["captain"] > 0.5)].iloc[0]["id"]
-            vcap = picks[(picks["week"] == gw) & (picks["vicecaptain"] > 0.5)].iloc[0]["id"]
+            lineup_players = ",".join(picks[(picks["week"] == gw) & (picks["lineup"] > BINARY_THRESHOLD)]["id"].astype(str).to_list())
+            bench_players = ",".join(picks[(picks["week"] == gw) & (picks["bench"] > -BINARY_THRESHOLD)]["id"].astype(str).to_list())
+            cap = picks[(picks["week"] == gw) & (picks["captain"] > BINARY_THRESHOLD)].iloc[0]["id"]
+            vcap = picks[(picks["week"] == gw) & (picks["vicecaptain"] > BINARY_THRESHOLD)].iloc[0]["id"]
             chip = picks[picks["week"] == gw].iloc[0]["chip"]
-            sold_players = picks[(picks["week"] == gw) & (picks["transfer_out"] > 0.5)].sort_values(by="type")["id"].astype(str).to_list()
-            bought_players = picks[(picks["week"] == gw) & (picks["transfer_in"] > 0.5)].sort_values(by="type")["id"].astype(str).to_list()
+            sold_players = (
+                picks[(picks["week"] == gw) & (picks["transfer_out"] > BINARY_THRESHOLD)].sort_values(by="type")["id"].astype(str).to_list()
+            )
+            bought_players = (
+                picks[(picks["week"] == gw) & (picks["transfer_in"] > BINARY_THRESHOLD)].sort_values(by="type")["id"].astype(str).to_list()
+            )
 
             if gw == 1:
                 sold_players = []
@@ -360,18 +345,25 @@ def get_fplteam_link(options, response):
             if gw == 1:
                 sub_text = ";"
             else:
-                prev_lineup = picks[(picks["week"] == gw - 1) & (picks["lineup"] > 0.5)].sort_values(by="type")["id"].astype(str).to_list()
-                now_bench = picks[(picks["week"] == gw) & (picks["bench"] > -0.5)].sort_values(by="type")["id"].astype(str).to_list()
+                prev_lineup = (
+                    picks[(picks["week"] == gw - 1) & (picks["lineup"] > BINARY_THRESHOLD)].sort_values(by="type")["id"].astype(str).to_list()
+                )
+                now_bench = picks[(picks["week"] == gw) & (picks["bench"] > -BINARY_THRESHOLD)].sort_values(by="type")["id"].astype(str).to_list()
                 lineup_to_bench = [i for i in prev_lineup if i in now_bench]
-                prev_bench = picks[(picks["week"] == gw - 1) & (picks["bench"] > -0.5)].sort_values(by="type")["id"].astype(str).to_list()
-                now_lineup = picks[(picks["week"] == gw) & (picks["lineup"] > 0.5)].sort_values(by="type")["id"].astype(str).to_list()
+                prev_bench = (
+                    picks[(picks["week"] == gw - 1) & (picks["bench"] > -BINARY_THRESHOLD)].sort_values(by="type")["id"].astype(str).to_list()
+                )
+                now_lineup = picks[(picks["week"] == gw) & (picks["lineup"] > BINARY_THRESHOLD)].sort_values(by="type")["id"].astype(str).to_list()
                 bench_to_lineup = [i for i in prev_bench if i in now_lineup]
                 sub_text = ";".join([f"{i},{j}" for (i, j) in zip(lineup_to_bench, bench_to_lineup, strict=False)])
 
                 if sub_text == "":
                     sub_text = ";"
 
-            gw_params = f"lineup{gw}={lineup_players}&bench{gw}={bench_players}&cap{gw}={cap}&vcap{gw}={vcap}&chip{gw}={chip}&transfers{gw}={tr_string}&subs{gw}={sub_text}&opt=true"
+            gw_params = (
+                f"lineup{gw}={lineup_players}&bench{gw}={bench_players}&cap{gw}={cap}&vcap{gw}={vcap}"
+                f"&chip{gw}={chip}&transfers{gw}={tr_string}&subs{gw}={sub_text}&opt=true"
+            )
             result_url += ("" if gw == gws[0] else "&") + gw_params
         print(f"Solution {result['iter'] + 1}: {result_url}")
 

@@ -176,7 +176,6 @@ You will need to follow steps below to install required platform and also optimi
   - `banned_next_gw`: list of player IDs to be banned for the next gameweek. Alternatively, you can supply an `[ID, gameweek]` list as an element of the list to ban a player just for one specific gameweek. E.g. `[100, [200, 32]]` bans player with ID 100 for the next gameweek, and bans player with ID 200 for gameweek 32
   - `locked`: list of player IDs to always have during the horizon (e.g. `233` for Salah)
   - `locked_next_gw`: List of player IDs to force just for the next gameweek. See `banned_next_gw` for extended usage
-  - `locked_am`: List of [team, gameweek] pairs to lock a manager in for. E.g. [["LIV", 24], ["FUL", 25]] will lock in the Liverpool manager for gameweek 24, and the Fulham manager for gameweek 25
   - `price_changes`: Supply a list of `[ID, price_change]` pairs to solve as if a player's price has risen or dropped compared to the live price. E.g. `[[311, 1], [351, -1]]` will solve as if Alexander-Arnold's price is £0.1m higher, and Haaland's price is £0.1m lower than it is in reality.
   - `delete_tmp`: `true` or `false` whether to delete generated temporary files after solve
   - `secs`: time limit for the solve (in seconds)
@@ -225,7 +224,7 @@ You will need to follow steps below to install required platform and also optimi
   - `double_defense_pick`: forces solver to use either 0 or more than 2 defender/goalkeeper from each team
   - `transfer_itb_buffer`: minimum itb to have if any transfer is being planned for the GW to ensure robustness
     use `"transfer_itb_buffer": 0.1` if you want to leave 0.1 in the bank in gameweeks with scheduled transfers
-  - `iteration`: number of different solutions to be generated, the criteria is controlled by `iteration_criteria`
+  - `iterations`: number of different solutions to be generated, the criteria is controlled by `iteration_criteria`
   - `iteration_criteria`: rule on separating what a different solution mean
     - `this_gw_transfer_in` will force to replace players to buy current GW in each solution
     - `this_gw_transfer_out` will force to replace players to sell current GW in each solution
@@ -249,7 +248,7 @@ You will need to follow steps below to install required platform and also optimi
   - `data_weights`: weight percentage for each data source, given as a dictionary, where keys should be one of valid data sources
   - `export_data`: option for exporting final data as a CSV file (when using `mixed` data)
   - `team_data`: option for using `team_id` value rather than the `team.json` file. Uses `team.json` by default, set value to `ID` to use `team_id`. Note that with this method, any transfers already made this gameweek won't be taken into account, so they must be added to `booked_transfers`
-  - `team_id`: the team_id to optimise for. Requires `team_data` to be set to `ID`
+  - `team_id`: the team_id to optimize for. Requires `team_data` to be set to `ID`
   - `export_images`: option for exporting visualizations of the lineup
   - `solve_name`: name of the solve, used for naming the output files
   - `override_next_gw`: the start of the planning horizon -if you need to override for a specific period-

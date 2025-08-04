@@ -1,348 +1,321 @@
+import os
+
+import matplotlib.path as mpath
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib import patches
 
+HIT_COST = 4
 
-def create_squad_timeline(current_squad, statistics, picks, filename):
-    df = pd.DataFrame(picks)
+# Spacing and sizing
+BOX_HEIGHT = 0.9
+BOX_WIDTH = 9
+PLAYER_SPACING = 1.2
+PLAYER_NAME_FONT_SIZE = 11
+STATS_FONT_SIZE = 9
+GAMEWEEK_SPACING = 14
+POSITION_BORDER_WIDTH = 0.12
+CAPTAIN_BORDER_WIDTH = 0.2
+CHIP_BACKGROUND_ZORDERS = {
+    "FH": -1.0,
+    "WC": -5.0,
+    "BB": -5.0,
+    "TC": -5.0,
+}
 
-    bg_color = "#1a1a1a"
-    cell_bg_color = "#2d2d2d"
-    bench_bg_color = "#404040"
-    text_color = "#ffffff"
-    stats_color = "#a0a0a0"
-    position_colors = {"GKP": "#4a1b7a", "DEF": "#0d4a6b", "MID": "#6b5c0d", "FWD": "#6b1d1d", "AMN": "#2d5a1d"}
+# color scheme
+CAPTAIN_COLOR = "#ffd700"
+VICE_CAPTAIN_COLOR = "#c0c0c0"
+BG_COLOR = "#0f0f0f"
+CELL_BG_COLOR = "#1e1e1e"
+BENCH_BG_COLOR = "#2a2a2a"
+TEXT_COLOR = "#ffffff"
+STATS_COLOR = "#b0b0b0"
+CHIP_BACKGROUND_COLOR = "#1a1a1a"
 
-    # where squad = 1 or the player pos is AMN
-    df_squad = df[(df["squad"] == 1) | (df["pos"] == "AMN")]
+# Position constants
+POSITIONS = ["GKP", "DEF", "MID", "FWD"]
+POSITION_COLORS = {"GKP": "#8b5cf6", "DEF": "#3b82f6", "MID": "#f59e0b", "FWD": "#ef4444"}
+BASE_Y = 16
 
-    df_base = df[df["week"] == min(df["week"])]
 
-    gameweeks = sorted(df_squad["week"].unique())
-    base_week = min(gameweeks) - 1
+def calculate_bezier(x_start, x_end, y_start, y_end):
+    """
+    Calculates a bezier curve using the 4 given points.
+    These are used to draw the lines signifying transfers between gameweeks.
+    """
+    x_control1 = x_start + (x_end - x_start) * 0.3
+    x_control2 = x_start + (x_end - x_start) * 0.7
+    y_control1 = y_start + (y_end - y_start) * 0.02
+    y_control2 = y_start + (y_end - y_start) * 0.98
 
-    am_used = any(
-        not df_squad[df_squad["week"] == week]["chip"].isna().all() and df_squad[df_squad["week"] == week]["chip"].iloc[0] == "AM"
-        for week in gameweeks
+    path_data = [
+        ((x_start, y_start), mpath.Path.MOVETO),
+        ((x_control1, y_control1), mpath.Path.CURVE4),
+        ((x_control2, y_control2), mpath.Path.CURVE4),
+        ((x_end, y_end), mpath.Path.CURVE4),
+    ]
+
+    return patches.PathPatch(
+        mpath.Path(*zip(*path_data, strict=True)),
+        facecolor="none",
+        edgecolor="#60a5fa",
+        alpha=0.8,
+        linewidth=1.5,
+        zorder=-3.0,
     )
 
-    fig, ax = plt.subplots(figsize=(20, 10))
 
-    ax.set_facecolor(bg_color)
-    fig.patch.set_facecolor(bg_color)
+def calculate_player_cells(gw_idx, player_idx, player):
+    y_pos = BASE_Y - player_idx * PLAYER_SPACING
+    data = []
 
-    captain_color = "#ffd700"
-    vice_captain_color = "#c0c0c0"
+    # base cell
+    data.append(
+        patches.Rectangle(
+            (gw_idx * GAMEWEEK_SPACING - BOX_WIDTH / 2, y_pos - BOX_HEIGHT / 2),
+            BOX_WIDTH,
+            BOX_HEIGHT,
+            facecolor=CELL_BG_COLOR if player["lineup"] else BENCH_BG_COLOR,
+            edgecolor="none",
+        )
+    )
 
-    box_height = 0.8
-    box_width = 8
-    player_spacing = 1
-    gameweek_spacing = 12
-    position_border_width = 0.08
-    captain_border_width = 0.15
+    # position border
+    data.append(
+        patches.Rectangle(
+            (gw_idx * GAMEWEEK_SPACING - BOX_WIDTH / 2, y_pos - BOX_HEIGHT / 2 - POSITION_BORDER_WIDTH),
+            BOX_WIDTH,
+            POSITION_BORDER_WIDTH,
+            facecolor=POSITION_COLORS[player["pos"]],
+            edgecolor="none",
+        )
+    )
 
-    # Set consistent base position
-    base_y = 15
-    am_y_position = base_y  # AM cell goes at the top position
+    # captain border
+    if player["captain"] == 1 and gw_idx > 0:
+        data.append(
+            patches.Rectangle(
+                (gw_idx * GAMEWEEK_SPACING - BOX_WIDTH / 2, y_pos - BOX_HEIGHT / 2),
+                CAPTAIN_BORDER_WIDTH,
+                BOX_HEIGHT,
+                facecolor=CAPTAIN_COLOR,
+                edgecolor="none",
+            )
+        )
 
-    # Adjust spacing if AM is used to maintain proper distribution
-    player_spacing = 0.85 if am_used else 1
+    # vice captain border
+    elif player["vicecaptain"] == 1 and gw_idx > 0:
+        data.append(
+            patches.Rectangle(
+                (gw_idx * GAMEWEEK_SPACING - BOX_WIDTH / 2, y_pos - BOX_HEIGHT / 2),
+                CAPTAIN_BORDER_WIDTH,
+                BOX_HEIGHT,
+                facecolor=VICE_CAPTAIN_COLOR,
+                edgecolor="none",
+            )
+        )
 
-    player_positions = {}
-    display_weeks = [base_week] + gameweeks
+    return data
+
+
+def _setup_figure_and_data(picks, current_squad):
+    """Setup the matplotlib figure and prepare data for visualization."""
+    df = pd.DataFrame(picks)
+    df_squad = df[df["squad"] == 1]
+    df_base = df[df["week"] == min(df["week"])]
+    gameweeks = sorted(df_squad["week"].unique())
+
+    # Handle preseason scenario (earliest gameweek is 1)
+    if min(gameweeks) == 1:
+        base_week = None  # No base team in preseason
+    else:
+        base_week = min(gameweeks) - 1
+
+    fh_week = df.loc[df["chip"] == "FH"].iloc[0]["week"] if len(df.loc[df["chip"] == "FH"]) > 0 else None
+
+    fig, ax = plt.subplots(figsize=(26, 14))
+    ax.set_facecolor(BG_COLOR)
+    fig.patch.set_facecolor(BG_COLOR)
+
+    return fig, ax, df, df_squad, df_base, gameweeks, base_week, fh_week
+
+
+def _get_week_players(week, base_week, df_base, df_squad, current_squad):
+    """Get players for a specific gameweek."""
+    if base_week is not None and week == base_week:
+        gw_players = df_base[df_base["id"].isin(current_squad)]
+        gw_players.loc[:, "lineup"] = 1
+    else:
+        gw_players = df_squad[df_squad["week"] == week]
+    return gw_players
+
+
+def _add_week_header(ax, gw_idx, week, base_week, gw_players):
+    """Add gameweek header and chip information."""
+    if base_week is not None and week == base_week:
+        ax.text(gw_idx * GAMEWEEK_SPACING, BASE_Y + 1.2, "Base", color=TEXT_COLOR, fontsize=13, ha="center", weight="bold")
+    else:
+        ax.text(gw_idx * GAMEWEEK_SPACING, BASE_Y + 1.2, f"GW{week}", color=TEXT_COLOR, fontsize=13, ha="center", weight="bold")
+        if "chip" in gw_players.columns and not gw_players["chip"].isna().all():
+            try:
+                chip = gw_players.loc[gw_players["chip"] != ""]["chip"].iloc[0]
+            except Exception:
+                chip = gw_players["chip"].iloc[0]
+            if pd.notna(chip):
+                ax.text(gw_idx * GAMEWEEK_SPACING, BASE_Y + 0.8, chip, color="#fbbf24", fontsize=11, ha="center", weight="bold")
+
+
+def _add_player_cells(ax, gw_idx, gw_players, week, player_indexes):
+    """Add player cells for starting XI and bench."""
+    starting_xi = gw_players[gw_players["lineup"] == 1].sort_values(["type", "xP"], ascending=[True, False]).reset_index()
+    bench = gw_players[gw_players["lineup"] == 0].sort_values(["type", "xP"], ascending=[True, False]).reset_index()
+    bench.index = bench.index + 11
+
+    player_indexes[week] = {}
+
+    # Starting XI
+    for player_idx, player in starting_xi.iterrows():
+        y_pos = BASE_Y - player_idx * PLAYER_SPACING
+        player_indexes[week][player["id"]] = (y_pos, player["pos"])
+
+        cells = calculate_player_cells(gw_idx, player_idx, player)
+        for cell in cells:
+            ax.add_patch(cell)
+        text_pos = (gw_idx * GAMEWEEK_SPACING, y_pos + 0.2)
+        ax.text(*text_pos, player["name"], color=TEXT_COLOR, ha="center", va="center", fontsize=PLAYER_NAME_FONT_SIZE, weight="medium")
+
+        # Check if this is not the base week by looking at the data structure
+        if "xP" in player and "xMin" in player:
+            stats_text = f"{player['xP']:.1f} xPts • {int(player['xMin'])} xMin"
+            ax.text(gw_idx * GAMEWEEK_SPACING, y_pos - 0.25, stats_text, color=STATS_COLOR, ha="center", va="center", fontsize=STATS_FONT_SIZE)
+
+    # Bench
+    for player_idx, player in bench.iterrows():
+        y_pos = BASE_Y - player_idx * PLAYER_SPACING
+        player_indexes[week][player["id"]] = (BASE_Y - player_idx * PLAYER_SPACING, player["pos"])
+        cells = calculate_player_cells(gw_idx, player_idx, player)
+        for cell in cells:
+            ax.add_patch(cell)
+        text_pos = (gw_idx * GAMEWEEK_SPACING, y_pos + 0.2)
+        ax.text(*text_pos, player["name"], color=TEXT_COLOR, ha="center", va="center", fontsize=PLAYER_NAME_FONT_SIZE, weight="medium")
+
+        stats_text = f"{player['xP']:.1f} xPts • {int(player['xMin'])} xMin"
+        ax.text(gw_idx * GAMEWEEK_SPACING, y_pos - 0.25, stats_text, color=STATS_COLOR, ha="center", va="center", fontsize=STATS_FONT_SIZE)
+
+
+def _add_transfers(ax, gw_idx, week, picks, player_indexes):
+    """Add transfer lines between gameweeks."""
+    # Calculate fh_week from picks data
+    fh_week = picks.loc[picks["chip"] == "FH"].iloc[0]["week"] if len(picks.loc[picks["chip"] == "FH"]) > 0 else None
+
+    # Get previous week from player_indexes keys
+    prev_weeks = [w for w in player_indexes.keys() if w < week]
+    prev_week_int = max(prev_weeks) if prev_weeks else week - 1
+
+    transfers_in = picks.loc[(picks["week"] == week) & (picks["transfer_in"] == 1)]
+    transfers_out = picks.loc[(picks["week"] == week) & (picks["transfer_out"] == 1)]
+
+    for pos in POSITIONS:
+        players_out = transfers_out.loc[transfers_out["pos"] == pos].to_dict(orient="records")
+        players_in = transfers_in.loc[transfers_in["pos"] == pos].to_dict(orient="records")
+
+        if week == 1:
+            # don't draw any lines
+            continue
+
+        for player_out, player_in in zip(players_out, players_in, strict=True):
+            skip_fh = int(prev_week_int == fh_week) if fh_week else 0
+            x_start = (gw_idx - 1 - skip_fh) * GAMEWEEK_SPACING + BOX_WIDTH / 2
+            x_end = gw_idx * GAMEWEEK_SPACING - BOX_WIDTH / 2
+            y_start = player_indexes[prev_week_int - skip_fh][player_out["id"]][0]
+            y_end = player_indexes[week][player_in["id"]][0]
+            ax.add_patch(calculate_bezier(x_start, x_end, y_start, y_end))
+
+
+def _add_gameweek_statistics(ax, gw_idx, week, statistics, player_idx):
+    """Add gameweek statistics below the squad."""
+    # Determine base week from statistics keys
+    base_week = min(statistics.keys()) if statistics else week
+
+    if week == base_week:
+        return
+
+    stats_y = BASE_Y - (player_idx + 0.5) * PLAYER_SPACING
+    ax.text(
+        gw_idx * GAMEWEEK_SPACING, stats_y - 0.5, f"{statistics[week]['xP']:.2f} xPts", color=TEXT_COLOR, fontsize=11, ha="center", weight="medium"
+    )
+    ax.text(
+        gw_idx * GAMEWEEK_SPACING,
+        stats_y - 0.9,
+        f"ITB: {statistics[week - 1]['itb']} → {statistics[week]['itb']:.1f}",
+        color=STATS_COLOR,
+        fontsize=9,
+        ha="center",
+    )
+
+    if week > 1 and statistics[week]["chip"] not in ["FH", "WC"]:
+        fts_available = statistics[week]["ft_state"]
+        transfer_str = f"FTs: {statistics[week]['nt']}/{fts_available}"
+        if statistics[week]["pt"] > 0:
+            transfer_str += f" (-{statistics[week]['pt'] * HIT_COST})"
+        ax.text(gw_idx * GAMEWEEK_SPACING, stats_y - 1.3, transfer_str, color=STATS_COLOR, fontsize=9, ha="center")
+
+
+def _add_chip_backgrounds(ax, df, base_week, bottom_limit, top_limit):
+    """Add background rectangles for chip gameweeks."""
+    chip_weeks = dict(df.loc[df["chip"] != ""][["week", "chip"]].drop_duplicates().values)
+
+    for gw, chip in chip_weeks.items():
+        # Handle preseason scenario (no base week)
+        if base_week is not None:
+            x_center = (gw - base_week) * GAMEWEEK_SPACING
+        else:
+            x_center = (gw - 1) * GAMEWEEK_SPACING  # Use GW1 as reference in preseason
+
+        rect = patches.FancyBboxPatch(
+            (x_center - GAMEWEEK_SPACING / 2, bottom_limit),
+            GAMEWEEK_SPACING,
+            top_limit - bottom_limit,
+            edgecolor="none",
+            facecolor=CHIP_BACKGROUND_COLOR,
+            zorder=CHIP_BACKGROUND_ZORDERS[chip],
+            boxstyle=patches.BoxStyle("Round", pad=-0.3, rounding_size=2),
+            alpha=0.85,
+        )
+        ax.add_patch(rect)
+
+
+def create_squad_timeline(current_squad, statistics, picks, filename):
+    """Create a timeline visualization of squad changes across gameweeks."""
+    fig, ax, df, df_squad, df_base, gameweeks, base_week, fh_week = _setup_figure_and_data(picks, current_squad)
+
+    player_indexes = {}
+    # Handle preseason scenario (no base week)
+    if base_week is not None:
+        display_weeks = [base_week, *gameweeks]
+    else:
+        display_weeks = gameweeks
 
     for gw_idx, week in enumerate(display_weeks):
-        if week == base_week:
-            gw_players = df_base[df_base["id"].isin(current_squad)]
-            gw_players.loc[:, "lineup"] = 1
-            ax.text(gw_idx * gameweek_spacing, base_y + 1, "Base", color=text_color, fontsize=10, ha="center")
-        else:
-            gw_players = df_squad[df_squad["week"] == week]
-            ax.text(gw_idx * gameweek_spacing, base_y + 1, f"GW{week}", color=text_color, fontsize=10, ha="center")
-            if "chip" in gw_players.columns and not gw_players["chip"].isna().all():
-                try:
-                    chip = gw_players.loc[gw_players["chip"] != ""]["chip"].iloc[0]
-                except Exception:
-                    chip = gw_players["chip"].iloc[0]
-                if pd.notna(chip):
-                    ax.text(gw_idx * gameweek_spacing, base_y + 0.7, chip, color=text_color, fontsize=8, ha="center")
-                if chip == "AM":
-                    amn_players = gw_players[gw_players["pos"] == "AMN"]
+        gw_players = _get_week_players(week, base_week, df_base, df_squad, current_squad)
+        _add_week_header(ax, gw_idx, week, base_week, gw_players)
+        _add_player_cells(ax, gw_idx, gw_players, week, player_indexes)
+        _add_transfers(ax, gw_idx, week, picks, player_indexes)
+        _add_gameweek_statistics(ax, gw_idx, week, statistics, len(gw_players) - 1)
 
-                    if not amn_players.empty:
-                        manager = (
-                            amn_players[amn_players["transfer_in"] == 1].iloc[0] if any(amn_players["transfer_in"] == 1) else amn_players.iloc[0]
-                        )
-
-                        cell = patches.Rectangle(
-                            (gw_idx * gameweek_spacing - box_width / 2, am_y_position - box_height / 2),
-                            box_width,
-                            box_height,
-                            facecolor=cell_bg_color,
-                            edgecolor="none",
-                        )
-                        ax.add_patch(cell)
-
-                        bottom_border = patches.Rectangle(
-                            (gw_idx * gameweek_spacing - box_width / 2, am_y_position - box_height / 2),
-                            box_width,
-                            position_border_width,
-                            facecolor=position_colors["AMN"],
-                            edgecolor="none",
-                        )
-                        ax.add_patch(bottom_border)
-
-                        ax.text(
-                            gw_idx * gameweek_spacing,
-                            am_y_position + 0.15,
-                            manager["name"],
-                            color=text_color,
-                            ha="center",
-                            va="center",
-                            fontsize=8,
-                        )
-
-                        stats_text = f"{manager['xP']:.1f} xPts"
-                        ax.text(
-                            gw_idx * gameweek_spacing,
-                            am_y_position - 0.15,
-                            stats_text,
-                            color=stats_color,
-                            ha="center",
-                            va="center",
-                            fontsize=6,
-                        )
-
-                        week_int = int(week)
-                        if week_int not in player_positions:
-                            player_positions[week_int] = {}
-
-                        player_positions[week_int]["AM_MANAGER"] = (am_y_position, "AMN")
-
-                        if week != base_week:
-                            prev_week_int = int(display_weeks[gw_idx - 1])
-                            if prev_week_int in player_positions and "AM_MANAGER" in player_positions[prev_week_int] and manager["transfer_in"] == 1:
-                                ax.plot(
-                                    [
-                                        (gw_idx - 1) * gameweek_spacing + box_width / 2,
-                                        gw_idx * gameweek_spacing - box_width / 2,
-                                    ],
-                                    [player_positions[prev_week_int]["AM_MANAGER"][0], am_y_position],
-                                    color=text_color,
-                                    alpha=0.5,
-                                    linewidth=1,
-                                )
-
-        starting_xi = gw_players[gw_players["lineup"] == 1].sort_values(["type", "name"])
-        bench = gw_players[gw_players["lineup"] == 0]
-        bench_gk = bench[bench["pos"] == "GKP"]
-        bench_outfield = bench[bench["pos"] != "GKP"].sort_values("xP", ascending=False)
-        bench = pd.concat([bench_gk, bench_outfield])
-
-        # Initialize or reset player positions for this week
-        week_int = int(week)
-        if week_int not in player_positions:
-            player_positions[week_int] = {}
-
-        player_idx = 1 if am_used else 0
-
-        for _, player in starting_xi.iterrows():
-            y_pos = base_y - player_idx * player_spacing
-            player_positions[week_int][player["name"]] = (y_pos, player["pos"])
-
-            cell = patches.Rectangle(
-                (gw_idx * gameweek_spacing - box_width / 2, y_pos - box_height / 2),
-                box_width,
-                box_height,
-                facecolor=cell_bg_color,
-                edgecolor="none",
-            )
-            ax.add_patch(cell)
-
-            bottom_border = patches.Rectangle(
-                (gw_idx * gameweek_spacing - box_width / 2, y_pos - box_height / 2),
-                box_width,
-                position_border_width,
-                facecolor=position_colors[player["pos"]],
-                edgecolor="none",
-            )
-            ax.add_patch(bottom_border)
-
-            if player["captain"] == 1:
-                left_border = patches.Rectangle(
-                    (gw_idx * gameweek_spacing - box_width / 2, y_pos - box_height / 2),
-                    captain_border_width,
-                    box_height,
-                    facecolor=captain_color,
-                    edgecolor="none",
-                )
-                ax.add_patch(left_border)
-            elif player["vicecaptain"] == 1:
-                left_border = patches.Rectangle(
-                    (gw_idx * gameweek_spacing - box_width / 2, y_pos - box_height / 2),
-                    captain_border_width,
-                    box_height,
-                    facecolor=vice_captain_color,
-                    edgecolor="none",
-                )
-                ax.add_patch(left_border)
-
-            ax.text(
-                gw_idx * gameweek_spacing,
-                y_pos + 0.15,
-                player["name"],
-                color=text_color,
-                ha="center",
-                va="center",
-                fontsize=8,
-            )
-
-            stats_text = f"{player['xP']:.1f} xPts : {int(player['xMin'])} xMin"
-            ax.text(
-                gw_idx * gameweek_spacing,
-                y_pos - 0.15,
-                stats_text,
-                color=stats_color,
-                ha="center",
-                va="center",
-                fontsize=6,
-            )
-
-            player_idx += 1
-
-        for _, player in bench.iterrows():
-            y_pos = base_y - player_idx * player_spacing
-            player_positions[week_int][player["name"]] = (y_pos, player["pos"])
-
-            cell = patches.Rectangle(
-                (gw_idx * gameweek_spacing - box_width / 2, y_pos - box_height / 2),
-                box_width,
-                box_height,
-                facecolor=bench_bg_color,
-                edgecolor="none",
-            )
-            ax.add_patch(cell)
-
-            bottom_border = patches.Rectangle(
-                (gw_idx * gameweek_spacing - box_width / 2, y_pos - box_height / 2),
-                box_width,
-                position_border_width,
-                facecolor=position_colors[player["pos"]],
-                edgecolor="none",
-            )
-            ax.add_patch(bottom_border)
-
-            if player["captain"] == 1:
-                left_border = patches.Rectangle(
-                    (gw_idx * gameweek_spacing - box_width / 2, y_pos - box_height / 2),
-                    captain_border_width,
-                    box_height,
-                    facecolor=captain_color,
-                    edgecolor="none",
-                )
-                ax.add_patch(left_border)
-            elif player["vicecaptain"] == 1:
-                left_border = patches.Rectangle(
-                    (gw_idx * gameweek_spacing - box_width / 2, y_pos - box_height / 2),
-                    captain_border_width,
-                    box_height,
-                    facecolor=vice_captain_color,
-                    edgecolor="none",
-                )
-                ax.add_patch(left_border)
-
-            ax.text(
-                gw_idx * gameweek_spacing,
-                y_pos + 0.15,
-                player["name"],
-                color=text_color,
-                ha="center",
-                va="center",
-                fontsize=8,
-            )
-
-            stats_text = f"{player['xP']:.1f} xPts : {int(player['xMin'])} xMin"
-            ax.text(
-                gw_idx * gameweek_spacing,
-                y_pos - 0.15,
-                stats_text,
-                color=stats_color,
-                ha="center",
-                va="center",
-                fontsize=6,
-            )
-
-            player_idx += 1
-
-        if week != base_week:
-            prev_week_int = int(display_weeks[gw_idx - 1])
-            prev_players = set(player_positions[prev_week_int].keys())
-            curr_players = set(player_positions[week_int].keys())
-
-            transfers_out = prev_players - curr_players
-            transfers_in = curr_players - prev_players
-
-            for pos in ["GKP", "DEF", "MID", "FWD"]:
-                out_players = [p for p in transfers_out if player_positions[prev_week_int][p][1] == pos]
-                in_players = [p for p in transfers_in if player_positions[week_int][p][1] == pos]
-
-                for out_p, in_p in zip(out_players, in_players, strict=False):
-                    ax.plot(
-                        [(gw_idx - 1) * gameweek_spacing + box_width / 2, gw_idx * gameweek_spacing - box_width / 2],
-                        [player_positions[prev_week_int][out_p][0], player_positions[week_int][in_p][0]],
-                        color=text_color,
-                        alpha=0.5,
-                        linewidth=1,
-                    )
-
-        if week != base_week and week in statistics:
-            gw_statistics = statistics[week]
-
-            # Position summary stats relative to last player
-            stats_y = base_y - (player_idx + 1) * player_spacing
-
-            ax.text(
-                gw_idx * gameweek_spacing,
-                stats_y,
-                f"Lineup {gw_statistics['xP']:.2f} xPts",
-                color=text_color,
-                fontsize=10,
-                ha="center",
-            )
-
-            ax.text(
-                gw_idx * gameweek_spacing,
-                stats_y - 0.4,
-                f"Obj {gw_statistics['obj']:.2f} xPts",
-                color=text_color,
-                fontsize=10,
-                ha="center",
-            )
-
-            ax.text(
-                gw_idx * gameweek_spacing,
-                stats_y - 0.8,
-                f"ITB: {gw_statistics['itb']:.1f}",
-                color=text_color,
-                fontsize=8,
-                ha="center",
-            )
-
-            transfer_str = ""
-            for key in ["ft", "pt", "nt"]:
-                if key in gw_statistics:
-                    transfer_str += f"{key.upper()}: {gw_statistics[key]}  "
-
-            ax.text(gw_idx * gameweek_spacing, stats_y - 1.15, transfer_str, color=text_color, fontsize=8, ha="center")
-
-    total_width = (len(display_weeks) - 1) * gameweek_spacing + box_width
-    ax.set_xlim(-5, total_width)
-    # Calculate limits based on content
-    bottom_limit = base_y - (player_idx + 2) * player_spacing  # Extra space for summary stats
-    top_limit = base_y + 2  # Space for headers
+    # Set plot limits and styling
+    total_width = (len(display_weeks) - 1) * GAMEWEEK_SPACING + BOX_WIDTH
+    ax.set_xlim(-6, total_width + 2)
+    bottom_limit = BASE_Y - (len(gw_players) + 1.5) * PLAYER_SPACING
+    top_limit = BASE_Y + 2.8
     ax.set_ylim(bottom_limit, top_limit)
     ax.axis("off")
 
-    plt.title(filename, color=text_color)
-    plt.savefig("../data/results/" + filename + ".png", bbox_inches="tight", facecolor=bg_color)
+    plt.title(filename, color=TEXT_COLOR, fontsize=14, weight="bold", pad=20)
+    _add_chip_backgrounds(ax, df, base_week, bottom_limit, top_limit)
+
+    # Ensure the images directory exists
+    os.makedirs("../data/images", exist_ok=True)
+    plt.savefig("../data/images/" + filename + ".png", bbox_inches="tight", facecolor=BG_COLOR)
     plt.close()

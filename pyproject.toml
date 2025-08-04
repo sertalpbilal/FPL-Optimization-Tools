@@ -31,10 +31,13 @@ target-version = "py313"
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "N", "W", "B", "A", "C4", "UP", "PL", "RUF"]
-ignore = []
+fixable = ["E501"]
 
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401"]
+"tests/**/*" = ["PLR2004"]
+"run/solve_regular.py" = ["PLR0915", "PLR0912"]
+"src/multi_period_dev.py" = ["PLR0915", "PLR0912"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["src", "run", "tests"]

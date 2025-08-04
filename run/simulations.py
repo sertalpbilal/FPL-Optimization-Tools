@@ -4,13 +4,13 @@ import re
 import time
 from concurrent.futures import ProcessPoolExecutor
 
+from binary_file_generator import generate_binary_files
 from solve_regular import solve_regular
 
 
 def run_sensitivity(options=None):
     if options is None or "count" not in options:
-        # print("Remember to delete results folder and enable noise! Also note: you may reach your results faster to run multiple tabs of this script")
-        # print("")
+        print('Remember to delete results folder and enable noise with "randomized": true in regular_settings.json')
         runs = int(input("How many simulations would you like to run? "))
         processes = int(input("How many processes you want to run in parallel? "))
         use_binaries = input("Use binaries (y or n)? ")
@@ -30,8 +30,6 @@ def run_sensitivity(options=None):
         if settings.get("generate_binary_files"):
             print("Generating binary files")
 
-            from binary_file_generator import generate_binary_files
-
             # Read binary fixture markdown file
             with open("../data/binary_fixture_settings.md") as file:
                 fixture_setting_md = file.read()
@@ -46,7 +44,7 @@ def run_sensitivity(options=None):
             generate_binary_files(file_path, binary_fixture_settings)
 
         # get total weights for configured binary files for scaling up weights to add up to 1
-        total_weights = sum([weight for weight in settings.get("binary_files").values()])
+        total_weights = sum(settings.get("binary_files").values())
 
         for binary, weight in settings["binary_files"].items():
             scaled_weight = weight / total_weights
@@ -93,6 +91,7 @@ if __name__ == "__main__":
         args = parser.parse_args()
         options = {}
         if args.no:
+            print("yessss")
             options["count"] = args.no
         if args.parallel:
             options["processes"] = args.parallel
