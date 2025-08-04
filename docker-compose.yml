@@ -6,4 +6,3 @@ services:
     container_name: fpl_optimization_tools
     volumes:
       - .:/fpl-optimization
-

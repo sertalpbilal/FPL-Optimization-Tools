@@ -25,4 +25,3 @@ USER app_user
 
 ENTRYPOINT [ "python", "solve_regular.py" ]
 CMD [ "bash" ]
-

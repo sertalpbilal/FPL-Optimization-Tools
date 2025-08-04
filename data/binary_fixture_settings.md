@@ -38,6 +38,6 @@ This file contains the binary file generator fixture configurations to be used b
         "Ipswich": { "36": "34" },
         "Arsenal": { "36": "34" },
         "Crystal Palace": { "36": "34" }
-    }      
+    }
 }
 ```

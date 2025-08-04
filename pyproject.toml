@@ -1,0 +1,40 @@
+[project]
+name = "fpl-optimization-tools"
+version = "0.1.0"
+description = "Fantasy Premier League optimization tools"
+authors = [
+    {name = "FPL Optimization Tools Team"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pandas",
+    "numpy",
+    "sasoptpy>=1.0.5a0",
+    "fuzzywuzzy",
+    "python-Levenshtein",
+    "matplotlib",
+    "pytest",
+    "ruff",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src", "run", "tests"]
+
+[tool.ruff]
+line-length = 150
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "B", "A", "C4", "UP", "PL", "RUF"]
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "run", "tests"]

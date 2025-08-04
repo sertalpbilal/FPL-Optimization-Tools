@@ -1,11 +1,11 @@
-import pandas as pd
-from pathlib import Path
 import argparse
 from collections import Counter
+from pathlib import Path
+
+import pandas as pd
 
 
 def read_sensitivity(options=None):
-
     directory = "../data/results"
 
     # Extract values from options or prompt user input if not provided
@@ -23,13 +23,7 @@ def read_sensitivity(options=None):
         # Otherwise, ask for all_gws if it's not provided via command-line
         all_gws = options.get("all_gws")
         if all_gws is None:
-            all_gws = (
-                input(
-                    "Do you want to display a summary of buys and sells for all GWs? (y/n) "
-                )
-                .strip()
-                .lower()
-            )
+            all_gws = input("Do you want to display a summary of buys and sells for all GWs? (y/n) ").strip().lower()
 
     print()
 
@@ -52,25 +46,16 @@ def read_sensitivity(options=None):
             gameweeks.update(plan["week"].unique())
 
             for week in gameweeks:
-                if (
-                    plan[(plan["week"] == week) & (plan["transfer_in"] == 1)][
-                        "name"
-                    ].to_list()
-                    == []
-                ):
+                if plan[(plan["week"] == week) & (plan["transfer_in"] == 1)]["name"].to_list() == []:
                     buys.append({"move": "No transfer", "iter": iter, "week": week})
                     sells.append({"move": "No transfer", "iter": iter, "week": week})
                     move.append({"move": "No transfer", "iter": iter, "week": week})
                 else:
-                    buy_list = plan[
-                        (plan["week"] == week) & (plan["transfer_in"] == 1)
-                    ]["name"].to_list()
+                    buy_list = plan[(plan["week"] == week) & (plan["transfer_in"] == 1)]["name"].to_list()
                     for buy in buy_list:
                         buys.append({"move": buy, "iter": iter, "week": week})
 
-                    sell_list = plan[
-                        (plan["week"] == week) & (plan["transfer_out"] == 1)
-                    ]["name"].to_list()
+                    sell_list = plan[(plan["week"] == week) & (plan["transfer_out"] == 1)]["name"].to_list()
                     for sell in sell_list:
                         sells.append({"move": sell, "iter": iter, "week": week})
                         move.append(
@@ -100,9 +85,7 @@ def read_sensitivity(options=None):
             print(f"{title}:")
 
             # Create the pivot table with counts
-            df_counts = df.pivot_table(
-                index="move", columns="week", aggfunc="size", fill_value=0
-            )
+            df_counts = df.pivot_table(index="move", columns="week", aggfunc="size", fill_value=0)
 
             # Calculate percentages
             df_percentages = df_counts.divide(no_plans).multiply(100)
@@ -145,11 +128,7 @@ def read_sensitivity(options=None):
         if gw is None:
             gw = int(input("What GW are you assessing? "))
         if situation is None:
-            situation = (
-                input("Is this a wildcard or preseason (GW1) solve? (y/n) ")
-                .strip()
-                .lower()
-            )
+            situation = input("Is this a wildcard or preseason (GW1) solve? (y/n) ").strip().lower()
         # Different scenarios based on wildcard
         if situation == "n":
             print(f"Processing for GW {gw} without wildcard.")
@@ -163,26 +142,17 @@ def read_sensitivity(options=None):
                 plan = plan.sort_values(by=["week", "iter", "pos", "id"])
                 try:
                     iter = plan.iloc[0]["iter"]
-                except:
+                except Exception:
                     iter = 0
-                if (
-                    plan[(plan["week"] == gw) & (plan["transfer_in"] == 1)][
-                        "name"
-                    ].to_list()
-                    == []
-                ):
+                if plan[(plan["week"] == gw) & (plan["transfer_in"] == 1)]["name"].to_list() == []:
                     buys.append({"move": "No transfer", "iter": iter})
                     sells.append({"move": "No transfer", "iter": iter})
                     move.append({"move": "No transfer", "iter": iter})
                 else:
-                    buy_list = plan[(plan["week"] == gw) & (plan["transfer_in"] == 1)][
-                        "name"
-                    ].to_list()
+                    buy_list = plan[(plan["week"] == gw) & (plan["transfer_in"] == 1)]["name"].to_list()
                     buy = ", ".join(buy_list)
                     buys.append({"move": buy, "iter": iter})
-                    sell_list = plan[
-                        (plan["week"] == gw) & (plan["transfer_out"] == 1)
-                    ]["name"].to_list()
+                    sell_list = plan[(plan["week"] == gw) & (plan["transfer_out"] == 1)]["name"].to_list()
                     sell = ", ".join(sell_list)
                     sells.append({"move": sell, "iter": iter})
                     move.append({"move": sell + " -> " + buy, "iter": iter})
@@ -192,43 +162,25 @@ def read_sensitivity(options=None):
             print()
             iter_scoring = {1: 10, 2: 9, 3: 8}
             buy_df = pd.DataFrame(buys)
-            buy_pivot = buy_df.pivot_table(
-                index="move", columns="iter", aggfunc="size", fill_value=0
-            )
+            buy_pivot = buy_df.pivot_table(index="move", columns="iter", aggfunc="size", fill_value=0)
             iters = sorted(buy_df["iter"].unique())
-            buy_pivot["PSB"] = (
-                buy_pivot.loc[:, iters].sum(axis=1) / buy_pivot.sum().sum()
-            )
+            buy_pivot["PSB"] = buy_pivot.loc[:, iters].sum(axis=1) / buy_pivot.sum().sum()
             buy_pivot["PSB"] = buy_pivot["PSB"].apply(lambda x: f"{x:.0%}")
-            buy_pivot["Score"] = buy_pivot.apply(
-                lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1
-            )
+            buy_pivot["Score"] = buy_pivot.apply(lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1)
             buy_pivot.sort_values(by="Score", ascending=False, inplace=True)
             sell_df = pd.DataFrame(sells)
-            sell_pivot = sell_df.pivot_table(
-                index="move", columns="iter", aggfunc="size", fill_value=0
-            )
+            sell_pivot = sell_df.pivot_table(index="move", columns="iter", aggfunc="size", fill_value=0)
             iters = sorted(sell_df["iter"].unique())
-            sell_pivot["PSB"] = (
-                sell_pivot.loc[:, iters].sum(axis=1) / sell_pivot.sum().sum()
-            )
+            sell_pivot["PSB"] = sell_pivot.loc[:, iters].sum(axis=1) / sell_pivot.sum().sum()
             sell_pivot["PSB"] = sell_pivot["PSB"].apply(lambda x: f"{x:.0%}")
-            sell_pivot["Score"] = sell_pivot.apply(
-                lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1
-            )
+            sell_pivot["Score"] = sell_pivot.apply(lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1)
             sell_pivot.sort_values(by="Score", ascending=False, inplace=True)
             move_df = pd.DataFrame(move)
-            move_pivot = move_df.pivot_table(
-                index="move", columns="iter", aggfunc="size", fill_value=0
-            )
+            move_pivot = move_df.pivot_table(index="move", columns="iter", aggfunc="size", fill_value=0)
             iters = sorted(move_df["iter"].unique())
-            move_pivot["PSB"] = (
-                move_pivot.loc[:, iters].sum(axis=1) / move_pivot.sum().sum()
-            )
+            move_pivot["PSB"] = move_pivot.loc[:, iters].sum(axis=1) / move_pivot.sum().sum()
             move_pivot["PSB"] = move_pivot["PSB"].apply(lambda x: f"{x:.0%}")
-            move_pivot["Score"] = move_pivot.apply(
-                lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1
-            )
+            move_pivot["Score"] = move_pivot.apply(lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1)
             move_pivot.sort_values(by="Score", ascending=False, inplace=True)
 
             # Set the display options for wider column width
@@ -270,41 +222,25 @@ def read_sensitivity(options=None):
                 plan = plan.loc[(plan["squad"] == 1) | (plan["transfer_out"] == 1)]
                 # Goalkeepers list of tuples (name, lineup status)
                 goalkeepers += (
-                    plan[
-                        (plan["week"] == gw)
-                        & (plan["pos"] == "GKP")
-                        & (plan["transfer_out"] != 1)
-                    ][["name", "lineup"]]
+                    plan[(plan["week"] == gw) & (plan["pos"] == "GKP") & (plan["transfer_out"] != 1)][["name", "lineup"]]
                     .apply(lambda x: (x["name"], 1 if x["lineup"] == 1 else 0), axis=1)
                     .to_list()
                 )
                 # Defenders list of tuples (name, lineup status)
                 defenders += (
-                    plan[
-                        (plan["week"] == gw)
-                        & (plan["pos"] == "DEF")
-                        & (plan["transfer_out"] != 1)
-                    ][["name", "lineup"]]
+                    plan[(plan["week"] == gw) & (plan["pos"] == "DEF") & (plan["transfer_out"] != 1)][["name", "lineup"]]
                     .apply(lambda x: (x["name"], 1 if x["lineup"] == 1 else 0), axis=1)
                     .to_list()
                 )
                 # Midfielders list of tuples (name, lineup status)
                 midfielders += (
-                    plan[
-                        (plan["week"] == gw)
-                        & (plan["pos"] == "MID")
-                        & (plan["transfer_out"] != 1)
-                    ][["name", "lineup"]]
+                    plan[(plan["week"] == gw) & (plan["pos"] == "MID") & (plan["transfer_out"] != 1)][["name", "lineup"]]
                     .apply(lambda x: (x["name"], 1 if x["lineup"] == 1 else 0), axis=1)
                     .to_list()
                 )
                 # Forwards list of tuples (name, lineup status)
                 forwards += (
-                    plan[
-                        (plan["week"] == gw)
-                        & (plan["pos"] == "FWD")
-                        & (plan["transfer_out"] != 1)
-                    ][["name", "lineup"]]
+                    plan[(plan["week"] == gw) & (plan["pos"] == "FWD") & (plan["transfer_out"] != 1)][["name", "lineup"]]
                     .apply(lambda x: (x["name"], 1 if x["lineup"] == 1 else 0), axis=1)
                     .to_list()
                 )
@@ -316,18 +252,12 @@ def read_sensitivity(options=None):
             # Function to calculate total counts and lineup counts
             def calculate_counts(player_list):
                 total_count = Counter([name for name, lineup in player_list])
-                lineup_count = Counter(
-                    [name for name, lineup in player_list if lineup == 1]
-                )
+                lineup_count = Counter([name for name, lineup in player_list if lineup == 1])
                 # Convert to DataFrame
                 total_df = pd.DataFrame(total_count.items(), columns=["player", "PSB"])
-                lineup_df = pd.DataFrame(
-                    lineup_count.items(), columns=["player", "Lineup"]
-                )
+                lineup_df = pd.DataFrame(lineup_count.items(), columns=["player", "Lineup"])
                 # Merge both DataFrames on player name
-                merged_df = pd.merge(
-                    total_df, lineup_df, on="player", how="left"
-                ).fillna(0)
+                merged_df = pd.merge(total_df, lineup_df, on="player", how="left").fillna(0)
                 return merged_df
 
             # Calculate for each position
@@ -343,13 +273,8 @@ def read_sensitivity(options=None):
                 df["#_PSB"] = df["PSB"].astype(int)
                 df["#_Lineup"] = df["Lineup"].astype(int)
                 # Convert to percentage
-                df["PSB"] = [
-                    "{:.0%}".format(df["PSB"][x] / no_plans) for x in range(df.shape[0])
-                ]
-                df["Lineup"] = [
-                    "{:.0%}".format(df["Lineup"][x] / no_plans)
-                    for x in range(df.shape[0])
-                ]
+                df["PSB"] = ["{:.0%}".format(df["PSB"][x] / no_plans) for x in range(df.shape[0])]
+                df["Lineup"] = ["{:.0%}".format(df["Lineup"][x] / no_plans) for x in range(df.shape[0])]
                 return df
 
             # Calculate percentages and sort for each position
@@ -368,25 +293,18 @@ def read_sensitivity(options=None):
                 max_psb_len = 8
                 max_lineup_len = 8
                 max_psb_count_len = max(8, df["#_PSB"].astype(str).str.len().max())
-                max_lineup_count_len = max(
-                    8, df["#_Lineup"].astype(str).str.len().max()
-                )
+                max_lineup_count_len = max(8, df["#_Lineup"].astype(str).str.len().max())
                 # Print the headers first with fixed width formatting
                 print(
-                    f"{'player':<{max_name_len}} {'PSB':<{max_psb_len}} {'Lineup':<{max_lineup_len}} "
-                    f"{'#_PSB':<{max_psb_count_len}} {'#_Lineup':<{max_lineup_count_len}}"
+                    f"{'player':<{max_name_len}} {'PSB':<{max_psb_len}} {'Lineup':<{max_lineup_len}} {'#_PSB':<{max_psb_count_len}} {'#_Lineup':<{max_lineup_count_len}}"
                 )
                 # Ensure PSB and Lineup are strings and handle any non-string values
                 df["PSB"] = df["PSB"].astype(str)
                 df["Lineup"] = df["Lineup"].astype(str)
                 # Normalize values for PSB and Lineup to range [0, 1]
                 try:
-                    df["PSB_normalized"] = (
-                        df["PSB"].str.extract(r"(\d+)%")[0].astype(float) / 100
-                    )
-                    df["Lineup_normalized"] = (
-                        df["Lineup"].str.extract(r"(\d+)%")[0].astype(float) / 100
-                    )
+                    df["PSB_normalized"] = df["PSB"].str.extract(r"(\d+)%")[0].astype(float) / 100
+                    df["Lineup_normalized"] = df["Lineup"].str.extract(r"(\d+)%")[0].astype(float) / 100
                 except Exception as e:
                     print(f"Error normalizing data: {e}")
                     return
@@ -394,26 +312,14 @@ def read_sensitivity(options=None):
                 df = df[df["PSB_normalized"] >= psb_threshold]
                 # Calculate the maximum normalized values for the current DataFrame
                 max_normalized_psb = df["PSB_normalized"].max() if not df.empty else 1
-                max_normalized_lineup = (
-                    df["Lineup_normalized"].max() if not df.empty else 1
-                )
+                max_normalized_lineup = df["Lineup_normalized"].max() if not df.empty else 1
                 # Print each row with calculated widths and optional color grading
                 for index, row in df.iterrows():
                     if use_color:
                         # Calculate brightness for PSB based on its maximum value
-                        brightness_psb = (
-                            int(200 * (row["PSB_normalized"] / max_normalized_psb))
-                            if max_normalized_psb > 0
-                            else 200
-                        )
+                        brightness_psb = int(200 * (row["PSB_normalized"] / max_normalized_psb)) if max_normalized_psb > 0 else 200
                         # Calculate brightness for Lineup based on its maximum value
-                        brightness_lineup = (
-                            int(
-                                200 * (row["Lineup_normalized"] / max_normalized_lineup)
-                            )
-                            if max_normalized_lineup > 0
-                            else 200
-                        )
+                        brightness_lineup = int(200 * (row["Lineup_normalized"] / max_normalized_lineup)) if max_normalized_lineup > 0 else 200
                         # Define colors for both PSB and Lineup
                         color_psb = f"\033[38;2;0;{brightness_psb};{255 - brightness_psb}m"  # Blue to Green gradient for PSB
                         color_lineup = f"\033[38;2;0;{brightness_lineup};{255 - brightness_lineup}m"  # Blue to Green gradient for Lineup
@@ -422,11 +328,7 @@ def read_sensitivity(options=None):
                         color_psb = color_lineup = ""
                     # Print each row with or without color
                     print(
-                        f"{row['player']:<{max_name_len}} "
-                        f"{color_psb}{row['PSB']:<{max_psb_len}}\033[0m "
-                        f"{color_lineup}{row['Lineup']:<{max_lineup_len}}\033[0m "
-                        f"{color_psb}{row['#_PSB']:<{max_psb_count_len}}\033[0m "
-                        f"{color_lineup}{row['#_Lineup']:<{max_lineup_count_len}}\033[0m"
+                        f"{row['player']:<{max_name_len}} {color_psb}{row['PSB']:<{max_psb_len}}\033[0m {color_lineup}{row['Lineup']:<{max_lineup_len}}\033[0m {color_psb}{row['#_PSB']:<{max_psb_count_len}}\033[0m {color_lineup}{row['#_Lineup']:<{max_lineup_count_len}}\033[0m"
                     )
                 print()  # Add an empty line for separation between tables
 
@@ -437,18 +339,14 @@ def read_sensitivity(options=None):
             print_dataframe(fwds, "Forwards")
             return {"keepers": keepers, "defs": defs, "mids": mids, "fwds": fwds}
         else:
-            print(
-                "Invalid input, please enter 'y' for a wildcard or 'n' for a regular transfer plan."
-            )
+            print("Invalid input, please enter 'y' for a wildcard or 'n' for a regular transfer plan.")
 
 
 if __name__ == "__main__":
     import argparse
 
     try:
-        parser = argparse.ArgumentParser(
-            description="Summarize sensitivity analysis results"
-        )
+        parser = argparse.ArgumentParser(description="Summarize sensitivity analysis results")
         parser.add_argument(
             "--all_gws",
             choices=["Y", "y", "N", "n"],
@@ -477,17 +375,13 @@ if __name__ == "__main__":
 
         # If no command-line arguments are provided, prompt for input
         if not any(vars(args).values()):
-            print(
-                "No command-line arguments provided, prompting for input... use command line arguments if you want to skip questions"
-            )
+            print("No command-line arguments provided, prompting for input... use command line arguments if you want to skip questions")
             print()
             read_sensitivity()  # Prompt for input
         elif "all_gws" in options or ("gw" in options and "situation" in options):
             read_sensitivity(options)
         else:
-            print(
-                "Error: You must specify either --all_gws or both --gw and --wildcard."
-            )
+            print("Error: You must specify either --all_gws or both --gw and --wildcard.")
 
     except Exception as e:
         print(f"Error occurred: {e}")

@@ -153,19 +153,19 @@ You will need to follow steps below to install required platform and also optimi
 
   - `horizon`: length of planning horizon
   - `ft_value`: value assigned to the extra free transfer
-  - `ft_value_list`: values of rolling FTs in different states, for example  
-    `"ft_value_list": {"2": 2.1, "3": 1.8, "4": 1.5, "5": 1.1}`  
+  - `ft_value_list`: values of rolling FTs in different states, for example
+    `"ft_value_list": {"2": 2.1, "3": 1.8, "4": 1.5, "5": 1.1}`
     assigns a value of 2.1 for rolling from 1FT to 2FTs, 1.8 value for rolling from 2FTs to 3FTs, etc...
-  - `ft_use_penalty`: penalty on objective function when an FT is used  
+  - `ft_use_penalty`: penalty on objective function when an FT is used
     this parameter ensures that no future transfer (excluding this GW) is scheduled unless the gain is above this threshold
   - `itb_value`: value assigned to having 1.0 extra budget
   - `itb_loss_per_transfer`: reduction in ITB amount per scheduled transfers in future
   - `decay_base`: value assigned to decay rate of expected points
   - `no_future_transfer`: `true` or `false` whether you want to plan future transfers or not
   - `no_transfer_last_gws`: the number of gws at the end of the period you want to ban transfers
-  - `force_ft_state_lb`: list of GWs and minimum number of FTs to force to have (format is (GW, state))  
+  - `force_ft_state_lb`: list of GWs and minimum number of FTs to force to have (format is (GW, state))
     `"force_ft_state":[[4,3], [7,2]]` will force solver to have at least 3 FTs in GW4, and 2 FTs in GW7
-  - `force_ft_state_ub`: list of GWs and maximum number of FTs to force to have (format is (GW, state))  
+  - `force_ft_state_ub`: list of GWs and maximum number of FTs to force to have (format is (GW, state))
     `"force_ft_state":[[4,4], [7,3]]` will force solver to have at most 4 FTs in GW4, and 3 FTs in GW7
   - `randomized`: `true` or `false` whether you would like to add random noise to EV
   - `xmin_lb`: cut-off for dropping players below this many minutes expectation
@@ -184,7 +184,7 @@ You will need to follow steps below to install required platform and also optimi
   - `future_transfer_limit`: upper bound how many transfers are allowed in future GWs
   - `no_transfer_gws`: list of GW numbers where transfers are not allowed
   - `no_transfer_by_position`: list of positions to not transfer in/out. Valid positions: `["G", "D", "M", "F"]`. E.g. to block out goalkeeper transfers set this option to `["G"]`
-  - `booked_transfers`: list of booked transfers for future gameweeks, needs to have a `gw` key and at least one of `transfer_in` or `transfer_out` with the player ID. For example, to book a transfer of buying Kane (427) on GW5 and selling him on GW7, use  
+  - `booked_transfers`: list of booked transfers for future gameweeks, needs to have a `gw` key and at least one of `transfer_in` or `transfer_out` with the player ID. For example, to book a transfer of buying Kane (427) on GW5 and selling him on GW7, use
     `"booked_transfers": [{"gw": 5, "transfer_in": 427}, {"gw": 7, "transfer_out": 427}]`
   - `only_booked_transfers`: (for next GW) use only booked transfers
   - `use_wc`: GW to use wildcard (fixed)
@@ -193,8 +193,8 @@ You will need to follow steps below to install required platform and also optimi
   - `use_tc`: GW to use triple captain (fixed)
   - `chip_limits`: how many chips of each kind can be used by solver (you need to set it to at least 1 when force using a chip)
   - `no_chip_gws`: list of GWs to ban solver from using a chip
-  - `allowed_chip_gws`: dictionary of list of GWs to allow chips to be used. For example  
-    `"allowed_chip_gws": {"wc": [27,31]}`  
+  - `allowed_chip_gws`: dictionary of list of GWs to allow chips to be used. For example
+    `"allowed_chip_gws": {"wc": [27,31]}`
     will allow solver to use WC in GW27 and GW31, but not in another GW
   - `forced_chip_gws`: dictionary of list of GWs to force chips to be used. Instead of 'allowing' chips, it makes sure that chips are used
   - `run_chip_combinations`: generates a list of chip combinations to be tried one-by-one, instead of leaving to the solver
@@ -202,13 +202,13 @@ You will need to follow steps below to install required platform and also optimi
   - `hit_limit`: limit on total hits can be taken by the solver for entire horizon
   - `weekly_hit_limit`: limit on hits solver can take in a single GW
   - `hit_cost`: cost of a hit, 4 points by default but can be overriden to reduce hits suggested
-  - `ft_custom_value`: value of keeping your 2nd free transfer before a GW. For example  
-    `"ft_custom_value": {"35": 2, "38": 0.5}`  
+  - `ft_custom_value`: value of keeping your 2nd free transfer before a GW. For example
+    `"ft_custom_value": {"35": 2, "38": 0.5}`
     will set value of 2nd FT for GW35 to 2 EV, and for GW38 to 0.5 EV
   - `preseason`: solve flag for GW1 where team data is not important
   - `no_trs_except_wc`: when `true` prevents solver to make transfers except using wildcard
-  - `solver`: solver engine, can use either `cbc` (default) or `highs`  
-    In order to use `highs` solver, you need to download the binary from the following repository  
+  - `solver`: solver engine, can use either `cbc` (default) or `highs`
+    In order to use `highs` solver, you need to download the binary from the following repository
     https://github.com/JuliaBinaryWrappers/HiGHSstatic_jll.jl
   - `solver_path`: binary location of the solver
   - `no_opposing_play`: controls the level of cross-playing players in the lineup
@@ -217,13 +217,13 @@ You will need to follow steps below to install required platform and also optimi
     - `"penalty"` if you want to penalize each instance with a static value
   - `opposing_play_group`: `all` if you do not want any type of opposing players or `position` if you only don't want your offense playing against your defense
   - `opposing_play_penalty`: if `"penalty"` is chosen in `no_opposing_play` option, this penalty is deducted from the objective for each cross-play
-  - `pick_prices`: price points of players you want to force in a comma separated string  
+  - `pick_prices`: price points of players you want to force in a comma separated string
     For example, to force two 11.5M forwards, and one 8M midfielder, use
     `"pick_prices": {"G": "", "D": "", "M": "8", "F": "11.5,11.5"}`
   - `no_gk_rotation_after`: use same lineup GK after given GW, e.g. setting this value to `26` means all GWs after 26 will use same lineup GK
   - `max_defenders_per_team`: the maximum number of defenders and goalkeepers from one team in your squad, defaults to 3
   - `double_defense_pick`: forces solver to use either 0 or more than 2 defender/goalkeeper from each team
-  - `transfer_itb_buffer`: minimum itb to have if any transfer is being planned for the GW to ensure robustness  
+  - `transfer_itb_buffer`: minimum itb to have if any transfer is being planned for the GW to ensure robustness
     use `"transfer_itb_buffer": 0.1` if you want to leave 0.1 in the bank in gameweeks with scheduled transfers
   - `iteration`: number of different solutions to be generated, the criteria is controlled by `iteration_criteria`
   - `iteration_criteria`: rule on separating what a different solution mean
@@ -273,7 +273,7 @@ You will need to follow steps below to install required platform and also optimi
 
 ### CLI Arguments
 
-As noted above, the default configuration file is located in `data/regular_settings.json`. 
+As noted above, the default configuration file is located in `data/regular_settings.json`.
 
 Any string/numeric option can also be specified included as a CLI argument, allowing for quick running of multiple configurations. For example, to run the solver with a different `horizon` value, you can run the following command:
 
