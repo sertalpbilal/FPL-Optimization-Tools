@@ -19,7 +19,6 @@ repos:
       - id: check-added-large-files
       - id: check-ast
       - id: debug-statements
-      - id: requirements-txt-fixer
       - id: fix-byte-order-marker
       - id: mixed-line-ending
         args: [--fix=lf]
