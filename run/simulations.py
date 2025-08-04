@@ -5,7 +5,7 @@ import time
 from concurrent.futures import ProcessPoolExecutor
 
 from binary_file_generator import generate_binary_files
-from solve_regular import solve_regular
+from solve import solve_regular
 
 
 def get_user_input():
