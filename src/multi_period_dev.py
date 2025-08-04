@@ -8,6 +8,7 @@ from itertools import product
 from pathlib import Path
 from subprocess import Popen
 
+import highspy
 import numpy as np
 import pandas as pd
 import requests
@@ -1014,234 +1015,144 @@ def solve_multi_period_fpl(data, options):
         sol_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}_sol.txt"
         opt_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}.opt"
 
-        # Solve
         tmp_folder = Path() / "tmp"
         tmp_folder.mkdir(exist_ok=True, parents=True)
         model.export_mps(mps_file_name)
         print(f"Exported problem with name: {problem_name}_{problem_id}_{iteration}")
 
-        t0 = time.time()
-
-        if options.get("export_debug", False) is True:
+        if options.get("export_debug", False):
             with open("debug.sas", "w") as file:
                 file.write(model.to_optmodel())
 
-        use_cmd = options.get("use_cmd", False)
-        solver = options.get("solver", "cbc")
+        # use_cmd = options.get("use_cmd", False)
+        solver = options.get("solver", "highs")
 
-        if solver == "cbc":
-            cbc_exec = options.get("solver_path") or "cbc"
-
-            if options.get("single_solve") is True:
-                gap = options.get("gap", 0)
-                secs = options.get("secs", 20 * 60)
-                command = f"{cbc_exec} {mps_file_name} cost column ratio {gap} sec {secs} solve solu {sol_file_name}"
-                if use_cmd:
-                    os.system(command)
-                else:
-                    process = Popen(command, shell=False)
-                    process.wait()
-
-            else:
-                command = f"{cbc_exec} {mps_file_name} cost column ratio 1 solve solu tmp/{problem_name}_{problem_id}_{iteration}_sol_init.txt"
-                if use_cmd:
-                    os.system(command)
-                else:
-                    process = Popen(command, shell=False)
-                    process.wait()
-                secs = options.get("secs", 20 * 60)
-                command = (
-                    f"{cbc_exec} {mps_file_name} mips "
-                    f"tmp/{problem_name}_{problem_id}_{iteration}_sol_init.txt "
-                    f"cost column sec {secs} solve solu {sol_file_name}"
-                )
-                if use_cmd:
-                    os.system(command)
-                else:
-                    process = Popen(command, shell=False)  # add 'stdout=DEVNULL' for disabling logs
-                    process.wait()
-
-            # Popen fix with split?
-
-            t1 = time.time()
-            print(t1 - t0, "seconds passed")
-
-            # Parsing
-            with open(sol_file_name) as f:
-                for v in model.get_variables():
-                    v.set_value(0)
-                for line in f:
-                    words = line.split()
-                    if words[0] == "Infeasible":
-                        raise ValueError("Infeasible problem instance, check your parameters")
-                    if "objective value" in line:
-                        continue
-                    var = model.get_variable(words[1])
-                    var.set_value(float(words[2]))
-
-        elif solver == "highs":
-            highs_exec = options.get("solver_path") or "highs"
-
+        if solver.lower() == "highs":
+            # Use highspy Python interface instead of command line
             secs = options.get("secs", 20 * 60)
             presolve = options.get("presolve", "on")
             gap = options.get("gap", 0)
             random_seed = options.get("random_seed", 0)
 
-            with open(opt_file_name, "w") as f:
-                f.write(f"""mip_rel_gap = {gap}""")
-                # mip_improving_solution_file="tmp/{problem_id}_incumbent.sol"
+            solver_instance = highspy.Highs()
+            solver_instance.readModel(str(mps_file_name))
+            solver_instance.setOptionValue("parallel", "on")
+            solver_instance.setOptionValue("random_seed", random_seed)
+            solver_instance.setOptionValue("presolve", presolve)
+            solver_instance.setOptionValue("time_limit", secs)
+            solver_instance.setOptionValue("mip_rel_gap", gap)
 
-            command_args = [
-                highs_exec,
-                "--parallel",
-                "on",
-                "--options_file",
-                str(opt_file_name),
-                "--random_seed",
-                str(random_seed),
-                "--presolve",
-                str(presolve),
-                "--model_file",
-                str(mps_file_name),
-                "--time_limit",
-                str(secs),
-                "--solution_file",
-                str(sol_file_name),
-            ]
+            solver_instance.run()
+            model_status = solver_instance.getModelStatus()
+            solution = solver_instance.getSolution()
 
-            if os.name != "nt" and use_cmd is False and not IS_COLAB:
-                print("Non-Windows OS is detected. Setting use_cmd to true")
-                use_cmd = True
+            # initially set all variables to 0
+            for v in model.get_variables():
+                v.set_value(0)
 
-            if use_cmd:
-                # highs occasionally freezes in Windows, if it happens, try use_cmd value as False
-                # print('If you are using Windows, HiGHS occasionally freezes after solves are completed. '
-                #       'Use \n\t"use_cmd": false\nin regular settings if it happens.')
-                os.system(" ".join(command_args))
-            else:
+            # then populate the variables with the solution values
+            if solution is not None:
+                num_cols = solver_instance.getNumCol()
+                col_values = solution.col_value
 
-                def print_output(process):
-                    while True:
-                        try:
-                            output = process.stdout.readline()
-                            if "Solving report" in output:
-                                time.sleep(2)
-                                process.kill()
-                            elif output == "" and process.poll() is not None:
-                                break
-                            elif output:
-                                print(output.strip())
-                        except Exception:
-                            print("File closed")
-                            # traceback.print_exc()
-                            break
-                    process.kill()
+                solution_dict = {}
+                for i in range(num_cols):
+                    col_name = solver_instance.getColName(i)
+                    if isinstance(col_name, tuple):
+                        col_name = col_name[-1]
+                    solution_dict[col_name] = col_values[i]
 
-                process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-                output_thread = threading.Thread(target=print_output, args=(process,))
-                output_thread.start()
-                output_thread.join()
-
-            # Parsing
-            with open(sol_file_name) as f:
                 for v in model.get_variables():
-                    v.set_value(0)
-                cols_started = False
-                for line in f:
-                    if not cols_started and "# Columns" not in line:
-                        continue
-                    elif "# Columns" in line:
-                        cols_started = True
-                        continue
-                    elif cols_started and line[0] != "#":
-                        words = line.split()
-                        v = model.get_variable(words[0])
-                        try:
-                            if v.get_type() == so.INT:
-                                v.set_value(round(float(words[1])))
-                            elif v.get_type() == so.BIN:
-                                v.set_value(round(float(words[1])))
-                            elif v.get_type() == so.CONT:
-                                v.set_value(round(float(words[1]), 3))
-                        except Exception:
-                            print("Error", words[0], line)
-                    elif line[0] == "#":
-                        break
+                    var_name = v.get_name()
+                    if var_name in solution_dict:
+                        value = solution_dict[var_name]
+                        if v.get_type() == so.INT:
+                            v.set_value(round(value))
+                        elif v.get_type() == so.BIN:
+                            v.set_value(round(value))
+                        elif v.get_type() == so.CONT:
+                            v.set_value(round(value, 3))
 
-        # DataFrame generation
-        picks = []
-        for w in gameweeks:
-            for p in players:
-                if squad[p, w].get_value() + squad_fh[p, w].get_value() + transfer_out[p, w].get_value() > BINARY_THRESHOLD:
-                    lp = merged_data.loc[p]
-                    is_captain = 1 if captain[p, w].get_value() > BINARY_THRESHOLD else 0
-                    is_squad = (
-                        1
-                        if (use_fh[w].get_value() < BINARY_THRESHOLD and squad[p, w].get_value() > BINARY_THRESHOLD)
-                        or (use_fh[w].get_value() > BINARY_THRESHOLD and squad_fh[p, w].get_value() > BINARY_THRESHOLD)
-                        else 0
-                    )
-                    is_lineup = 1 if lineup[p, w].get_value() > BINARY_THRESHOLD else 0
-                    is_vice = 1 if vicecap[p, w].get_value() > BINARY_THRESHOLD else 0
-                    is_tc = 1 if use_tc[p, w].get_value() > BINARY_THRESHOLD else 0
-                    is_transfer_in = 1 if transfer_in[p, w].get_value() > BINARY_THRESHOLD else 0
-                    is_transfer_out = 1 if transfer_out[p, w].get_value() > BINARY_THRESHOLD else 0
-                    bench_value = -1
-                    for o in order:
-                        if bench[p, w, o].get_value() > BINARY_THRESHOLD:
-                            bench_value = o
-                    position = type_data.loc[lp["element_type"], "singular_name_short"]
-                    player_buy_price = 0 if not is_transfer_in else buy_price[p]
-                    player_sell_price = (
-                        0
-                        if not is_transfer_out
-                        else (
-                            sell_price[p] if p in price_modified_players and transfer_out_first[p, w].get_value() > BINARY_THRESHOLD else buy_price[p]
+            # DataFrame generation
+            picks = []
+            for w in gameweeks:
+                for p in players:
+                    if squad[p, w].get_value() + squad_fh[p, w].get_value() + transfer_out[p, w].get_value() > BINARY_THRESHOLD:
+                        lp = merged_data.loc[p]
+                        is_captain = 1 if captain[p, w].get_value() > BINARY_THRESHOLD else 0
+                        is_squad = (
+                            1
+                            if (use_fh[w].get_value() < BINARY_THRESHOLD and squad[p, w].get_value() > BINARY_THRESHOLD)
+                            or (use_fh[w].get_value() > BINARY_THRESHOLD and squad_fh[p, w].get_value() > BINARY_THRESHOLD)
+                            else 0
                         )
-                    )
-                    multiplier = 1 * (is_lineup == 1) + 1 * (is_captain == 1) + 1 * (is_tc == 1)
-                    xp_cont = points_player_week[p, w] * multiplier
-                    current_iter = iteration + 1
+                        is_lineup = 1 if lineup[p, w].get_value() > BINARY_THRESHOLD else 0
+                        is_vice = 1 if vicecap[p, w].get_value() > BINARY_THRESHOLD else 0
+                        is_tc = 1 if use_tc[p, w].get_value() > BINARY_THRESHOLD else 0
+                        is_transfer_in = 1 if transfer_in[p, w].get_value() > BINARY_THRESHOLD else 0
+                        is_transfer_out = 1 if transfer_out[p, w].get_value() > BINARY_THRESHOLD else 0
+                        bench_value = -1
+                        for o in order:
+                            if bench[p, w, o].get_value() > BINARY_THRESHOLD:
+                                bench_value = o
+                        position = type_data.loc[lp["element_type"], "singular_name_short"]
+                        player_buy_price = 0 if not is_transfer_in else buy_price[p]
+                        player_sell_price = (
+                            0
+                            if not is_transfer_out
+                            else (
+                                sell_price[p]
+                                if p in price_modified_players and transfer_out_first[p, w].get_value() > BINARY_THRESHOLD
+                                else buy_price[p]
+                            )
+                        )
+                        multiplier = 1 * (is_lineup == 1) + 1 * (is_captain == 1) + 1 * (is_tc == 1)
+                        xp_cont = points_player_week[p, w] * multiplier
+                        current_iter = iteration + 1
 
-                    # chip
-                    if use_wc[w].get_value() > BINARY_THRESHOLD:
-                        chip_text = "WC"
-                    elif use_fh[w].get_value() > BINARY_THRESHOLD:
-                        chip_text = "FH"
-                    elif use_bb[w].get_value() > BINARY_THRESHOLD:
-                        chip_text = "BB"
-                    elif use_tc[p, w].get_value() > BINARY_THRESHOLD:
-                        chip_text = "TC"
-                    else:
-                        chip_text = ""
+                        # chip
+                        if use_wc[w].get_value() > BINARY_THRESHOLD:
+                            chip_text = "WC"
+                        elif use_fh[w].get_value() > BINARY_THRESHOLD:
+                            chip_text = "FH"
+                        elif use_bb[w].get_value() > BINARY_THRESHOLD:
+                            chip_text = "BB"
+                        elif use_tc[p, w].get_value() > BINARY_THRESHOLD:
+                            chip_text = "TC"
+                        else:
+                            chip_text = ""
 
-                    picks.append(
-                        {
-                            "id": p,
-                            "week": w,
-                            "name": lp["web_name"],
-                            "pos": position,
-                            "type": lp["element_type"],
-                            "team": lp["name"],
-                            "buy_price": player_buy_price,
-                            "sell_price": player_sell_price,
-                            "xP": round(points_player_week[p, w], 2),
-                            "xMin": minutes_player_week[p, w],
-                            "squad": is_squad,
-                            "lineup": is_lineup,
-                            "bench": bench_value,
-                            "captain": is_captain,
-                            "vicecaptain": is_vice,
-                            "transfer_in": is_transfer_in,
-                            "transfer_out": is_transfer_out,
-                            "multiplier": multiplier,
-                            "xp_cont": xp_cont,
-                            "chip": chip_text,
-                            "iter": current_iter,
-                            "ft": free_transfers[w].get_value(),
-                            "transfer_count": number_of_transfers[w].get_value(),
-                        }
-                    )
+                        picks.append(
+                            {
+                                "id": p,
+                                "week": w,
+                                "name": lp["web_name"],
+                                "pos": position,
+                                "type": lp["element_type"],
+                                "team": lp["name"],
+                                "buy_price": player_buy_price,
+                                "sell_price": player_sell_price,
+                                "xP": round(points_player_week[p, w], 2),
+                                "xMin": minutes_player_week[p, w],
+                                "squad": is_squad,
+                                "lineup": is_lineup,
+                                "bench": bench_value,
+                                "captain": is_captain,
+                                "vicecaptain": is_vice,
+                                "transfer_in": is_transfer_in,
+                                "transfer_out": is_transfer_out,
+                                "multiplier": multiplier,
+                                "xp_cont": xp_cont,
+                                "chip": chip_text,
+                                "iter": current_iter,
+                                "ft": free_transfers[w].get_value(),
+                                "transfer_count": number_of_transfers[w].get_value(),
+                            }
+                        )
+            # Debug: print a sample of picks
+            print(f"[DEBUG] Number of picks: {len(picks)}")
+            if picks:
+                print("[DEBUG] Sample pick:", picks[0])
 
         picks_df = pd.DataFrame(picks).sort_values(by=["week", "lineup", "type", "xP"], ascending=[True, False, True, True])
         total_xp = so.expr_sum((lineup[p, w] + captain[p, w]) * points_player_week[p, w] for p in players for w in gameweeks).get_value()
