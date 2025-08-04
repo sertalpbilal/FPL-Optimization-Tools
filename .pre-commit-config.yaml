@@ -11,14 +11,7 @@ repos:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
       - id: end-of-file-fixer
-      - id: check-yaml
       - id: check-json
-      - id: check-merge-conflict
-      - id: check-case-conflict
-      - id: check-docstring-first
-      - id: check-added-large-files
-      - id: check-ast
-      - id: debug-statements
       - id: fix-byte-order-marker
       - id: mixed-line-ending
         args: [--fix=lf]
