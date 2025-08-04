@@ -3,7 +3,10 @@ name = "fpl-optimization-tools"
 version = "0.1.0"
 description = "Fantasy Premier League optimization tools"
 authors = [
-    {name = "FPL Optimization Tools Team"}
+  {name = "Sertalp Bilal"}
+]
+maintainers = [
+  {name = "Chris Musson", email = "chris.musson@hotmail.com"}
 ]
 readme = "README.md"
 requires-python = ">=3.13"
