@@ -2,11 +2,9 @@ import os
 import random
 import string
 import subprocess
-import threading
 import time
 from itertools import product
 from pathlib import Path
-from subprocess import Popen
 
 import highspy
 import numpy as np
@@ -1149,10 +1147,6 @@ def solve_multi_period_fpl(data, options):
                                 "transfer_count": number_of_transfers[w].get_value(),
                             }
                         )
-            # Debug: print a sample of picks
-            print(f"[DEBUG] Number of picks: {len(picks)}")
-            if picks:
-                print("[DEBUG] Sample pick:", picks[0])
 
         picks_df = pd.DataFrame(picks).sort_values(by=["week", "lineup", "type", "xP"], ascending=[True, False, True, True])
         total_xp = so.expr_sum((lineup[p, w] + captain[p, w]) * points_player_week[p, w] for p in players for w in gameweeks).get_value()
