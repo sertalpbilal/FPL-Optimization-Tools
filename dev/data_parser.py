@@ -26,7 +26,7 @@ def read_data(options, source=None):
 
     if source == "solio":
         return read_solio(options)
-    elif source == "review":
+    elif "review" in source and "odds" not in source:
         return read_fplreview(options)
     elif source == "review-odds":
         return read_fplreview_odds(options)
@@ -48,13 +48,16 @@ def read_solio(options):
 
 
 def read_fplreview(options):
-    if options.get("binary_file_name"):
-        data_path = "../data/" + options.get("binary_file_name") + ".csv"
-    else:
-        data_path = options.get("data_path", "../data/fplreview.csv")
-    data = pd.read_csv(data_path)
+    if binary_file_name := options.get("binary_file_name"):
+        data_path = "../data/" + binary_file_name + ".csv"
+        return pd.read_csv(data_path)
 
-    return data
+    if data_path := options.get("data_path"):
+        return pd.read_csv(data_path)
+
+    files = [x for x in glob.glob("../data/*review*.csv") if "odds" not in x]
+    file = max(files, key=os.path.getctime)
+    return pd.read_csv(file)
 
 
 def read_fplreview_odds(options):
