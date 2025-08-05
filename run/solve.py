@@ -243,14 +243,17 @@ def solve_regular(runtime_options=None):
         print(f"Solution {result['iter'] + 1}")
         for gw in gws:
             line_text = ""
-            chip_text = picks[picks["week"] == gw].iloc[0]["chip"]
-            if chip_text != "":
-                line_text += "(" + chip_text + ") "
+            chip = picks.loc[(picks["week"] == gw) & (picks["chip"] != "")]
+            if not chip.empty:
+                chip_text = chip.iloc[0]["chip"]
+                line_text += f"({chip_text}) "
             sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["name"].to_list())
             buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["name"].to_list())
 
             if sell_text != "" or buy_text != "":
                 line_text += sell_text + " -> " + buy_text
+            elif chip_text == "FH":
+                line_text += ""
             else:
                 line_text += "Roll"
             print(f"\tGW{gw}: {line_text}")

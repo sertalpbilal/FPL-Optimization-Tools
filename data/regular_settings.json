@@ -24,7 +24,6 @@
     "banned_next_gw": [],
     "locked": [],
     "locked_next_gw": [],
-    "locked_am": [],
     "price_changes": [],
     "keep": [],
     "delete_tmp": true,
@@ -36,39 +35,28 @@
     "hit_limit": null,
     "weekly_hit_limit": 1,
     "hit_cost": 4,
-    "use_wc": null,
-    "use_bb": 3,
-    "use_fh": 2,
-    "use_tc": null,
-    "use_am": null,
+    "use_wc": [],
+    "use_bb": [],
+    "use_fh": [],
+    "use_tc": [],
     "chip_limits": {
         "bb": 0,
         "wc": 0,
         "fh": 0,
-        "tc": 0,
-        "am": 0
+        "tc": 0
     },
     "no_chip_gws": [],
     "allowed_chip_gws": {
         "bb": [],
         "wc": [],
         "fh": [],
-        "tc": [],
-        "am": []
+        "tc": []
     },
     "forced_chip_gws": {
         "bb": [],
         "wc": [],
         "fh": [],
-        "tc": [],
-        "am": []
-    },
-    "run_chip_combinations": {
-        "bb": [],
-        "wc": [],
-        "fh": [],
-        "tc": [],
-        "am": []
+        "tc": []
     },
     "future_transfer_limit": null,
     "no_transfer_gws": [],
@@ -77,9 +65,6 @@
     "no_trs_except_wc": false,
     "ft_custom_value": {},
     "preseason": true,
-    "use_login": false,
-    "solver": "highs",
-    "solver_path": "/opt/solvers/highs1.11/bin/highs",
     "no_opposing_play": false,
     "opposing_play_group": "position",
     "opposing_play_penalty": 0.5,
@@ -93,7 +78,7 @@
     "max_defenders_per_team": 3,
     "double_defense_pick": false,
     "transfer_itb_buffer": null,
-    "iteration": 1,
+    "num_iterations": 1,
     "iteration_criteria": "this_gw_transfer_in",
     "iteration_difference": 1,
     "iteration_target": [],
@@ -103,7 +88,6 @@
         1.017
     ],
     "datasource": "review",
-    "export_am_ev": true,
     "data_weights": {
         "review": 40,
         "review-odds": 30,
