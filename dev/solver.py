@@ -3,6 +3,7 @@ import random
 import string
 import subprocess
 import time
+import warnings
 from itertools import product
 from pathlib import Path
 
@@ -13,6 +14,10 @@ import requests
 import sasoptpy as so
 
 from dev.data_parser import read_data
+from utils import get_dict_combinations, get_random_id, load_settings, xmin_to_prob
+
+warnings.filterwarnings("ignore", category=FutureWarning, module="sasoptpy")
+
 
 BINARY_THRESHOLD = 0.5  # threshold value for evaluating binary variables
 BASE_URL = "https://fantasy.premierleague.com/api"
@@ -21,30 +26,6 @@ SQUAD_SIZE = 15
 LINEUP_SIZE = 11
 MAX_GAMEWEEK = 38
 MAX_PLAYERS_PER_TEAM = 3
-
-
-def get_random_id(n):
-    return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
-
-
-def xmin_to_prob(xmin, sub_on=0.5, sub_off=0.3):
-    start = min(max((xmin - 25 * sub_on) / (90 * (1 - sub_off) + 65 * sub_off - 25 * sub_on), 0.001), 0.999)
-    return start + (1 - start) * sub_on
-
-
-def get_dict_combinations(my_dict):
-    keys = my_dict.keys()
-    for key in keys:
-        if my_dict[key] is None or len(my_dict[key]) == 0:
-            my_dict[key] = [None]
-    all_combs = [dict(zip(my_dict.keys(), values, strict=False)) for values in product(*my_dict.values())]
-    feasible_combs = []
-    for comb in all_combs:
-        c_values = [i for i in comb.values() if i is not None]
-        if len(c_values) == len(set(c_values)):
-            feasible_combs.append(comb)
-        # else we have a duplicate
-    return feasible_combs
 
 
 def get_my_data(session, team_id):
@@ -211,7 +192,7 @@ def prep_data(my_data, options):
 
     # Filter players by xMin
     xmin_lb = options.get("xmin_lb", 100)
-    print(len(merged_data), "total players (before)")
+    num_players_before = len(merged_data)
     merged_data = merged_data[(merged_data["total_min"] >= xmin_lb) | (merged_data["ID"].isin(safe_players))].copy()
 
     # Filter by ev per price
@@ -225,7 +206,8 @@ def prep_data(my_data, options):
         cutoff = (merged_data["total_ev"] / merged_data["now_cost"]).quantile(ev_per_price_cutoff / 100)
         merged_data = merged_data[(merged_data["total_ev"] / merged_data["now_cost"] > cutoff) | (merged_data["ID"].isin(safe_players))].copy()
 
-    print(len(merged_data), "total players (after)")
+    num_players_after = len(merged_data)
+    print(f"Filtered player pool from {num_players_before} to {num_players_after} players")
 
     if options.get("randomized", False):
         rng = np.random.default_rng(seed=options.get("seed"))

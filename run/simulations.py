@@ -9,7 +9,7 @@ from solve import solve_regular
 
 
 def get_user_input():
-    print('Remember to delete results folder and enable noise with "randomized": true in regular_settings.json')
+    print("Remember to delete results folder before running simulations")
     runs = int(input("How many simulations would you like to run? "))
     processes = int(input("How many processes you want to run in parallel? "))
     use_binaries = input("Use binaries (y or n)? ")
@@ -24,7 +24,7 @@ def get_options_from_args(options):
 
 
 def setup_binary_files():
-    with open("../data/regular_settings.json") as f:
+    with open("../data/user_settings.json") as f:
         settings = json.load(f)
 
     if settings.get("generate_binary_files"):
@@ -81,7 +81,7 @@ def run_sensitivity(options=None):
     else:
         runs, processes, use_binaries = get_options_from_args(options)
 
-    # if use_binaries is set, loop through binary_files dict in regular_settings
+    # if use_binaries is set, loop through binary_files dict in settings
     # and set number of sim run for each binary based on provided weights
     if use_binaries.lower() == "y":
         run_simulations_with_binaries(runs, processes, options)

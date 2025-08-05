@@ -1,12 +1,12 @@
 {
-    "horizon": 3,
+    "horizon": 6,
     "decay_base": 0.9,
     "ft_value": 0,
     "ft_value_list": {
-        "2": 0,
-        "3": 0,
-        "4": 0,
-        "5": 0
+        "2": 2,
+        "3": 1.8,
+        "4": 1.5,
+        "5": 1
     },
     "ft_use_penalty": 0.5,
     "itb_value": 0.08,
@@ -16,9 +16,9 @@
     "no_transfer_by_position": [],
     "force_ft_state_lb": [],
     "force_ft_state_ub": [],
-    "randomized": true,
-    "xmin_lb": 400,
-    "ev_per_price_cutoff": 40,
+    "randomized": false,
+    "xmin_lb": 300,
+    "ev_per_price_cutoff": 30,
     "keep_top_ev_percent": 5,
     "banned": [],
     "banned_next_gw": [],
@@ -28,9 +28,9 @@
     "keep": [],
     "delete_tmp": true,
     "single_solve": true,
+    "solver": "highs",
     "secs": 600,
     "gap": 0,
-    "use_cmd": true,
     "num_transfers": null,
     "hit_limit": null,
     "weekly_hit_limit": 1,
@@ -64,7 +64,7 @@
     "only_booked_transfers": false,
     "no_trs_except_wc": false,
     "ft_custom_value": {},
-    "preseason": true,
+    "preseason": false,
     "no_opposing_play": false,
     "opposing_play_group": "position",
     "opposing_play_penalty": 0.5,
@@ -87,11 +87,11 @@
         1.0,
         1.017
     ],
-    "datasource": "review",
+    "datasource": "solio",
     "data_weights": {
+        "solio": 40,
         "review": 40,
-        "review-odds": 30,
-        "mikkel": 30
+        "mikkel": 20
     },
     "export_data": "final.csv",
     "team_data": "json",
@@ -105,5 +105,5 @@
         "fplreview_binary_3.csv": 0.1
     },
     "generate_binary_files": false,
-    "verbose": false
+    "verbose": true
 }

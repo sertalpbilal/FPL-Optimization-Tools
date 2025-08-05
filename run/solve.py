@@ -4,8 +4,6 @@ import datetime
 import json
 import os
 import pathlib
-import random
-import string
 import subprocess
 import sys
 import time
@@ -15,39 +13,10 @@ import requests
 
 from dev.solver import generate_team_json, prep_data, solve_multi_period_fpl
 from dev.visualization import create_squad_timeline
+from utils import get_random_id, load_config_files, load_settings
 
 IS_COLAB = "COLAB_GPU" in os.environ
 BINARY_THRESHOLD = 0.5
-
-
-def get_random_id(n):
-    return "".join(random.choice(string.ascii_letters + string.digits) for _ in range(n))
-
-
-def load_config_files(config_paths):
-    """
-    Load and merge multiple configuration files.
-    Files are merged in order, with later files overriding earlier ones.
-    """
-    merged_config = {}
-    if not config_paths:
-        return merged_config
-
-    paths = config_paths.split(";")
-    for path in paths:
-        stripped_path = path.strip()
-        if not path:
-            continue
-        try:
-            with open(stripped_path) as f:
-                config = json.load(f)
-                merged_config.update(config)
-        except FileNotFoundError:
-            print(f"Warning: Configuration file {stripped_path} not found")
-        except json.JSONDecodeError:
-            print(f"Warning: Configuration file {stripped_path} is not valid JSON")
-
-    return merged_config
 
 
 def is_latest_version():
@@ -73,9 +42,9 @@ def is_latest_version():
 
 
 def solve_regular(runtime_options=None):
-    if not IS_COLAB:
-        print("Checking for updates...")
-        is_latest_version()
+    # if not IS_COLAB:
+    #     print("Checking for updates...")
+    #     is_latest_version()
 
     base_folder = pathlib.Path()
     sys.path.append(str(base_folder / "../dev"))
@@ -91,8 +60,7 @@ def solve_regular(runtime_options=None):
         with open("settings.json") as f:
             options = json.load(f)
     else:
-        with open("../data/regular_settings.json") as f:
-            options = json.load(f)
+        options = load_settings()
 
     # Load and merge additional configuration files if specified
     if base_args.config:
@@ -157,7 +125,7 @@ def solve_regular(runtime_options=None):
     elif options.get("team_data", "json").lower() == "id":
         team_id = options.get("team_id", None)
         if team_id is None:
-            print("You must supply your team_id in data/regular_settings.json")
+            print("You must supply your team_id in data/user_settings.json")
             sys.exit(0)
         my_data = generate_team_json(team_id, options)
     else:
@@ -184,7 +152,7 @@ def solve_regular(runtime_options=None):
                 """You must either:
                         1. Download your team data from https://fantasy.premierleague.com/api/my-team/YOUR-TEAM-ID/ and
                             save it under data folder with name 'team.json', or
-                        2. Set "team_data" in regular_settings to "ID", and set the "team_id" value to your team's ID
+                        2. Set "team_data" in user_settings to "ID", and set the "team_id" value to your team's ID
                     """
             )
             sys.exit(0)
@@ -316,7 +284,7 @@ def get_fplteam_link(options, response):
     print("\nYou can see the solutions on a planner using the following FPL.Team links:")
     team_id = options.get("team_id", 1)
     if options.get("team_id") is None:
-        print("(Do not forget to add your team ID to regular_settings.json file to get a custom link.)")
+        print("(Do not forget to add your team ID to user_settings.json file to get a custom link.)")
     url_base = f"https://fpl.team/plan/{team_id}/?"
     for result in response:
         result_url = url_base
