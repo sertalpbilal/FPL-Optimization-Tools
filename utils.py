@@ -8,7 +8,9 @@ def load_settings():
     with open("../data/comprehensive_settings.json") as f:
         options = json.load(f)
     with open("../data/user_settings.json") as f:
-        return options.update(json.load(f))
+        options = {**options, **json.load(f)}
+
+    return options
 
 
 def get_random_id(n):
