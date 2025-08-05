@@ -13,8 +13,8 @@ import time
 import pandas as pd
 import requests
 
-from src.solver import generate_team_json, prep_data, solve_multi_period_fpl
-from src.visualization import create_squad_timeline
+from dev.solver import generate_team_json, prep_data, solve_multi_period_fpl
+from dev.visualization import create_squad_timeline
 
 IS_COLAB = "COLAB_GPU" in os.environ
 BINARY_THRESHOLD = 0.5
@@ -78,7 +78,7 @@ def solve_regular(runtime_options=None):
         is_latest_version()
 
     base_folder = pathlib.Path()
-    sys.path.append(str(base_folder / "../src"))
+    sys.path.append(str(base_folder / "../dev"))
 
     # Create a base parser first for the --config argument
     # remaining_args is all the command line args that aren't --config

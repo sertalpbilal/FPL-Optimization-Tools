@@ -12,7 +12,7 @@ import pandas as pd
 import requests
 import sasoptpy as so
 
-from src.data_parser import read_data
+from dev.data_parser import read_data
 
 BINARY_THRESHOLD = 0.5  # threshold value for evaluating binary variables
 BASE_URL = "https://fantasy.premierleague.com/api"

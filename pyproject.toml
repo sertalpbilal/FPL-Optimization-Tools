@@ -41,7 +41,7 @@ fixable = ["E501"]
 "__init__.py" = ["F401"]
 "tests/**/*" = ["PLR2004"]
 "run/solve.py" = ["PLR0915", "PLR0912"]
-"src/solver.py" = ["PLR0915", "PLR0912"]
+"dev/solver.py" = ["PLR0915", "PLR0912"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["src", "run", "tests"]
