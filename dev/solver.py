@@ -938,11 +938,11 @@ def solve_multi_period_fpl(data, options):
     report_decay_base = options.get("report_decay_base", [])
     decay_metrics = {i: so.expr_sum(gw_total[w] * pow(i, w - next_gw) for w in gameweeks) for i in report_decay_base}
 
-    iterations = options.get("num_iterations", 1)
+    num_iterations = options.get("num_iterations", 1)
     iteration_criteria = options.get("iteration_criteria", "this_gw_transfer_in")
     solutions = []
 
-    for iteration in range(iterations):
+    for iteration in range(num_iterations):
         mps_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}.mps"
         sol_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}_sol.txt"
         opt_file_name = f"tmp/{problem_name}_{problem_id}_{iteration}.opt"
@@ -1017,7 +1017,6 @@ def solve_multi_period_fpl(data, options):
                         )
                         multiplier = 1 * (is_lineup == 1) + 1 * (is_captain == 1) + 1 * (is_tc == 1)
                         xp_cont = points_player_week[p, w] * multiplier
-                        current_iter = iteration + 1
 
                         # chip
                         if use_wc[w].get_value() > BINARY_THRESHOLD:
@@ -1053,7 +1052,7 @@ def solve_multi_period_fpl(data, options):
                                 "multiplier": multiplier,
                                 "xp_cont": xp_cont,
                                 "chip": chip_text,
-                                "iter": current_iter,
+                                "iter": iteration,
                                 "ft": free_transfers[w].get_value(),
                                 "transfer_count": number_of_transfers[w].get_value(),
                             }
@@ -1182,7 +1181,7 @@ def solve_multi_period_fpl(data, options):
             }
         )
 
-        if iteration == 1:
+        if num_iterations == 1:
             return solutions
 
         iter_diff = options.get("iteration_difference", 1)
