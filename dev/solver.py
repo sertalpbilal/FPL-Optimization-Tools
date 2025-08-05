@@ -172,27 +172,9 @@ def prep_data(my_data, options):
     team_data = pd.DataFrame(fpl_data["teams"])
     elements_team = pd.merge(element_data, team_data, left_on="team", right_on="id")
 
-    datasource = options.get("datasource", "review")
-    data_weights = options.get("data_weights", {"review": 100})
+    data = read_data(options)
 
-    data = read_data(options, datasource, data_weights)
-
-    data = data.fillna(0)
-    if "ID" in data:
-        data["review_id"] = data["ID"]
-    else:
-        data["review_id"] = data.index + 1
-
-    if options.get("export_data", "") != "" and datasource == "mixed":
-        data.to_csv(f"../data/{options['export_data']}")
-
-    # Type fixes due to AM projections
-    data["review_id"] = data["review_id"].astype(np.int64)
-    for col in data.columns:
-        if "_xMins" in col:
-            data[col] = pd.to_numeric(data[col], errors="coerce").fillna(0).astype(int)
-
-    merged_data = pd.merge(elements_team, data, left_on="id_x", right_on="review_id")
+    merged_data = pd.merge(elements_team, data, left_on="id_x", right_on="ID")
     merged_data.set_index(["id_x"], inplace=True)
 
     # Drop duplicates
@@ -217,12 +199,12 @@ def prep_data(my_data, options):
         if vals is None or vals == "":
             continue
         price_vals = [float(i) for i in vals.split(",")]
-        pp = merged_data[(merged_data["Pos"] == pos) & ((merged_data["now_cost"] / 10).isin(price_vals))]["review_id"].to_list()
+        pp = merged_data[(merged_data["Pos"] == pos) & ((merged_data["now_cost"] / 10).isin(price_vals))]["ID"].to_list()
         safe_players_due_price += pp
 
     # Filter players by total EV
     cutoff = merged_data["total_ev"].quantile((100 - options.get("keep_top_ev_percent", 10)) / 100)
-    safe_players_due_ev = merged_data[(merged_data["total_ev"] > cutoff)]["review_id"].tolist()
+    safe_players_due_ev = merged_data[(merged_data["total_ev"] > cutoff)]["ID"].tolist()
 
     initial_squad = [int(i["element"]) for i in my_data["picks"]]
     safe_players = initial_squad + options.get("locked", []) + options.get("keep", []) + locked_next_gw + safe_players_due_price + safe_players_due_ev
@@ -230,7 +212,7 @@ def prep_data(my_data, options):
     # Filter players by xMin
     xmin_lb = options.get("xmin_lb", 100)
     print(len(merged_data), "total players (before)")
-    merged_data = merged_data[(merged_data["total_min"] >= xmin_lb) | (merged_data["review_id"].isin(safe_players))].copy()
+    merged_data = merged_data[(merged_data["total_min"] >= xmin_lb) | (merged_data["ID"].isin(safe_players))].copy()
 
     # Filter by ev per price
     ev_per_price_cutoff = options.get("ev_per_price_cutoff", 0)
@@ -241,7 +223,7 @@ def prep_data(my_data, options):
             safe_players.append(bt["transfer_out"])
     if ev_per_price_cutoff != 0:
         cutoff = (merged_data["total_ev"] / merged_data["now_cost"]).quantile(ev_per_price_cutoff / 100)
-        merged_data = merged_data[(merged_data["total_ev"] / merged_data["now_cost"] > cutoff) | (merged_data["review_id"].isin(safe_players))].copy()
+        merged_data = merged_data[(merged_data["total_ev"] / merged_data["now_cost"] > cutoff) | (merged_data["ID"].isin(safe_players))].copy()
 
     print(len(merged_data), "total players (after)")
 
