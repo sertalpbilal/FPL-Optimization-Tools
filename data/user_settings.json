@@ -1,9 +1,10 @@
 {
     "preseason": true,
-    "datasource": "review",
-    "team_data": "json",
+    "datasource": "solio",
+    "team_data": "id",
     "team_id": null,
-    "horizon": 2,
+    "horizon": 8,
+    "no_transfer_last_gws": 2,
     "decay_base": 0.9,
     "ft_value_list": {
         "2": 2,
@@ -20,6 +21,5 @@
     "use_bb": [],
     "use_fh": [],
     "use_tc": [],
-    "verbose": false,
-    "no_transfer_last_gws": 2
+    "verbose": true
 }

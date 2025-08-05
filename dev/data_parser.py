@@ -9,8 +9,9 @@ import requests
 from fuzzywuzzy import fuzz
 
 
-def read_data(options):
-    source = options.get("datasource")
+def read_data(options, source=None):
+    if not source:
+        source = options.get("datasource")
     weights = options.get("data_weights")
 
     if not source:
@@ -37,7 +38,7 @@ def read_data(options):
             sys.exit(0)
         data = read_mixed(options, weights)
         if options.get("export_data", False):
-            data.to_csv(f"../data/{options.get('export_data', 'mixed.csv')}")
+            data.to_csv(f"../data/{options.get('export_data', 'mixed.csv')}", index=False, float_format="%.2f")
         return data
 
 
@@ -73,7 +74,7 @@ def read_mixed(options, weights):
     for name, weight in weights.items():
         if weight == 0:
             continue
-        df = read_data(options, name, weights=None)
+        df = read_data(options, name)
         # drop players without data
         first_gw_col = None
         for col in df.columns:
