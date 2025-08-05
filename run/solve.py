@@ -160,6 +160,7 @@ def solve_regular(runtime_options=None):
     options["run_id"] = run_id
     for result in response:
         print(result["summary"])
+        iteration = result["iter"]
         time_now = datetime.datetime.now()
         stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
         if not (os.path.exists("../data/results/")):
@@ -168,9 +169,9 @@ def solve_regular(runtime_options=None):
         solve_name = options.get("solve_name", "regular")
         if options.get("binary_file_name"):
             bfn = options.get("binary_file_name")
-            filename = f"{solve_name}_{bfn}_{stamp}_{run_id}_{iter}"
+            filename = f"{solve_name}_{bfn}_{stamp}_{run_id}_{iteration}"
         else:
-            filename = f"{solve_name}_{stamp}_{run_id}_{iter}"
+            filename = f"{solve_name}_{stamp}_{run_id}_{iteration}"
         result["picks"].to_csv("../data/results/" + filename + ".csv")
 
         if options.get("export_image", 0) and not IS_COLAB:
