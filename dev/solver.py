@@ -1,10 +1,7 @@
 import os
-import random
-import string
 import subprocess
 import time
 import warnings
-from itertools import product
 from pathlib import Path
 
 import highspy
@@ -14,7 +11,7 @@ import requests
 import sasoptpy as so
 
 from dev.data_parser import read_data
-from utils import get_dict_combinations, get_random_id, load_settings, xmin_to_prob
+from utils import get_random_id
 
 warnings.filterwarnings("ignore", category=FutureWarning, module="sasoptpy")
 
