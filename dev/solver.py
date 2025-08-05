@@ -1004,6 +1004,7 @@ def solve_multi_period_fpl(data, options):
             presolve = options.get("presolve", "on")
             gap = options.get("gap", 0)
             random_seed = options.get("random_seed", 0)
+            verbose = options.get("verbose", False)
 
             solver_instance = highspy.Highs()
             solver_instance.readModel(str(mps_file_name))
@@ -1012,6 +1013,7 @@ def solve_multi_period_fpl(data, options):
             solver_instance.setOptionValue("presolve", presolve)
             solver_instance.setOptionValue("time_limit", secs)
             solver_instance.setOptionValue("mip_rel_gap", gap)
+            solver_instance.setOptionValue("log_to_console", verbose)
 
             solver_instance.run()
             solution = solver_instance.getSolution()
