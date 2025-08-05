@@ -1015,33 +1015,9 @@ def solve_multi_period_fpl(data, options):
 
             solver_instance.run()
             solution = solver_instance.getSolution()
-
-            # initially set all variables to 0
-            for v in model.get_variables():
-                v.set_value(0)
-
-            # then populate the variables with the solution values
-            if solution is not None:
-                num_cols = solver_instance.getNumCol()
-                col_values = solution.col_value
-
-                solution_dict = {}
-                for i in range(num_cols):
-                    col_name = solver_instance.getColName(i)
-                    if isinstance(col_name, tuple):
-                        col_name = col_name[-1]
-                    solution_dict[col_name] = col_values[i]
-
-                for v in model.get_variables():
-                    var_name = v.get_name()
-                    if var_name in solution_dict:
-                        value = solution_dict[var_name]
-                        if v.get_type() == so.INT:
-                            v.set_value(round(value))
-                        elif v.get_type() == so.BIN:
-                            v.set_value(round(value))
-                        elif v.get_type() == so.CONT:
-                            v.set_value(round(value, 3))
+            values = list(solution.col_value)
+            for idx, v in enumerate(model.get_variables()):
+                v.set_value(values[idx])
 
             # DataFrame generation
             picks = []
