@@ -241,6 +241,7 @@ def solve_regular(runtime_options=None):
         gws = picks["week"].unique()
         print(f"Solution {result['iter'] + 1}")
         for gw in gws:
+            chip_text = ""
             line_text = ""
             chip = picks.loc[(picks["week"] == gw) & (picks["chip"] != "")]
             if not chip.empty:
