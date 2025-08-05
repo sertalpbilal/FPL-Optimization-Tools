@@ -10,7 +10,6 @@ repos:
     hooks:
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
-      - id: end-of-file-fixer
       - id: check-json
       - id: fix-byte-order-marker
       - id: mixed-line-ending
