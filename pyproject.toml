@@ -1,0 +1,47 @@
+[project]
+name = "fpl-optimization-tools"
+version = "0.1.0"
+description = "Fantasy Premier League optimization tools"
+authors = [
+  {name = "Sertalp Bilal"}
+]
+maintainers = [
+  {name = "Chris Musson", email = "chris.musson@hotmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "pandas",
+    "numpy",
+    "sasoptpy>=1.0.5a0",
+    "fuzzywuzzy",
+    "python-Levenshtein",
+    "matplotlib",
+    "pytest",
+    "ruff",
+    "highspy>=1.11.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src", "run", "tests"]
+
+[tool.ruff]
+line-length = 150
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W", "B", "A", "C4", "UP", "PL", "RUF"]
+fixable = ["E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401"]
+"tests/**/*" = ["PLR2004"]
+"run/solve.py" = ["PLR0915", "PLR0912"]
+"dev/solver.py" = ["PLR0915", "PLR0912"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src", "run", "tests"]
