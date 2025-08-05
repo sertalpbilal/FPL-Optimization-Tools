@@ -1,4 +1,3 @@
-# pylint: disable=PLR0915,PLR0912
 import argparse
 import csv
 import datetime

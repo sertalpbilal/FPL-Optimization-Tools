@@ -1014,7 +1014,6 @@ def solve_multi_period_fpl(data, options):
             solver_instance.setOptionValue("mip_rel_gap", gap)
 
             solver_instance.run()
-            model_status = solver_instance.getModelStatus()
             solution = solver_instance.getSolution()
 
             # initially set all variables to 0
