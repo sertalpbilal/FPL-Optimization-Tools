@@ -104,5 +104,9 @@
         "fplreview_binary_3.csv": 0.1
     },
     "generate_binary_files": false,
-    "verbose": true
+    "verbose": true,
+    "print_result_table": true,
+    "print_decay_metrics": false,
+    "print_transfer_chip_summary": true,
+    "print_squads": true
 }

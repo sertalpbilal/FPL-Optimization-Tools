@@ -6,6 +6,7 @@ import os
 import pathlib
 import subprocess
 import sys
+import textwrap
 import time
 
 import pandas as pd
@@ -158,8 +159,13 @@ def solve_regular(runtime_options=None):
     response = solve_multi_period_fpl(data, options)
     run_id = get_random_id(5)
     options["run_id"] = run_id
-    for result in response:
-        print(result["summary"])
+
+    for i, result in enumerate(response):
+        if options.get("print_squads"):
+            print(f"\n\nSolution {i + 1}")
+            print(textwrap.indent(result["summary"], "    "))
+            total_xp = sum(gw_stats["xP"] for _, gw_stats in result["statistics"].items())
+            print(f"Total xPts over the horizon: {total_xp:.2f}\n")
         iteration = result["iter"]
         time_now = datetime.datetime.now()
         stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
@@ -172,7 +178,7 @@ def solve_regular(runtime_options=None):
             filename = f"{solve_name}_{bfn}_{stamp}_{run_id}_{iteration}"
         else:
             filename = f"{solve_name}_{stamp}_{run_id}_{iteration}"
-        result["picks"].to_csv("../data/results/" + filename + ".csv")
+        result["picks"].to_csv(f"../data/results/{filename}.csv", index=False)
 
         if options.get("export_image", 0) and not IS_COLAB:
             create_squad_timeline(
@@ -182,51 +188,58 @@ def solve_regular(runtime_options=None):
                 filename=filename,
             )
 
-    print("Result Summary")
     result_table = pd.DataFrame(response)
     result_table = result_table.sort_values(by="score", ascending=False)
-    print(result_table[["iter", "sell", "buy", "chip", "score"]].to_string(index=False))
+    result_table = result_table[["iter", "sell", "buy", "chip", "score"]]
 
-    if len(options.get("report_decay_base", [])) > 0:
-        try:
-            print("Decay Metrics")
-            metrics_df = pd.DataFrame([{"iter": result["iter"], **result["decay_metrics"]} for result in response])
-            print(metrics_df)
+    if options.get("print_decay_metrics"):
+        # print decay metrics
+        if len(options.get("report_decay_base", [])) > 0:
+            try:
+                print("\nDecay Metrics")
+                metrics_df = pd.DataFrame([{"iter": result["iter"], **result["decay_metrics"]} for result in response])
+                print(metrics_df)
+            except Exception:
+                pass
 
-            # print("Difference to Best")
-            # metrics_diff_df = metrics_df.copy()
-            # keys = list(response[0]['decay_metrics'].keys())
-            # metrics_diff_df[keys] = metrics_diff_df[keys] - metrics_diff_df[keys].max(axis=0)
-            # print(metrics_diff_df)
-        except Exception:
-            pass
+    if options.get("print_transfer_chip_summary"):
+        print("\n\n\nTransfer Overview")
+        for result in response:
+            print_transfer_chip_summary(result, options)
 
-    # Detailed print
-    for result in response:
-        picks = result["picks"]
-        gws = picks["week"].unique()
-        print(f"Solution {result['iter'] + 1}")
-        for gw in gws:
-            chip_text = ""
-            line_text = ""
-            chip = picks.loc[(picks["week"] == gw) & (picks["chip"] != "")]
-            if not chip.empty:
-                chip_text = chip.iloc[0]["chip"]
-                line_text += f"({chip_text}) "
-            sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["name"].to_list())
-            buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["name"].to_list())
+    if options.get("print_result_table"):
+        # print result table
+        print(f"\n\nResult{'s' if len(response) > 1 else ''}")
+        print(result_table.to_string(index=False))
 
-            if sell_text != "" or buy_text != "":
-                line_text += sell_text + " -> " + buy_text
-            elif chip_text == "FH":
-                line_text += ""
-            else:
-                line_text += "Roll"
-            print(f"\tGW{gw}: {line_text}")
+    return result_table
 
-        solutions_file = options.get("solutions_file")
-        if solutions_file:
-            write_line_to_file(solutions_file, result, options)
+
+def print_transfer_chip_summary(result, options):
+    picks = result["picks"]
+    gws = picks["week"].unique()
+    print(f"\nSolution {result['iter'] + 1}")
+    for gw in sorted(gws):
+        chip_text = ""
+        line_text = ""
+        chip = picks.loc[(picks["week"] == gw) & (picks["chip"] != "")]
+        if not chip.empty:
+            chip_text = chip.iloc[0]["chip"]
+            line_text += f"({chip_text}) "
+        sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["name"].to_list())
+        buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["name"].to_list())
+
+        if sell_text != "" or buy_text != "":
+            line_text += sell_text + " -> " + buy_text
+        elif chip_text == "FH":
+            line_text += ""
+        else:
+            line_text += "Roll"
+        print(f"\tGW{gw}: {line_text}")
+
+    solutions_file = options.get("solutions_file")
+    if solutions_file:
+        write_line_to_file(solutions_file, result, options)
 
 
 def write_line_to_file(filename, result, options):

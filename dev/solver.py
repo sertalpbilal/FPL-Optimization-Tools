@@ -1066,7 +1066,6 @@ def solve_multi_period_fpl(data, options):
         # Writing summary
         summary_of_actions = ""
         move_summary = {"chip": [], "buy": [], "sell": []}
-        cumulative_xpts = 0
 
         # collect statistics
         statistics = {}
@@ -1086,7 +1085,7 @@ def solve_multi_period_fpl(data, options):
                 f"ITB={round(in_the_bank[w - 1].get_value(), 1)}->{round(in_the_bank[w].get_value(), 1)}, "
                 f"FT={round(free_transfers[w].get_value())}, "
                 f"PT={round(penalized_transfers[w].get_value())}, "
-                f"NT={round(number_of_transfers[w].get_value())}\n"
+                f"NT={round(number_of_transfers[w].get_value())}"
             )
             for p in players:
                 if transfer_in[p, w].get_value() > BINARY_THRESHOLD:
@@ -1107,8 +1106,7 @@ def solve_multi_period_fpl(data, options):
             # captain_name = picks_df[(picks_df['week'] == w) & (picks_df['captain'] == 1)].iloc[0]['name']
             # vicecap_name = picks_df[(picks_df['week'] == w) & (picks_df['vicecaptain'] == 1)].iloc[0]['name']
 
-            summary_of_actions += "---\n"
-            summary_of_actions += "Lineup: \n"
+            summary_of_actions += "\nLineup: \n"
 
             def get_display(row):
                 return f"{row['name']} ({row['xP']}{', C' if row['captain'] == 1 else ''}{', V' if row['vicecaptain'] == 1 else ''})"
@@ -1119,22 +1117,18 @@ def solve_multi_period_fpl(data, options):
                 summary_of_actions += "\t" + ", ".join(entries.tolist()) + "\n"
             summary_of_actions += "Bench: \n\t" + ", ".join(bench_players["name"].tolist()) + "\n"
             summary_of_actions += "Lineup xPts: " + str(round(lineup_players["xp_cont"].sum(), 2)) + "\n"
-
-            summary_of_actions += "---\n\n"
-
-            cumulative_xpts = cumulative_xpts + round(lineup_players["xp_cont"].sum(), 2)
+            if w != max(gameweeks):
+                summary_of_actions += "\n\n"
 
             statistics[w] = {
                 "itb": in_the_bank[w].get_value(),
                 "ft": free_transfers[w].get_value(),
                 "pt": penalized_transfers[w].get_value(),
                 "nt": number_of_transfers[w].get_value(),
-                "xP": round(lineup_players["xp_cont"].sum(), 2),
+                "xP": lineup_players["xp_cont"].sum(),
                 "obj": round(gw_total[w].get_value(), 2),
                 "chip": chip_decision if chip_decision != "" else None,
             }
-
-        print("Cumulative xPts: " + str(round(cumulative_xpts, 2)) + "\n---\n\n")
 
         if options.get("delete_tmp", True):
             time.sleep(0.1)

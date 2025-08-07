@@ -32,7 +32,7 @@ def get_dict_combinations(my_dict):
     for comb in all_combs:
         c_values = [i for i in comb.values() if i is not None]
         if len(c_values) == len(set(c_values)):
-            feasible_combs.append(comb)
+            feasible_combs.append({k: [v] for k, v in comb.items() if v is not None})
         # else we have a duplicate
     return feasible_combs
 
