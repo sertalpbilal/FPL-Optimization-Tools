@@ -1085,7 +1085,7 @@ def solve_multi_period_fpl(data, options):
                 f"ITB={round(in_the_bank[w - 1].get_value(), 1)}->{round(in_the_bank[w].get_value(), 1)}, "
                 f"FT={round(free_transfers[w].get_value())}, "
                 f"PT={round(penalized_transfers[w].get_value())}, "
-                f"NT={round(number_of_transfers[w].get_value())}"
+                f"NT={round(number_of_transfers[w].get_value())}\n"
             )
             for p in players:
                 if transfer_in[p, w].get_value() > BINARY_THRESHOLD:
