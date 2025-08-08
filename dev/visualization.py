@@ -255,7 +255,7 @@ def _add_gameweek_statistics(ax, gw_idx, week, statistics, player_idx):
     )
 
     if week > 1 and statistics[week]["chip"] not in ["FH", "WC"]:
-        fts_available = statistics[week]["ft_state"]
+        fts_available = statistics[week]["ft"]
         transfer_str = f"FTs: {statistics[week]['nt']}/{fts_available}"
         if statistics[week]["pt"] > 0:
             transfer_str += f" (-{statistics[week]['pt'] * HIT_COST})"
