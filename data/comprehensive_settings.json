@@ -108,5 +108,6 @@
     "print_result_table": true,
     "print_decay_metrics": false,
     "print_transfer_chip_summary": true,
-    "print_squads": true
+    "print_squads": true,
+    "hide_transfers": false
 }

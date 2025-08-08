@@ -1148,13 +1148,14 @@ def solve_multi_period_fpl(data, options):
             except Exception:
                 print("Could not delete temporary files")
 
-        buy_decisions = ", ".join(move_summary["buy"])
-        sell_decisions = ", ".join(move_summary["sell"])
+        if options.get("hide_transfers"):
+            buy_decisions = ""
+            sell_decisions = ""
+        else:
+            buy_decisions = ", ".join(move_summary["buy"])
+            sell_decisions = ", ".join(move_summary["sell"])
+
         chip_decisions = ", ".join(move_summary["chip"])
-        if buy_decisions == "":
-            buy_decisions = "-"
-        if sell_decisions == "":
-            sell_decisions = "-"
         if chip_decisions == "":
             chip_decisions = "-"
 
