@@ -261,7 +261,7 @@ def _add_gameweek_statistics(ax, gw_idx, week, statistics, player_idx):
 
     if week > 1 and statistics[week]["chip"] not in ["FH", "WC"]:
         fts_available = round(statistics[week]["ft"])
-        transfer_str = f"FTs: {statistics[week]['nt']}/{fts_available}"
+        transfer_str = f"FTs: {round(statistics[week]['nt'])}/{fts_available}"
         if statistics[week]["pt"] > 0:
             transfer_str += f" (-{statistics[week]['pt'] * HIT_COST})"
         ax.text(gw_idx * GAMEWEEK_SPACING, stats_y - 1.3, transfer_str, color=STATS_COLOR, fontsize=9, ha="center")
