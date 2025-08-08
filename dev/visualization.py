@@ -238,17 +238,22 @@ def _add_gameweek_statistics(ax, gw_idx, week, statistics, player_idx):
     # Determine base week from statistics keys
     base_week = min(statistics.keys()) if statistics else week
 
-    if week == base_week:
+    if week != 1 and week == base_week:
         return
 
     stats_y = BASE_Y - (player_idx + 0.5) * PLAYER_SPACING
     ax.text(
         gw_idx * GAMEWEEK_SPACING, stats_y - 0.5, f"{statistics[week]['xP']:.2f} xPts", color=TEXT_COLOR, fontsize=11, ha="center", weight="medium"
     )
+
+    if week > 1:
+        itb_text = f"{statistics[week - 1]['itb']:.1f} → {statistics[week]['itb']:.1f}"
+    else:
+        itb_text = f"{statistics[week]['itb']:.1f}"
     ax.text(
         gw_idx * GAMEWEEK_SPACING,
         stats_y - 0.9,
-        f"ITB: {statistics[week - 1]['itb']} → {statistics[week]['itb']:.1f}",
+        f"ITB: {itb_text}",
         color=STATS_COLOR,
         fontsize=9,
         ha="center",
