@@ -48,7 +48,7 @@ def read_fplreview(options):
 def read_mikkel(options):
     output_file = "mikkel_cleaned.csv"
     convert_mikkel_to_review(options.get("mikkel_data_path", f"../data/{options['datasource']}.csv"), output_file=output_file)
-    return pd.read_csv(f"../data/{output_file}.csv", encoding="utf-8")
+    return pd.read_csv(f"../data/{output_file}", encoding="utf-8")
 
 
 def read_mixed(options, weights):
