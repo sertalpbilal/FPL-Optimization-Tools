@@ -12,9 +12,9 @@ from fuzzywuzzy import fuzz
 def read_data(options, source=None):
     source = options.get("datasource")
     weights = options.get("data_weights")
+    list_of_files = glob.glob("../data/*.csv")
 
     if not source:
-        list_of_files = glob.glob("../data/*.csv")
         try:
             latest_file = max(list_of_files, key=os.path.getctime)
             print(f"No source specified, using most recent projection file: {latest_file}")
@@ -22,6 +22,9 @@ def read_data(options, source=None):
         except Exception:
             print("Cannot find projection data in /data/. Upload it to /data/ and make sure it is a .csv file")
             sys.exit(0)
+
+    if f"../data/{source}.csv" not in list_of_files:
+        raise FileNotFoundError(f"Data file {source}.csv not found in /data/. Please upload it there and try again.")
 
     if source == "mixed":
         return read_mixed(options, weights)
