@@ -914,10 +914,17 @@ def solve_multi_period_fpl(data, options):
 
     # Objectives
     hit_cost = options.get("hit_cost", 4)
+    vcap_weight = options.get("vcap_weight", 0.1)
     gw_xp = {
         w: so.expr_sum(
             points_player_week[p, w]
-            * (lineup[p, w] + captain[p, w] + 0.1 * vicecap[p, w] + use_tc[p, w] + so.expr_sum(bench_weights[o] * bench[p, w, o] for o in order))
+            * (
+                lineup[p, w]
+                + captain[p, w]
+                + vcap_weight * vicecap[p, w]
+                + use_tc[p, w]
+                + so.expr_sum(bench_weights[o] * bench[p, w, o] for o in order)
+            )
             for p in players
         )
         for w in gameweeks
