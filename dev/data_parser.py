@@ -10,8 +10,7 @@ from fuzzywuzzy import fuzz
 
 
 def read_data(options, source=None):
-    if not source:
-        source = options.get("datasource")
+    source = options.get("datasource")
     weights = options.get("data_weights")
 
     if not source:
@@ -19,56 +18,37 @@ def read_data(options, source=None):
         try:
             latest_file = max(list_of_files, key=os.path.getctime)
             print(f"No source specified, using most recent projection file: {latest_file}")
-            data = pd.read_csv(latest_file)
+            return pd.read_csv(latest_file)
         except Exception:
             print("Cannot find projection data in /data/. Upload it to /data/ and make sure it is a .csv file")
             sys.exit(0)
 
-    if source == "solio":
-        return read_solio(options)
-    elif "review" in source and "odds" not in source:
-        return read_fplreview(options)
-    elif source == "review-odds":
-        return read_fplreview_odds(options)
-    elif source == "mikkel":
-        return read_mikkel(options)
-    elif source == "mixed":
-        if not weights:
-            print("When using mixed data, you need to specify the weights for each source")
-            sys.exit(0)
-        data = read_mixed(options, weights)
-        if options.get("export_data", False):
-            data.to_csv(f"../data/{options.get('export_data', 'mixed.csv')}", index=False, float_format="%.2f")
-        return data
+    if source == "mixed":
+        return read_mixed(options, weights)
+
+    for reader in [read_mikkel, read_solio, read_fplreview]:
+        try:
+            return reader(options)
+        except Exception:
+            # print(f"{reader.__name__} failed: {e}")
+            continue
+
+    raise RuntimeError("All data readers failed.")
 
 
 def read_solio(options):
     # TODO: implement more complex solio data parsing when additional data is added to csv
-    return pd.read_csv(options.get("data_path", "../data/solio.csv"))
+    return pd.read_csv(options.get("data_path", f"../data/{options['datasource']}.csv"), encoding="utf-8")
 
 
 def read_fplreview(options):
-    if binary_file_name := options.get("binary_file_name"):
-        data_path = "../data/" + binary_file_name + ".csv"
-        return pd.read_csv(data_path)
-
-    if data_path := options.get("data_path"):
-        return pd.read_csv(data_path)
-
-    files = [x for x in glob.glob("../data/*review*.csv") if "odds" not in x]
-    file = max(files, key=os.path.getctime)
-    return pd.read_csv(file)
-
-
-def read_fplreview_odds(options):
-    data = pd.read_csv(options.get("data_path", "../data/fplreview-odds.csv"))
-    return data
+    return pd.read_csv(options.get("data_path", f"../data/{options['datasource']}.csv"), encoding="utf-8")
 
 
 def read_mikkel(options):
-    convert_mikkel_to_review(options.get("mikkel_data_path", "../data/TransferAlgorithm.csv"))
-    data = pd.read_csv("../data/mikkel.csv")
-    return data
+    output_file = "mikkel_cleaned.csv"
+    convert_mikkel_to_review(options.get("mikkel_data_path", f"../data/{options['datasource']}.csv"), output_file=output_file)
+    return pd.read_csv(f"../data/{output_file}.csv", encoding="utf-8")
 
 
 def read_mixed(options, weights):
@@ -77,7 +57,8 @@ def read_mixed(options, weights):
     for name, weight in weights.items():
         if weight == 0:
             continue
-        df = read_data(options, name)
+        options["datasource"] = name
+        df = read_data(options)
         # drop players without data
         first_gw_col = None
         for col in df.columns:
@@ -116,7 +97,7 @@ def read_mixed(options, weights):
     combined_data = pd.concat(new_data, ignore_index=True)
     combined_data = combined_data.copy()
     combined_data["real_id"] = combined_data["ID"]
-    combined_data.reset_index(drop=True, inplace=True)
+    combined_data = combined_data.reset_index(drop=True)
 
     key_dict = {}
     for i in combined_data.columns.to_list():
@@ -164,6 +145,7 @@ def read_mixed(options, weights):
         )
 
     final_data = pd.concat([final_data, pd.DataFrame(missing_players)]).fillna(0)
+    final_data.to_csv("../data/mixed.csv", index=False, encoding="utf-8", float_format="%.2f")
 
     return final_data
 
@@ -180,10 +162,7 @@ def get_best_score(r):
 
 # To add FPL ID column to Mikkel's data and clean empty rows
 def fix_mikkel(file_address):
-    df = pd.read_csv(file_address, encoding="latin1")
-    # Fix column names
-    df.columns = df.columns.str.strip()
-    remove_accents = fix_name_dialect
+    df = pd.read_csv(file_address, encoding="utf-8", sep=";")
     r = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
     players = r.json()["elements"]
     mikkel_team_dict = {
@@ -196,17 +175,15 @@ def fix_mikkel(file_address):
     for t in teams:
         t["mikkel_short"] = mikkel_team_dict.get(t["short_name"], t["short_name"])
 
+    df = df.rename(columns={x: x.strip() for x in df.columns})
     df["BCV_clean"] = df["BCV"].astype(str).str.replace(r"\((.*)\)", "-\\1", regex=True).astype(str).str.strip()
     df["BCV_numeric"] = pd.to_numeric(df["BCV_clean"], errors="coerce")
-    # drop -1 BCV
-    df = df[df["BCV_numeric"] != -1].copy()
-    df_cleaned = df[~((df["Player"] == "0") | (df["No."].isnull()) | (df["BCV_numeric"].isnull()) | (df["No."].isnull()))].copy()
-    df_cleaned["Clean_Name"] = df_cleaned["Player"].apply(remove_accents)
-    df_cleaned["Team"] = df_cleaned["Team"].map(mikkel_team_dict)
+    df = df.loc[df["BCV_numeric"] != -1]
+    df_cleaned = df.loc[~((df["Player"] == "0") | (df["No."].isnull()) | (df["BCV_numeric"].isnull()))].copy()
+    df_cleaned["Clean_Name"] = df_cleaned["Player"].apply(fix_name_dialect)
+    # df_cleaned["Team"] = df_cleaned["Team"].map(mikkel_team_dict, na_action="ignore")
     df_cleaned["Position"] = df_cleaned["Position"].replace({"GK": "G"})
-
-    # Drop players without team name
-    df_cleaned.dropna(subset=["Team"], inplace=True)
+    df_cleaned = df_cleaned.dropna(subset=["Team"])
 
     element_type_dict = {1: "G", 2: "D", 3: "M", 4: "F"}
     team_code_dict = {i["code"]: i for i in teams}
@@ -221,8 +198,8 @@ def fix_mikkel(file_address):
         for e in players
     ]
     for target in player_names:
-        target["wn"] = remove_accents(target["web_name"])
-        target["cn"] = remove_accents(target["combined"])
+        target["wn"] = fix_name_dialect(target["web_name"])
+        target["cn"] = fix_name_dialect(target["combined"])
 
     entries = []
     for player in df_cleaned.iloc:
@@ -251,7 +228,7 @@ def fix_mikkel(file_address):
     if len(df_cleaned[duplicate_rows]) > 0:
         print("WARNING: There are players with duplicate IDs, lowest name match accuracy (score) will be dropped")
         print(df_cleaned[duplicate_rows][["Player", "fpl_name", "score"]].head())
-    df_cleaned.sort_values(by=["score"], ascending=[False], inplace=True)
+    df_cleaned = df_cleaned.sort_values(by=["score"], ascending=False)
     df_cleaned = df_cleaned.loc[~df_cleaned["FPL ID"].duplicated(keep="first")].sort_index()
 
     existing_ids = df_cleaned["FPL ID"].tolist()
@@ -274,43 +251,38 @@ def fix_mikkel(file_address):
 
 
 # To convert cleaned Mikkel data into Review format
-def convert_mikkel_to_review(target):
+def convert_mikkel_to_review(target, output_file):
     # Read and add ID column
-    raw_data = fix_mikkel(target)
+    df = fix_mikkel(target)
 
     static_url = "https://fantasy.premierleague.com/api/bootstrap-static/"
     r = requests.get(static_url).json()
     teams = r["teams"]
 
-    new_names = {i: i.strip() for i in raw_data.columns}
-    raw_data.rename(columns=new_names, inplace=True)
-
-    max_price = 20
-    raw_data["Price"] = pd.to_numeric(raw_data["Price"], errors="coerce")
-    df_clean = raw_data[raw_data["Price"] < max_price].copy()
-    df_clean["Weighted minutes"].fillna("90", inplace=True)
-    df_clean["ID"] = df_clean["FPL ID"].astype(int)
+    new_names = {i: i.strip() for i in df.columns}
+    df = df.rename(columns=new_names)
+    df["Price"] = pd.to_numeric(df["Price"], errors="coerce")
+    df["Weighted minutes"] = df["Weighted minutes"].fillna(90)
+    df["ID"] = df["FPL ID"].astype(int)
 
     pos_fix = {"GK": "G"}
-    df_clean["Pos"] = df_clean["Position"]
-    df_clean["Pos"] = df_clean["Pos"].replace(pos_fix)
-
-    df_clean.loc[df_clean["Pos"].isin(["G", "D"]), "Weighted minutes"] = "90"
+    df["Pos"] = df["Position"]
+    df["Pos"] = df["Pos"].map(pos_fix).fillna(df["Pos"])
+    df.loc[df["Pos"].isin(["G", "D"]), "Weighted minutes"] = "90"
 
     gws = []
-    for i in df_clean.columns:
+    for i in df.columns:
         try:
             int(i)
-            df_clean[f"{i}_Pts"] = df_clean[i].str.strip().replace({"-": 0}).astype(float)
-            df_clean[f"{i}_xMins"] = df_clean["Weighted minutes"].str.strip().replace({"-": 0}).astype(float).replace({np.nan: 0})
+            df[f"{i}_Pts"] = df[i].str.strip().replace({"-": 0}).astype(float)
+            df[f"{i}_xMins"] = df["Weighted minutes"].str.strip().replace({"-": 0}).astype(float).replace({np.nan: 0})
             gws.append(i)
         except Exception:
             continue
-    df_clean["Name"] = df_clean["Player"]
-    df_clean["Value"] = df_clean["Price"]
+    df["Name"] = df["Player"]
+    df["Value"] = df["Price"]
 
-    df_final = df_clean[["ID", "Name", "Pos", "Value"] + [f"{gw}_{tag}" for gw in gws for tag in ["Pts", "xMins"]]].copy()
-    df_final.replace({"-": 0}, inplace=True)
+    df_final = df[["ID", "Name", "Pos", "Value"] + [f"{gw}_{tag}" for gw in gws for tag in ["Pts", "xMins"]]].copy()
     elements_data = r["elements"]
     player_ids = [i["id"] for i in elements_data]
     player_names = {i["id"]: i["web_name"] for i in elements_data}
@@ -339,8 +311,8 @@ def convert_mikkel_to_review(target):
     df_final["fpl_id"] = df_final["ID"]
     df_final["Name"] = df_final["ID"].replace(player_names)
 
-    df_final.set_index("fpl_id", inplace=True)
-    df_final.to_csv("../data/mikkel.csv")
+    df_final = df_final.set_index("fpl_id")
+    df_final.to_csv(f"../data/{output_file}")
 
 
 # convert_mikkel_to_review("../data/TransferAlgorithm.csv")

@@ -53,7 +53,7 @@ uv sync
 Place your projections file (e.g., `solio.csv`) in the `data/` folder.
 
 2.  **Configure data source**:
-If you are not using the default data source, update the `datasource` field in `data/user_settings.json` to match your CSV file name.
+If you are not using the default data source, update the `datasource` field in `data/user_settings.json` to match your CSV file name. E.g. if you are using a file named `projections.csv`, then the settings file should read `"datasource": "projections"`.
 
 3. **Edit settings**
 Edit any desired settings in `comprehensive_settings.json` or `user_settings.json`.  The majority of useful settings for most people will be in `user_settings.json`, with `comprehensive_settings.json` providing a wider range of options that will be used as default settings unless altered in `user_settings.json`. Details of what each setting does can be found in the .md file in the `/data/` folder.
