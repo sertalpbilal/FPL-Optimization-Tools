@@ -12,7 +12,7 @@ from fuzzywuzzy import fuzz
 def read_data(options, source=None):
     source = options.get("datasource")
     weights = options.get("data_weights")
-    list_of_files = glob.glob("../data/*.csv")
+    list_of_files = glob.glob(os.path.join("..", "data", "*.csv"))
 
     if not source:
         try:
@@ -23,7 +23,7 @@ def read_data(options, source=None):
             print("Cannot find projection data in /data/. Upload it to /data/ and make sure it is a .csv file")
             sys.exit(0)
 
-    if f"../data/{source}.csv" not in list_of_files:
+    if os.path.join("..", "data", f"{source}.csv") not in list_of_files:
         raise FileNotFoundError(f"Data file {source}.csv not found in /data/. Please upload it there and try again.")
 
     if source == "mixed":
