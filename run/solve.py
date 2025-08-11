@@ -57,11 +57,7 @@ def solve_regular(runtime_options=None):
     base_args, remaining_args = base_parser.parse_known_args()
 
     # Load base configuration file
-    if IS_COLAB:
-        with open("settings.json") as f:
-            options = json.load(f)
-    else:
-        options = load_settings()
+    options = load_settings()
 
     # Load and merge additional configuration files if specified
     if base_args.config:
