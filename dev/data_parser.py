@@ -23,11 +23,11 @@ def read_data(options, source=None):
             print("Cannot find projection data in /data/. Upload it to /data/ and make sure it is a .csv file")
             sys.exit(0)
 
-    if os.path.join("..", "data", f"{source}.csv") not in list_of_files:
-        raise FileNotFoundError(f"Data file {source}.csv not found in /data/. Please upload it there and try again.")
-
     if source == "mixed":
         return read_mixed(options, weights)
+
+    if os.path.join("..", "data", f"{source}.csv") not in list_of_files:
+        raise FileNotFoundError(f"Data file {source}.csv not found in /data/. Please upload it there and try again.")
 
     for reader in [read_mikkel, read_solio, read_fplreview]:
         try:
@@ -165,7 +165,14 @@ def get_best_score(r):
 
 # To add FPL ID column to Mikkel's data and clean empty rows
 def fix_mikkel(file_address):
-    df = pd.read_csv(file_address, encoding="utf-8", sep=";")
+    for sep in ",;":
+        for enc in ["utf-8", "latin-1"]:
+            try:
+                df = pd.read_csv(file_address, encoding=enc, sep=sep)
+                break
+            except Exception:
+                continue
+    # df = pd.read_csv(file_address, encoding="utf-8", sep=";")
     r = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
     players = r.json()["elements"]
     mikkel_team_dict = {
