@@ -1,5 +1,6 @@
 import os
 import subprocess
+import threading
 import time
 import warnings
 from pathlib import Path
@@ -988,6 +989,54 @@ def solve_multi_period_fpl(data, options):
             values = list(solution.col_value)
             for idx, v in enumerate(model.get_variables()):
                 v.set_value(values[idx])
+
+        elif solver == "gurobi":
+            use_cmd = options.get("use_cmd", False)
+            gap = options.get("gap", 0)
+            sol_file_name = sol_file_name.replace("_sol", "").replace("txt", "sol")
+            command = f"gurobi_cl MIPGap={gap} ResultFile={sol_file_name} {mps_file_name}"
+
+            if use_cmd:
+                os.system(command)
+            else:
+
+                def print_output(process):
+                    while True:
+                        output = process.stdout.readline()
+                        if "Solving report" in output:
+                            time.sleep(2)
+                            process.kill()
+                        elif output == "" and process.poll() is not None:
+                            break
+                        elif output:
+                            print(output.strip())
+
+                process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+                output_thread = threading.Thread(target=print_output, args=(process,))
+                output_thread.start()
+                output_thread.join()
+
+            # Parsing
+            with open(sol_file_name, "r") as f:
+                for v in model.get_variables():
+                    v.set_value(0)
+                cols_started = False
+                for line in f:
+                    if line[0] == "#":
+                        continue
+                    if line == "":
+                        break
+                    words = line.split()
+                    v = model.get_variable(words[0])
+                    try:
+                        if v.get_type() == so.INT:
+                            v.set_value(round(float(words[1])))
+                        elif v.get_type() == so.BIN:
+                            v.set_value(round(float(words[1])))
+                        elif v.get_type() == so.CONT:
+                            v.set_value(round(float(words[1]), 3))
+                    except:
+                        print("Error", words[0], line)
 
             # DataFrame generation
             picks = []
