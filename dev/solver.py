@@ -1038,81 +1038,79 @@ def solve_multi_period_fpl(data, options):
                     except:
                         print("Error", words[0], line)
 
-            # DataFrame generation
-            picks = []
-            for w in gameweeks:
-                for p in players:
-                    if squad[p, w].get_value() + squad_fh[p, w].get_value() + transfer_out[p, w].get_value() > BINARY_THRESHOLD:
-                        lp = merged_data.loc[p]
-                        is_captain = 1 if captain[p, w].get_value() > BINARY_THRESHOLD else 0
-                        is_squad = (
-                            1
-                            if (use_fh[w].get_value() < BINARY_THRESHOLD and squad[p, w].get_value() > BINARY_THRESHOLD)
-                            or (use_fh[w].get_value() > BINARY_THRESHOLD and squad_fh[p, w].get_value() > BINARY_THRESHOLD)
-                            else 0
+        # DataFrame generation
+        picks = []
+        for w in gameweeks:
+            for p in players:
+                if squad[p, w].get_value() + squad_fh[p, w].get_value() + transfer_out[p, w].get_value() > BINARY_THRESHOLD:
+                    lp = merged_data.loc[p]
+                    is_captain = 1 if captain[p, w].get_value() > BINARY_THRESHOLD else 0
+                    is_squad = (
+                        1
+                        if (use_fh[w].get_value() < BINARY_THRESHOLD and squad[p, w].get_value() > BINARY_THRESHOLD)
+                        or (use_fh[w].get_value() > BINARY_THRESHOLD and squad_fh[p, w].get_value() > BINARY_THRESHOLD)
+                        else 0
+                    )
+                    is_lineup = 1 if lineup[p, w].get_value() > BINARY_THRESHOLD else 0
+                    is_vice = 1 if vicecap[p, w].get_value() > BINARY_THRESHOLD else 0
+                    is_tc = 1 if use_tc[p, w].get_value() > BINARY_THRESHOLD else 0
+                    is_transfer_in = 1 if transfer_in[p, w].get_value() > BINARY_THRESHOLD else 0
+                    is_transfer_out = 1 if transfer_out[p, w].get_value() > BINARY_THRESHOLD else 0
+                    bench_value = -1
+                    for o in order:
+                        if bench[p, w, o].get_value() > BINARY_THRESHOLD:
+                            bench_value = o
+                    position = type_data.loc[lp["element_type"], "singular_name_short"]
+                    player_buy_price = 0 if not is_transfer_in else buy_price[p]
+                    player_sell_price = (
+                        0
+                        if not is_transfer_out
+                        else (
+                            sell_price[p] if p in price_modified_players and transfer_out_first[p, w].get_value() > BINARY_THRESHOLD else buy_price[p]
                         )
-                        is_lineup = 1 if lineup[p, w].get_value() > BINARY_THRESHOLD else 0
-                        is_vice = 1 if vicecap[p, w].get_value() > BINARY_THRESHOLD else 0
-                        is_tc = 1 if use_tc[p, w].get_value() > BINARY_THRESHOLD else 0
-                        is_transfer_in = 1 if transfer_in[p, w].get_value() > BINARY_THRESHOLD else 0
-                        is_transfer_out = 1 if transfer_out[p, w].get_value() > BINARY_THRESHOLD else 0
-                        bench_value = -1
-                        for o in order:
-                            if bench[p, w, o].get_value() > BINARY_THRESHOLD:
-                                bench_value = o
-                        position = type_data.loc[lp["element_type"], "singular_name_short"]
-                        player_buy_price = 0 if not is_transfer_in else buy_price[p]
-                        player_sell_price = (
-                            0
-                            if not is_transfer_out
-                            else (
-                                sell_price[p]
-                                if p in price_modified_players and transfer_out_first[p, w].get_value() > BINARY_THRESHOLD
-                                else buy_price[p]
-                            )
-                        )
-                        multiplier = 1 * (is_lineup == 1) + 1 * (is_captain == 1) + 1 * (is_tc == 1)
-                        xp_cont = points_player_week[p, w] * multiplier
+                    )
+                    multiplier = 1 * (is_lineup == 1) + 1 * (is_captain == 1) + 1 * (is_tc == 1)
+                    xp_cont = points_player_week[p, w] * multiplier
 
-                        # chip
-                        if use_wc[w].get_value() > BINARY_THRESHOLD:
-                            chip_text = "WC"
-                        elif use_fh[w].get_value() > BINARY_THRESHOLD:
-                            chip_text = "FH"
-                        elif use_bb[w].get_value() > BINARY_THRESHOLD:
-                            chip_text = "BB"
-                        elif use_tc[p, w].get_value() > BINARY_THRESHOLD:
-                            chip_text = "TC"
-                        else:
-                            chip_text = ""
+                    # chip
+                    if use_wc[w].get_value() > BINARY_THRESHOLD:
+                        chip_text = "WC"
+                    elif use_fh[w].get_value() > BINARY_THRESHOLD:
+                        chip_text = "FH"
+                    elif use_bb[w].get_value() > BINARY_THRESHOLD:
+                        chip_text = "BB"
+                    elif use_tc[p, w].get_value() > BINARY_THRESHOLD:
+                        chip_text = "TC"
+                    else:
+                        chip_text = ""
 
-                        picks.append(
-                            {
-                                "id": p,
-                                "week": w,
-                                "name": lp["web_name"],
-                                "pos": position,
-                                "type": lp["element_type"],
-                                "team": lp["name"],
-                                "buy_price": player_buy_price,
-                                "sell_price": player_sell_price,
-                                "xP": round(points_player_week[p, w], 2),
-                                "xMin": minutes_player_week[p, w],
-                                "squad": is_squad,
-                                "lineup": is_lineup,
-                                "bench": bench_value,
-                                "captain": is_captain,
-                                "vicecaptain": is_vice,
-                                "transfer_in": is_transfer_in,
-                                "transfer_out": is_transfer_out,
-                                "multiplier": multiplier,
-                                "xp_cont": xp_cont,
-                                "chip": chip_text,
-                                "iter": iteration,
-                                "ft": free_transfers[w].get_value(),
-                                "transfer_count": number_of_transfers[w].get_value(),
-                            }
-                        )
+                    picks.append(
+                        {
+                            "id": p,
+                            "week": w,
+                            "name": lp["web_name"],
+                            "pos": position,
+                            "type": lp["element_type"],
+                            "team": lp["name"],
+                            "buy_price": player_buy_price,
+                            "sell_price": player_sell_price,
+                            "xP": round(points_player_week[p, w], 2),
+                            "xMin": minutes_player_week[p, w],
+                            "squad": is_squad,
+                            "lineup": is_lineup,
+                            "bench": bench_value,
+                            "captain": is_captain,
+                            "vicecaptain": is_vice,
+                            "transfer_in": is_transfer_in,
+                            "transfer_out": is_transfer_out,
+                            "multiplier": multiplier,
+                            "xp_cont": xp_cont,
+                            "chip": chip_text,
+                            "iter": iteration,
+                            "ft": free_transfers[w].get_value(),
+                            "transfer_count": number_of_transfers[w].get_value(),
+                        }
+                    )
 
         picks_df = pd.DataFrame(picks).sort_values(by=["week", "lineup", "type", "xP"], ascending=[True, False, True, True])
         total_xp = so.expr_sum((lineup[p, w] + captain[p, w]) * points_player_week[p, w] for p in players for w in gameweeks).get_value()
