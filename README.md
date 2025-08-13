@@ -101,7 +101,11 @@ uv run python solve.py
 
 There is a YouTube playlist [here](https://www.youtube.com/playlist?list=PLrIyJJU8_viOags1yudB_wyafRuTNs1Ed) by Sertalp, showing the early stages of this tool, explaining how it was built, and discussing ideas around optimization with a focus on FPL.
 
-## 🛠 Issues
+## 🌍 Browser-based optimization
+
+There is also a browser-based version of the optimizer that doesn't require the download or installation of anything to your device, and works on mobile. It is hosted in a google colab notebook that can be found [here](https://colab.research.google.com/drive/1fwYcG28zpIOJf7R8yx31bDL_kJG1JRLu). Simply follow the instructions on that page to run the optimizer.
+
+## 🛠️ Issues
 
 If you have issues, feel free to open an issue on GitHub and I will get back to you as soon as possible.
 Alternatively, you can email me at **chris.musson@hotmail.com**.
