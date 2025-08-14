@@ -33,7 +33,7 @@ def run_parallel_solves(chip_combinations, max_workers=None):
     print(df)
 
     # you can save the results to a csv file if you want to, by uncommenting the line below
-    # df.to_csv("chip_solve.csv", encoding="utf-8", index=False)
+    df.to_csv("chip_solve.csv", encoding="utf-8", index=False)
 
 
 if __name__ == "__main__":
