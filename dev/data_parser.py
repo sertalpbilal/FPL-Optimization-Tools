@@ -176,6 +176,8 @@ def fix_mikkel(file_address):
                 break
             except Exception:
                 continue
+        break
+
     # df = pd.read_csv(file_address, encoding="utf-8", sep=";")
     r = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
     players = r.json()["elements"]
