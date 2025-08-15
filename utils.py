@@ -3,11 +3,13 @@ import random
 import string
 from itertools import product
 
+from paths import DATA_DIR
+
 
 def load_settings():
-    with open("../data/comprehensive_settings.json") as f:
+    with open(DATA_DIR / "comprehensive_settings.json") as f:
         options = json.load(f)
-    with open("../data/user_settings.json") as f:
+    with open(DATA_DIR / "user_settings.json") as f:
         options = {**options, **json.load(f)}
 
     return options

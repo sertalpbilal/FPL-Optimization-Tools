@@ -7,6 +7,8 @@ from concurrent.futures import ProcessPoolExecutor
 from binary_file_generator import generate_binary_files
 from solve import solve_regular
 
+from paths import DATA_DIR
+
 
 def get_user_input():
     print("Remember to delete results folder before running simulations")
@@ -24,18 +26,18 @@ def get_options_from_args(options):
 
 
 def setup_binary_files():
-    with open("../data/user_settings.json") as f:
+    with open(DATA_DIR / "user_settings.json") as f:
         settings = json.load(f)
 
     if settings.get("generate_binary_files"):
         print("Generating binary files")
-        with open("../data/binary_fixture_settings.md") as file:
+        with open(DATA_DIR / "binary_fixture_settings.md") as file:
             fixture_setting_md = file.read()
         match = re.search(r"```json\n(.*?)\n```", fixture_setting_md, re.DOTALL)
         if match:
             json_str = match.group(1)  # Extract JSON content
             binary_fixture_settings = json.loads(json_str)
-        file_path = "../data/fplreview_original.csv"
+        file_path = DATA_DIR / "fplreview_original.csv"
         generate_binary_files(file_path, binary_fixture_settings)
     return settings
 

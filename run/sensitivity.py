@@ -4,6 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from paths import DATA_DIR
+
 
 def get_user_inputs(options=None):
     """Get user inputs for sensitivity analysis."""
@@ -26,7 +28,7 @@ def get_user_inputs(options=None):
 
 def process_all_gameweeks():
     """Process and display results for all gameweeks."""
-    directory = "../data/results"
+    directory = DATA_DIR / "results"
 
     buys = []
     sells = []
@@ -120,7 +122,7 @@ def print_pivot_tables_all_gws(buy_df, sell_df, no_plans):
 
 def process_single_gameweek(gw, situation):
     """Process and display results for a single gameweek."""
-    directory = "../data/results"
+    directory = DATA_DIR / "results"
 
     if situation == "n":
         return process_regular_transfers(gw, directory)

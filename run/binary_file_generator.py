@@ -1,5 +1,7 @@
 import pandas as pd
 
+from paths import DATA_DIR
+
 
 def generate_binary_files(file_path, fixtures_json):
     # Iterate through each binary file entry in config
@@ -35,5 +37,5 @@ def generate_binary_files(file_path, fixtures_json):
                     df.loc[team_mask, [orig_gw_pts_col, orig_gw_xmins_col]] = 0
 
         # Save the updated CSV file
-        df.to_csv("../data/" + file_name, index=False)
+        df.to_csv(DATA_DIR / file_name, index=False)
         print(f"Generated: {file_name}")

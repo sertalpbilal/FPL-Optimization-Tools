@@ -14,6 +14,7 @@ import requests
 
 from dev.solver import generate_team_json, prep_data, solve_multi_period_fpl
 from dev.visualization import create_squad_timeline
+from paths import DATA_DIR, DEV_DIR
 from utils import get_random_id, load_config_files, load_settings
 
 IS_COLAB = "COLAB_GPU" in os.environ
@@ -46,9 +47,6 @@ def solve_regular(runtime_options=None):
     # if not IS_COLAB:
     #     print("Checking for updates...")
     #     is_latest_version()
-
-    base_folder = pathlib.Path()
-    sys.path.append(str(base_folder / "../dev"))
 
     # Create a base parser first for the --config argument
     # remaining_args is all the command line args that aren't --config
@@ -124,7 +122,7 @@ def solve_regular(runtime_options=None):
         my_data = generate_team_json(team_id, options)
     else:
         try:
-            with open("../data/team.json") as f:
+            with open(DATA_DIR / "team.json") as f:
                 my_data = json.load(f)
             price_changes = options.get("price_changes", [])
             if price_changes:
@@ -165,8 +163,8 @@ def solve_regular(runtime_options=None):
         iteration = result["iter"]
         time_now = datetime.datetime.now()
         stamp = time_now.strftime("%Y-%m-%d_%H-%M-%S")
-        if not (os.path.exists("../data/results/")):
-            os.mkdir("../data/results/")
+        if not (os.path.exists(DATA_DIR / "results/")):
+            os.mkdir(DATA_DIR / "results/")
 
         solve_name = options.get("solve_name", "regular")
         if options.get("binary_file_name"):
@@ -174,7 +172,7 @@ def solve_regular(runtime_options=None):
             filename = f"{solve_name}_{bfn}_{stamp}_{run_id}_{iteration}"
         else:
             filename = f"{solve_name}_{stamp}_{run_id}_{iteration}"
-        result["picks"].to_csv(f"../data/results/{filename}.csv", index=False)
+        result["picks"].to_csv(DATA_DIR / "results" / f"{filename}.csv", index=False)
 
         if options.get("export_image", 0) and not IS_COLAB:
             create_squad_timeline(

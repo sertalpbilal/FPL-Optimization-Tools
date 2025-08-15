@@ -1,4 +1,3 @@
-import glob
 import os
 import sys
 from unicodedata import combining, normalize
@@ -8,11 +7,13 @@ import pandas as pd
 import requests
 from fuzzywuzzy import fuzz
 
+from paths import DATA_DIR
+
 
 def read_data(options, source=None):
     source = options.get("datasource")
     weights = options.get("data_weights")
-    list_of_files = glob.glob(os.path.join("..", "data", "*.csv"))
+    list_of_files = [x for x in os.listdir(DATA_DIR) if x.endswith(".csv")]
 
     if not source:
         try:
@@ -26,7 +27,7 @@ def read_data(options, source=None):
     if source == "mixed":
         return read_mixed(options, weights)
 
-    if os.path.join("..", "data", f"{source}.csv") not in list_of_files:
+    if f"{source}.csv" not in list_of_files:
         raise FileNotFoundError(f"Data file {source}.csv not found in /data/. Please upload it there and try again.")
 
     for reader in [read_mikkel, read_solio, read_fplreview]:
@@ -41,17 +42,20 @@ def read_data(options, source=None):
 
 def read_solio(options):
     # TODO: implement more complex solio data parsing when additional data is added to csv
-    return pd.read_csv(options.get("data_path", f"../data/{options['datasource']}.csv"), encoding="utf-8")
+    filepath = options.get("data_path", DATA_DIR / f"{options['datasource']}.csv")
+    return pd.read_csv(filepath, encoding="utf-8")
 
 
 def read_fplreview(options):
-    return pd.read_csv(options.get("data_path", f"../data/{options['datasource']}.csv"), encoding="utf-8")
+    filepath = options.get("data_path", DATA_DIR / f"{options['datasource']}.csv")
+    return pd.read_csv(filepath, encoding="utf-8")
 
 
 def read_mikkel(options):
     output_file = "mikkel_cleaned.csv"
-    convert_mikkel_to_review(options.get("mikkel_data_path", f"../data/{options['datasource']}.csv"), output_file=output_file)
-    return pd.read_csv(f"../data/{output_file}", encoding="utf-8")
+    input_file = options.get("data_path", DATA_DIR / f"{options['datasource']}.csv")
+    convert_mikkel_to_review(input_file, output_file=output_file)
+    return pd.read_csv(DATA_DIR / f"{output_file}", encoding="utf-8")
 
 
 def read_mixed(options, weights):
@@ -148,7 +152,7 @@ def read_mixed(options, weights):
         )
 
     final_data = pd.concat([final_data, pd.DataFrame(missing_players)]).fillna(0)
-    final_data.to_csv("../data/mixed.csv", index=False, encoding="utf-8", float_format="%.2f")
+    final_data.to_csv(DATA_DIR / "mixed.csv", index=False, encoding="utf-8", float_format="%.2f")
 
     return final_data
 
@@ -322,7 +326,7 @@ def convert_mikkel_to_review(target, output_file):
     df_final["Name"] = df_final["ID"].replace(player_names)
 
     df_final = df_final.set_index("fpl_id")
-    df_final.to_csv(f"../data/{output_file}")
+    df_final.to_csv(DATA_DIR / output_file, index=False, encoding="utf-8", float_format="%.2f")
 
 
 # convert_mikkel_to_review("../data/TransferAlgorithm.csv")

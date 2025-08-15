@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib import patches
 
+from paths import DATA_DIR
+
 HIT_COST = 4
 
 # Spacing and sizing
@@ -321,6 +323,6 @@ def create_squad_timeline(current_squad, statistics, picks, filename):
     _add_chip_backgrounds(ax, df, base_week, bottom_limit, top_limit)
 
     # Ensure the images directory exists
-    os.makedirs("../data/images", exist_ok=True)
-    plt.savefig("../data/images/" + filename + ".png", bbox_inches="tight", facecolor=BG_COLOR)
+    os.makedirs(DATA_DIR / "images", exist_ok=True)
+    plt.savefig(DATA_DIR / "images" / f"{filename}.png", bbox_inches="tight", facecolor=BG_COLOR)
     plt.close()
