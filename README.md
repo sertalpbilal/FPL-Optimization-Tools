@@ -14,10 +14,12 @@ It allows users to:
 ### 1. Install Python
 
 **Windows**
+
 Download Python (preferably `python3.13` or later) from [python.org](https://www.python.org/downloads/).
 During installation, **make sure to check the box that says `Add Python to PATH`**.
 
 **macOS**
+
 You can install Python via [Homebrew](https://brew.sh/) if it’s not already installed:
 
 ```bash
@@ -27,9 +29,11 @@ brew install python
 ### 2. Install Git
 
 **Windows**
+
 Download from [git-scm.com](https://git-scm.com/download/win) and accept all default installation options.
 
 **macOS**
+
 Git is usually pre-installed. If not, run:
 
 ```bash
