@@ -247,7 +247,7 @@ def write_line_to_file(filename, result, options):
     run_id = options["run_id"]
     iteration = result["iter"]
     team_id = options.get("team_id")
-    chips = [options.get(x) for x in ["use_wc", "use_bb", "use_fh", "use_tc"]]
+    chips = [",".join(map(str, options.get(x, []))) for x in ["use_wc", "use_bb", "use_fh", "use_tc"]]
     sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["name"].to_list())
     buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["name"].to_list())
 
@@ -267,7 +267,7 @@ def write_line_to_file(filename, result, options):
         "datetime",
     ]
     data = [run_id, iteration, team_id, *chips, cap, vcap, sell_text, buy_text, score, t]
-    if options.get("show_summary", False):
+    if options.get("save_squads", False):
         headers.append("summary")
         data.append(result["summary"])
 
