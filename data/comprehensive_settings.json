@@ -70,7 +70,6 @@
     "booked_transfers": [],
     "only_booked_transfers": false,
     "no_trs_except_wc": false,
-    "ft_custom_value": {},
     "preseason": false,
     "no_opposing_play": false,
     "opposing_play_group": "position",
@@ -86,7 +85,7 @@
     "double_defense_pick": false,
     "transfer_itb_buffer": null,
     "num_iterations": 1,
-    "iteration_criteria": "this_gw_transfer_in",
+    "iteration_criteria": "this_gw_transfer_in_out",
     "iteration_difference": 1,
     "iteration_target": [],
     "report_decay_base": [
