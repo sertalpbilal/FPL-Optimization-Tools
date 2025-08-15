@@ -3,7 +3,6 @@ import csv
 import datetime
 import json
 import os
-import pathlib
 import subprocess
 import sys
 import textwrap
@@ -14,7 +13,7 @@ import requests
 
 from dev.solver import generate_team_json, prep_data, solve_multi_period_fpl
 from dev.visualization import create_squad_timeline
-from paths import DATA_DIR, DEV_DIR
+from paths import DATA_DIR
 from utils import get_random_id, load_config_files, load_settings
 
 IS_COLAB = "COLAB_GPU" in os.environ

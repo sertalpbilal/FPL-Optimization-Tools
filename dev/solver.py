@@ -1017,10 +1017,9 @@ def solve_multi_period_fpl(data, options):
                 output_thread.join()
 
             # Parsing
-            with open(sol_file_name, "r") as f:
+            with open(sol_file_name) as f:
                 for v in model.get_variables():
                     v.set_value(0)
-                cols_started = False
                 for line in f:
                     if line[0] == "#":
                         continue
@@ -1035,7 +1034,7 @@ def solve_multi_period_fpl(data, options):
                             v.set_value(round(float(words[1])))
                         elif v.get_type() == so.CONT:
                             v.set_value(round(float(words[1]), 3))
-                    except:
+                    except Exception:
                         print("Error", words[0], line)
 
         # DataFrame generation
