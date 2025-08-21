@@ -6,6 +6,8 @@ import pandas as pd
 
 from paths import DATA_DIR
 
+ITER_SCORING = {0: 10, 1: 9, 2: 8}
+
 
 def get_user_inputs(options=None):
     """Get user inputs for sensitivity analysis."""
@@ -174,14 +176,12 @@ def process_regular_transfers(gw, directory):
 
 def create_regular_transfer_pivots(buys, sells, move, no_plans):
     """Create and display pivot tables for regular transfers."""
-    iter_scoring = {1: 10, 2: 9, 3: 8}
-
     buy_df = pd.DataFrame(buys)
     buy_pivot = buy_df.pivot_table(index="move", columns="iter", aggfunc="size", fill_value=0)
     iters = sorted(buy_df["iter"].unique())
     buy_pivot["PSB"] = buy_pivot.loc[:, iters].sum(axis=1) / buy_pivot.sum().sum()
     buy_pivot["PSB"] = buy_pivot["PSB"].apply(lambda x: f"{x:.0%}")
-    buy_pivot["Score"] = buy_pivot.apply(lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1)
+    buy_pivot["Score"] = buy_pivot.apply(lambda r: sum(r[i] * ITER_SCORING.get(i, 0) for i in iters), axis=1)
     buy_pivot.sort_values(by="Score", ascending=False, inplace=True)
 
     sell_df = pd.DataFrame(sells)
@@ -189,7 +189,7 @@ def create_regular_transfer_pivots(buys, sells, move, no_plans):
     iters = sorted(sell_df["iter"].unique())
     sell_pivot["PSB"] = sell_pivot.loc[:, iters].sum(axis=1) / sell_pivot.sum().sum()
     sell_pivot["PSB"] = sell_pivot["PSB"].apply(lambda x: f"{x:.0%}")
-    sell_pivot["Score"] = sell_pivot.apply(lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1)
+    sell_pivot["Score"] = sell_pivot.apply(lambda r: sum(r[i] * ITER_SCORING.get(i, 0) for i in iters), axis=1)
     sell_pivot.sort_values(by="Score", ascending=False, inplace=True)
 
     move_df = pd.DataFrame(move)
@@ -197,7 +197,7 @@ def create_regular_transfer_pivots(buys, sells, move, no_plans):
     iters = sorted(move_df["iter"].unique())
     move_pivot["PSB"] = move_pivot.loc[:, iters].sum(axis=1) / move_pivot.sum().sum()
     move_pivot["PSB"] = move_pivot["PSB"].apply(lambda x: f"{x:.0%}")
-    move_pivot["Score"] = move_pivot.apply(lambda r: sum(r[i] * iter_scoring.get(i, 0) for i in iters), axis=1)
+    move_pivot["Score"] = move_pivot.apply(lambda r: sum(r[i] * ITER_SCORING.get(i, 0) for i in iters), axis=1)
     move_pivot.sort_values(by="Score", ascending=False, inplace=True)
 
     # Set the display options for wider column width
