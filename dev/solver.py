@@ -1123,7 +1123,10 @@ def solve_multi_period_fpl(data, options):
         # collect statistics
         statistics = {}
 
-        for w in gameweeks:
+        for w in all_gw:
+            if w == all_gw[0]:
+                statistics[int(w)] = {"itb": in_the_bank[w].get_value(), "ft": free_transfers[w].get_value()}
+                continue
             summary_of_actions += f"** GW {w}:\n"
             chip_decision = (
                 ("WC" if use_wc[w].get_value() > BINARY_THRESHOLD else "")
@@ -1173,7 +1176,7 @@ def solve_multi_period_fpl(data, options):
             if w != max(gameweeks):
                 summary_of_actions += "\n\n"
 
-            statistics[w] = {
+            statistics[int(w)] = {
                 "itb": in_the_bank[w].get_value(),
                 "ft": free_transfers[w].get_value(),
                 "pt": penalized_transfers[w].get_value(),
