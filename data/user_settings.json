@@ -1,5 +1,4 @@
 {
-    "preseason": true,
     "datasource": "solio",
     "team_data": "id",
     "team_id": null,
