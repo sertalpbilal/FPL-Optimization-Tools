@@ -251,27 +251,27 @@ def write_line_to_file(filename, result, options):
     team_id = options.get("team_id")
     chips = [",".join(map(str, options.get(x, []))) for x in ["use_wc", "use_bb", "use_fh", "use_tc"]]
 
+    squad = picks.loc[(picks["week"] == gw) & ((picks["lineup"] == 1) | (picks["bench"] >= 0))].sort_values(
+        by=["lineup", "bench", "type"], ascending=[False, True, True]
+    )
+    sells = picks.loc[(picks["week"] == gw) & (picks["transfer_out"] == 1)]
+    buys = picks.loc[(picks["week"] == gw) & (picks["transfer_in"] == 1)]
+    cap = picks.loc[(picks["week"] == gw) & (picks["captain"] > BINARY_THRESHOLD)].iloc[0]
+    vcap = picks.loc[(picks["week"] == gw) & (picks["vicecaptain"] > BINARY_THRESHOLD)].iloc[0]
+
     if options.get("solutions_file_player_type", "name") == "name":
-        squad = (
-            picks[(picks["week"] == gw) & (picks["transfer_out"] == 0)]
-            .sort_values(by=["lineup", "bench", "type"], ascending=[False, True, True])["name"]
-            .to_list()
-        )
-        sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["name"].to_list())
-        buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["name"].to_list())
-        cap = picks[(picks["week"] == gw) & (picks["captain"] > BINARY_THRESHOLD)].iloc[0]["name"]
-        vcap = picks[(picks["week"] == gw) & (picks["vicecaptain"] > BINARY_THRESHOLD)].iloc[0]["name"]
+        squad = squad["name"].to_list()
+        sell_text = ",".join(sells["name"].to_list())
+        buy_text = ",".join(buys["name"].to_list())
+        cap = cap["name"]
+        vcap = vcap["name"]
+
     else:
-        squad = (
-            picks[(picks["week"] == gw) & (picks["transfer_out"] == 0)]
-            .sort_values(by=["lineup", "bench", "type"], ascending=[False, True, True])["id"]
-            .astype(int)
-            .to_list()
-        )
-        sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["id"].astype(str).to_list())
-        buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["id"].astype(str).to_list())
-        cap = picks[(picks["week"] == gw) & (picks["captain"] > BINARY_THRESHOLD)].iloc[0]["id"].astype(int)
-        vcap = picks[(picks["week"] == gw) & (picks["vicecaptain"] > BINARY_THRESHOLD)].iloc[0]["id"].astype(int)
+        squad = squad["id"].astype(int).to_list()
+        sell_text = ", ".join(sells["id"].astype(str).to_list())
+        buy_text = ", ".join(buys["id"].astype(str).to_list())
+        cap = cap["id"].astype(int)
+        vcap = vcap["id"].astype(int)
 
     headers = [
         "run_id",
