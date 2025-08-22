@@ -117,6 +117,7 @@
     "print_transfer_chip_summary": true,
     "print_squads": true,
     "hide_transfers": false,
-    "solutions_file": false,
-    "save_squads": true
+    "solutions_file": "",
+    "save_squads": true,
+    "solutions_file_player_type": "name"
 }

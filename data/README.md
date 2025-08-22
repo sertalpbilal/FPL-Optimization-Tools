@@ -85,3 +85,4 @@
   - `hide_transers`: whether you want to hide the transfers in the result_table. Useful if on wildcard or in preseason
   - `solutions_file`: if you supply a string ending in ".csv", it will save your solutions to that csv, including chips, transfers, captain, score, etc.
   - `save_squads`: whether you want each solution in the solutions_file to contain the lineup and bench information for every gameweek
+  - `solutions_file_player_type`: "id" or "name", depending on whether you want your solutions file to contain player ids or names when showing results

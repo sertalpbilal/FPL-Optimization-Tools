@@ -247,15 +247,32 @@ def write_line_to_file(filename, result, options):
     score = round(result["score"], 3)
     picks = result["picks"]
 
-    cap = picks[(picks["week"] == gw) & (picks["captain"] > BINARY_THRESHOLD)].iloc[0]["id"].astype(int)
-    vcap = picks[(picks["week"] == gw) & (picks["vicecaptain"] > BINARY_THRESHOLD)].iloc[0]["id"].astype(int)
-
     run_id = options["run_id"]
     iteration = result["iter"]
     team_id = options.get("team_id")
     chips = [",".join(map(str, options.get(x, []))) for x in ["use_wc", "use_bb", "use_fh", "use_tc"]]
-    sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["name"].to_list())
-    buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["name"].to_list())
+
+    if options.get("solutions_file_player_type", "name") == "name":
+        squad = (
+            picks[(picks["week"] == gw) & (picks["transfer_out"] == 0)]
+            .sort_values(by=["lineup", "bench", "type"], ascending=[False, True, True])["name"]
+            .to_list()
+        )
+        sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["name"].to_list())
+        buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["name"].to_list())
+        cap = picks[(picks["week"] == gw) & (picks["captain"] > BINARY_THRESHOLD)].iloc[0]["name"]
+        vcap = picks[(picks["week"] == gw) & (picks["vicecaptain"] > BINARY_THRESHOLD)].iloc[0]["name"]
+    else:
+        squad = (
+            picks[(picks["week"] == gw) & (picks["transfer_out"] == 0)]
+            .sort_values(by=["lineup", "bench", "type"], ascending=[False, True, True])["id"]
+            .astype(int)
+            .to_list()
+        )
+        sell_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_out"] == 1)]["id"].astype(str).to_list())
+        buy_text = ", ".join(picks[(picks["week"] == gw) & (picks["transfer_in"] == 1)]["id"].astype(str).to_list())
+        cap = picks[(picks["week"] == gw) & (picks["captain"] > BINARY_THRESHOLD)].iloc[0]["id"].astype(int)
+        vcap = picks[(picks["week"] == gw) & (picks["vicecaptain"] > BINARY_THRESHOLD)].iloc[0]["id"].astype(int)
 
     headers = [
         "run_id",
@@ -265,6 +282,7 @@ def write_line_to_file(filename, result, options):
         "bb",
         "fh",
         "tc",
+        *[f"p{i}" for i in range(1, 16)],
         "cap",
         "vcap",
         "sell",
@@ -272,7 +290,8 @@ def write_line_to_file(filename, result, options):
         "score",
         "datetime",
     ]
-    data = [run_id, iteration, team_id, *chips, cap, vcap, sell_text, buy_text, score, t]
+
+    data = [run_id, iteration, team_id, *chips, *squad, cap, vcap, sell_text, buy_text, score, t]
     if options.get("save_squads", False):
         headers.append("summary")
         data.append(result["summary"])
