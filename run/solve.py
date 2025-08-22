@@ -211,6 +211,9 @@ def solve_regular(runtime_options=None):
         print(f"\n\nResult{'s' if len(response) > 1 else ''}")
         print(result_table.to_string(index=False))
 
+    if solutions_file := options.get("solutions_file"):
+        write_line_to_file(solutions_file, result, options)
+
     return result_table
 
 
@@ -235,10 +238,6 @@ def print_transfer_chip_summary(result, options):
         else:
             line_text += "Roll"
         print(f"\tGW{gw}: {line_text}")
-
-    solutions_file = options.get("solutions_file")
-    if solutions_file:
-        write_line_to_file(solutions_file, result, options)
 
 
 def write_line_to_file(filename, result, options):
