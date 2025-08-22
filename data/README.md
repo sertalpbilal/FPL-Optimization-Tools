@@ -15,6 +15,8 @@
   - `force_ft_state_lb`: list of GWs and minimum number of FTs to force to have (format is (GW, state)). For example,`"force_ft_state_lb":[[4,3], [7,2]]` will force solver to have at least 3 FTs in GW4, and 2 FTs in GW7
   - `force_ft_state_ub`: list of GWs and maximum number of FTs to force to have (format is (GW, state)). For example, `"force_ft_state_ub":[[4,4], [7,3]]` will force solver to have at most 4 FTs in GW4, and 3 FTs in GW7
   - `randomized`: `true` or `false` - whether you would like to add random noise to EV
+  - `randomization_seed`: a seed to use for the random noise. When null, uses a different seed every time. Setting a value allows repeatable random noise across multiple solves
+  - `randomization_strength`: a multiplier to use for the generated random noise, defaults to 1.
   - `xmin_lb`: cut-off for dropping players below this many expected minutes across the horizon
   - `ev_per_price_cutoff`: cut-off percentile for dropping players based on total EV per price (e.g. `20` means drop players below 20% percentile)
   - `keep_top_ev_percent`: keeps the top n% of players by total EV in the CSV file. (e.g. `20` means it will keep the 20% highest projected points scorers)

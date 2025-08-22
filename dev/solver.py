@@ -196,11 +196,11 @@ def prep_data(my_data, options):
     print(f"Filtered player pool from {num_players_before} to {num_players_after} players")
 
     if options.get("randomized", False):
-        rng = np.random.default_rng(seed=options.get("seed"))
+        rng = np.random.default_rng(seed=options.get("randomization_seed"))
         gws = list(range(gw, min(39, gw + horizon)))
         for w in gws:
             noise = merged_data[f"{w}_Pts"] * (92 - merged_data[f"{w}_xMins"]) / 134 * rng.standard_normal(size=len(merged_data))
-            merged_data[f"{w}_Pts"] = merged_data[f"{w}_Pts"] + noise
+            merged_data[f"{w}_Pts"] = merged_data[f"{w}_Pts"] + noise * options.get("randomization_strength", 1)
 
     type_data = pd.DataFrame(fpl_data["element_types"]).set_index(["id"])
 

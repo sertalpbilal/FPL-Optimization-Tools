@@ -24,6 +24,8 @@
     "force_ft_state_lb": [],
     "force_ft_state_ub": [],
     "randomized": false,
+    "randomization_seed": null,
+    "randomization_strength": 1.0,
     "xmin_lb": 300,
     "ev_per_price_cutoff": 30,
     "keep_top_ev_percent": 5,
