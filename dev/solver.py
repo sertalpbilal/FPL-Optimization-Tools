@@ -1171,7 +1171,7 @@ def solve_multi_period_fpl(data, options):
                 type_players = lineup_players[lineup_players["type"] == typ]
                 entries = type_players.apply(get_display, axis=1)
                 summary_of_actions += "\t" + ", ".join(entries.tolist()) + "\n"
-            summary_of_actions += "Bench: \n\t" + ", ".join(bench_players["name"].tolist()) + "\n"
+            summary_of_actions += "Bench: \n\t" + ", ".join(bench_players.apply(get_display, axis=1)) + "\n"
             summary_of_actions += "Lineup xPts: " + str(round(lineup_players["xp_cont"].sum(), 2)) + "\n"
             if w != max(gameweeks):
                 summary_of_actions += "\n\n"
