@@ -71,6 +71,7 @@
   - `export_data`: option for exporting final data as a CSV file (when using `mixed` data)
   - `team_data`: option for using `team_id` value rather than the `team.json` file. Uses `team.json` by default, set value to `ID` to use `team_id`. Note that with this method, any transfers already made this gameweek won't be taken into account, so they must be added to `booked_transfers`
   - `team_id`: the team_id to optimise for. Requires `team_data` to be set to `ID`
+  - `team_json`: additional method of supplying your team json to the solver instead of creating a team.json file. Requires `"team_data": "json"` and can be run like `uv run python solve.py --team_json '{"picks": [{...}]}'`. If this is supplied, it overrides the data in team.json
   - `export_image`: option for exporting visualizations of the lineup
   - `solve_name`: name of the solve, used for naming the output files
   - `override_next_gw`: the start of the planning horizon -if you need to override for a specific period-

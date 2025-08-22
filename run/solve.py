@@ -119,34 +119,40 @@ def solve_regular(runtime_options=None):
             print("You must supply your team_id in data/user_settings.json")
             sys.exit(0)
         my_data = generate_team_json(team_id, options)
+    elif options.get("team_json"):
+        my_data = json.loads(options["team_json"])
     else:
         try:
             with open(DATA_DIR / "team.json") as f:
                 my_data = json.load(f)
-            price_changes = options.get("price_changes", [])
-            if price_changes:
-                my_squad_ids = [x["element"] for x in my_data["picks"]]
-                with requests.Session() as s:
-                    r = s.get("https://fantasy.premierleague.com/api/bootstrap-static/").json()["elements"]
-                current_prices = {x["id"]: x["now_cost"] for x in r if x["id"] in my_squad_ids}
-                for pid, change in price_changes:
-                    if pid not in my_squad_ids:
-                        continue
-                    new_price = current_prices[pid] + change
-                    player = next(x for x in my_data["picks"] if x["element"] == pid)
-                    if player["purchase_price"] >= new_price:
-                        player["selling_price"] = new_price
-                    else:
-                        player["selling_price"] = player["purchase_price"] + (new_price - player["purchase_price"]) // 2
         except FileNotFoundError:
-            print(
-                """You must either:
-                        1. Download your team data from https://fantasy.premierleague.com/api/my-team/YOUR-TEAM-ID/ and
-                            save it under data folder with name 'team.json', or
-                        2. Set "team_data" in user_settings to "ID", and set the "team_id" value to your team's ID
-                    """
-            )
+            msg = """
+            team.json file not found in the data folder.
+
+            You must either:
+                1. Download your team data from https://fantasy.premierleague.com/api/my-team/YOUR-TEAM-ID/ and either
+                    a) save it inside the data folder with the filename 'team.json' or
+                    b) supply it to the "team_json" option in user_settings.json
+                2. Set "team_data" in user_settings to "ID", and set the "team_id" value to your team's ID
+            """
+            print(textwrap.dedent(msg))
             sys.exit(0)
+
+    if price_changes := options.get("price_changes", []):
+        my_squad_ids = [x["element"] for x in my_data["picks"]]
+        with requests.Session() as s:
+            r = s.get("https://fantasy.premierleague.com/api/bootstrap-static/").json()["elements"]
+        current_prices = {x["id"]: x["now_cost"] for x in r if x["id"] in my_squad_ids}
+        for pid, change in price_changes:
+            if pid not in my_squad_ids:
+                continue
+            new_price = current_prices[pid] + change
+            player = next(x for x in my_data["picks"] if x["element"] == pid)
+            if player["purchase_price"] >= new_price:
+                player["selling_price"] = new_price
+            else:
+                player["selling_price"] = player["purchase_price"] + (new_price - player["purchase_price"]) // 2
+
     data = prep_data(my_data, options)
 
     response = solve_multi_period_fpl(data, options)

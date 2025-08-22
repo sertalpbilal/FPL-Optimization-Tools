@@ -101,6 +101,7 @@
     "export_data": "mixed.csv",
     "team_data": "json",
     "team_id": null,
+    "team_json": null,
     "export_image": false,
     "solve_name": "regular",
     "override_next_gw": null,

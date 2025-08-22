@@ -26,15 +26,7 @@ MAX_GAMEWEEK = 38
 MAX_PLAYERS_PER_TEAM = 3
 
 
-def get_my_data(session, team_id):
-    r = session.get(f"https://fantasy.premierleague.com/api/my-team/{team_id}/")
-    d = r.json()
-    d["team_id"] = team_id
-    return d
-
-
 def generate_team_json(team_id, options):
-    price_changes = dict(options.get("price_changes", []))
     with requests.Session() as session:
         static_url = f"{BASE_URL}/bootstrap-static/"
         static = session.get(static_url).json()
@@ -50,9 +42,7 @@ def generate_team_json(team_id, options):
 
         chips_url = f"{BASE_URL}/entry/{team_id}/history/"
         chips = session.get(chips_url).json()["chips"]
-        fh = [x for x in chips if x["name"] == "freehit"]
-        if fh:
-            fh = fh[0]["event"]
+        fh_gws = [x["event"] for x in chips if x["name"] == "freehit"]
         wc_gws = [x["event"] for x in chips if x["name"] == "wildcard"]
 
     # squad will remain an ID:puchase_price map throughout iteration over transfers
@@ -61,7 +51,7 @@ def generate_team_json(team_id, options):
 
     itb = 1000 - sum(squad.values())
     for t in transfers:
-        if t["event"] == fh:
+        if t["event"] in fh_gws:
             continue
         itb += t["element_out_cost"]
         itb -= t["element_in_cost"]
@@ -70,7 +60,7 @@ def generate_team_json(team_id, options):
         if t["element_out"]:
             del squad[t["element_out"]]
 
-    fts = calculate_fts(transfers, next_gw, fh, wc_gws)
+    fts = calculate_fts(transfers, next_gw, fh_gws, wc_gws)
     my_data = {
         "chips": chips,
         "picks": [],
@@ -83,8 +73,6 @@ def generate_team_json(team_id, options):
     }
     for player_id, purchase_price in squad.items():
         now_cost = next(x for x in static["elements"] if x["id"] == player_id)["now_cost"]
-        if player_id in price_changes:
-            now_cost += price_changes[player_id]
 
         diff = now_cost - purchase_price
         if diff > 0:
@@ -104,14 +92,14 @@ def generate_team_json(team_id, options):
     return my_data
 
 
-def calculate_fts(transfers, next_gw, fh, wc_gws):
+def calculate_fts(transfers, next_gw, fh_gws, wc_gws):
     n_transfers = dict.fromkeys(range(2, next_gw), 0)
     for t in transfers:
         n_transfers[t["event"]] += 1
     fts = dict.fromkeys(range(2, next_gw + 1), 0)
     fts[2] = 1
     for i in range(3, next_gw + 1):
-        if (i - 1) == fh:
+        if (i - 1) in fh_gws:
             fts[i] = fts[i - 1]
             continue
         if i - 1 in wc_gws:
