@@ -157,7 +157,7 @@ def solve_regular(runtime_options=None):
         if options.get("print_squads"):
             print(f"\n\nSolution {i + 1}")
             print(textwrap.indent(result["summary"], "    "))
-            total_xp = sum(gw_stats["xP"] for _, gw_stats in result["statistics"].items())
+            total_xp = sum(gw_stats.get("xP", 0) for _, gw_stats in result["statistics"].items())
             print(f"Total xPts over the horizon: {total_xp:.2f}\n")
         iteration = result["iter"]
         time_now = datetime.datetime.now()
