@@ -1192,16 +1192,15 @@ def solve_multi_period_fpl(data, options):
             except Exception:
                 print("Could not delete temporary files")
 
-        if options.get("hide_transfers"):
-            buy_decisions = ""
-            sell_decisions = ""
-        else:
-            buy_decisions = ", ".join(move_summary["buy"])
-            sell_decisions = ", ".join(move_summary["sell"])
+        def format_decisions(items):
+            return ", ".join(items) if items else "-"
 
-        chip_decisions = ", ".join(move_summary["chip"])
-        if chip_decisions == "":
-            chip_decisions = "-"
+        buy_decisions = format_decisions(move_summary["buy"])
+        sell_decisions = format_decisions(move_summary["sell"])
+        chip_decisions = format_decisions(move_summary["chip"])
+
+        if options.get("hide_transfers"):
+            buy_decisions = sell_decisions = "-"
 
         # Add current solution to a list, and add a new cut
         solutions.append(
