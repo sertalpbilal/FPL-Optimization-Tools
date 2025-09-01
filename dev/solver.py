@@ -494,7 +494,11 @@ def solve_multi_period_fpl(data, options):
 
     ## Free transfer constraints
     # 2024-2025 variation: min 1 / max 5 / roll over WC & FH
-    raw_gw_ft = {w: free_transfers[w] - transfer_count[w] + 1 - use_wc[w] - use_fh[w] for w in gameweeks}
+    # raw_gw_ft = {w: free_transfers[w] - transfer_count[w] + 1 - use_wc[w] - use_fh[w] for w in gameweeks}
+
+    # 2056-26 afcon variation: always have 5 ft in gw16 no matter what
+    afcon_gw = 15
+    raw_gw_ft = {w: free_transfers[w] - transfer_count[w] + (5 if w == afcon_gw else 1) - use_wc[w] - use_fh[w] for w in gameweeks}
     model.add_constraints(
         (free_transfers[w + 1] <= raw_gw_ft[w] + 16 * ft_below_lb[w] for w in gameweeks if w + 1 in gameweeks),
         name="newft1",
