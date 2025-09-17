@@ -3,6 +3,7 @@ import subprocess
 import threading
 import time
 import warnings
+from collections import Counter
 from pathlib import Path
 
 import highspy
@@ -139,6 +140,8 @@ def prep_data(my_data, options):
     team_data = pd.DataFrame(fpl_data["teams"])
     elements_team = pd.merge(element_data, team_data, left_on="team", right_on="id")
 
+    element_to_team = {x["id"]: x["team"] for x in fpl_data["elements"]}  # dict mapping element to team id
+    max_players_from_team = Counter([element_to_team[x["element"]] for x in my_data["picks"]]).most_common(1)[0][1]
     data = read_data(options)
 
     merged_data = pd.merge(elements_team, data, left_on="id_x", right_on="ID")
@@ -254,6 +257,7 @@ def prep_data(my_data, options):
         "ft": ft,
         "ft_base": ft_base,
         "fixtures": fixtures,
+        "max_players_from_team": max_players_from_team,
     }
 
 
@@ -460,10 +464,29 @@ def solve_multi_period_fpl(data, options):
         (squad_fh_type_count[t, w] == type_data.loc[t, "squad_select"] * use_fh[w] for t in element_types for w in gameweeks),
         name="valid_squad_fh",
     )
-    model.add_constraints(
-        (so.expr_sum(squad[p, w] for p in players if player_team[p] == t) <= MAX_PLAYERS_PER_TEAM for t in teams for w in all_gw),
-        name="team_limit",
-    )
+
+    # special case where user's current squad has too many players from the same team
+    # only works for 4 players from same team at the moment
+    if data["max_players_from_team"] > MAX_PLAYERS_PER_TEAM:
+        no_transfer = model.add_variables(gameweeks, vartype=so.binary, name="no_transfer")
+        model.add_constraints((transfer_count[w] <= SQUAD_SIZE * (1 - no_transfer[w]) for w in gameweeks), name="no_transfer_1")
+        model.add_constraints((transfer_count[w] >= 1 - SQUAD_SIZE * no_transfer[w] for w in gameweeks), name="no_transfer_2")
+
+        model.add_constraints(
+            (
+                so.expr_sum(squad[p, w] for p in players if player_team[p] == t) <= MAX_PLAYERS_PER_TEAM + no_transfer[w]
+                for t in teams
+                for w in gameweeks
+            ),
+            name="team_limit",
+        )
+
+    else:  # normal case where user has a valid squad
+        model.add_constraints(
+            (so.expr_sum(squad[p, w] for p in players if player_team[p] == t) <= MAX_PLAYERS_PER_TEAM for t in teams for w in all_gw),
+            name="team_limit",
+        )
+
     model.add_constraints(
         (so.expr_sum(squad_fh[p, w] for p in players if player_team[p] == t) <= MAX_PLAYERS_PER_TEAM * use_fh[w] for t in teams for w in gameweeks),
         name="team_limit_fh",
