@@ -122,7 +122,7 @@ def prep_data(my_data, options):
     for pid, change in options.get("price_changes", []):
         if pid not in valid_ids:
             continue
-        player = next(x for x in fpl_data["elements"] if x["id"] == pid)[0]
+        player = next(x for x in fpl_data["elements"] if x["id"] == pid)
         player["now_cost"] += change
 
     if options.get("override_next_gw", None):
