@@ -1,3 +1,4 @@
+import csv
 import os
 import sys
 from unicodedata import combining, normalize
@@ -169,16 +170,16 @@ def get_best_score(r):
 
 # To add FPL ID column to Mikkel's data and clean empty rows
 def fix_mikkel(file_address):
-    for sep in ",;":
-        for enc in ["utf-8", "latin-1"]:
-            try:
-                df = pd.read_csv(file_address, encoding=enc, sep=sep)
-                break
-            except Exception:
-                continue
-        break
+    for enc in ["utf-8", "latin-1"]:
+        try:
+            with open(file_address, encoding=enc, errors="replace") as f:
+                # Use csv.Sniffer to detect delimiter, either , or ;
+                dialect = csv.Sniffer().sniff(f.readline(), delimiters=",;")
+                df = pd.read_csv(file_address, encoding=enc, sep=dialect.delimiter)
+            break
+        except Exception:
+            continue
 
-    # df = pd.read_csv(file_address, encoding="utf-8", sep=";")
     r = requests.get("https://fantasy.premierleague.com/api/bootstrap-static/")
     players = r.json()["elements"]
     mikkel_team_dict = {
