@@ -10,6 +10,7 @@ import time
 
 import pandas as pd
 import requests
+from tabulate import tabulate
 
 from dev.solver import generate_team_json, prep_data, solve_multi_period_fpl
 from dev.visualization import create_squad_timeline
@@ -191,13 +192,15 @@ def solve_regular(runtime_options=None):
     result_table = result_table.sort_values(by="score", ascending=False)
     result_table = result_table[["iter", "sell", "buy", "chip", "score"]]
 
+    dataframe_format = options.get("dataframe_format", "plain")
+
     if options.get("print_decay_metrics"):
         # print decay metrics
         if len(options.get("report_decay_base", [])) > 0:
             try:
                 print("\nDecay Metrics")
                 metrics_df = pd.DataFrame([{"iter": result["iter"], **result["decay_metrics"]} for result in response])
-                print(metrics_df)
+                print(tabulate(metrics_df, headers="keys", tablefmt=dataframe_format, showindex=False, floatfmt=".2f"))
             except Exception:
                 pass
 
@@ -209,7 +212,8 @@ def solve_regular(runtime_options=None):
     if options.get("print_result_table"):
         # print result table
         print(f"\n\nResult{'s' if len(response) > 1 else ''}")
-        print(result_table.to_string(index=False))
+        print(tabulate(result_table, headers="keys", tablefmt=dataframe_format, showindex=False, floatfmt=".2f"))
+        print("\n\n")
 
     if solutions_file := options.get("solutions_file"):
         write_line_to_file(solutions_file, result, options)

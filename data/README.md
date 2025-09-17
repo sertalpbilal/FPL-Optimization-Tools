@@ -84,6 +84,7 @@
   - `print_decay_metrics`: whether you want the decay metrics printed to the screen (the table that displays what your solution's objective would be is using different decay metrics)
   - `print_transfer_chip_summary`: whether you want the transfer chip summary to be printed to the screen (GW3: Roll, GW4: (BB) PayerA -> PlayerB, ....)
   - `print_squads`: whether you want the lineup and bench printed for each gameweek in your solution.
+  - `dataframe_format`: which [tabulate](https://pypi.org/project/tabulate/]) table format you want result_table and decay_metrics dataframes to be printed with, e.g. "rounded_grid" or "fancy_outline"
   - `hide_transers`: whether you want to hide the transfers in the result_table. Useful if on wildcard or in preseason
   - `solutions_file`: if you supply a string ending in ".csv", it will save your solutions to that csv, including chips, transfers, captain, score, etc.
   - `save_squads`: whether you want each solution in the solutions_file to contain the lineup and bench information for every gameweek

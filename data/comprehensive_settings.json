@@ -118,6 +118,7 @@
     "print_decay_metrics": false,
     "print_transfer_chip_summary": true,
     "print_squads": true,
+    "dataframe_format": "plain",
     "hide_transfers": false,
     "solutions_file": "",
     "save_squads": true,
