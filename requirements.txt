@@ -1,7 +1,0 @@
-fuzzywuzzy
-matplotlib
-numpy
-pandas
-pytest
-python-Levenshtein
-sasoptpy>=1.0.5a0
