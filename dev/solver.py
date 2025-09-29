@@ -539,9 +539,9 @@ def solve_multi_period_fpl(data, options):
     model.add_constraints((fts[w + 1] <= 5 + m * (1 - ft_above_ub[w]) for w in gameweeks if w + 1 in gameweeks), name="ft_cap_upper_ub")
     model.add_constraints((fts[w + 1] >= 5 - m * (1 - ft_above_ub[w]) for w in gameweeks if w + 1 in gameweeks), name="ft_cap_upper_lb")
 
-    # raw_gw_ft[w] < 0 => fts[w+1] = 0
-    model.add_constraints((fts[w + 1] <= m * (1 - ft_below_lb[w]) for w in gameweeks if w + 1 in gameweeks), name="ft_cap_lower_ub")
-    model.add_constraints((fts[w + 1] >= 0 - m * (1 - ft_below_lb[w]) for w in gameweeks if w + 1 in gameweeks), name="ft_cap_lower_lb")
+    # raw_gw_ft[w] < 0 => fts[w+1] = 1
+    model.add_constraints((fts[w + 1] <= 1 + m * (1 - ft_below_lb[w]) for w in gameweeks if w + 1 in gameweeks), name="ft_cap_lower_ub")
+    model.add_constraints((fts[w + 1] >= 1 - m * (1 - ft_below_lb[w]) for w in gameweeks if w + 1 in gameweeks), name="ft_cap_lower_lb")
 
     # 0 <= raw_gw_ft <= 5 => fts[w+1] = raw_gw_ft[w]
     model.add_constraints(
